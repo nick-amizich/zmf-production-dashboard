@@ -1,0 +1,353 @@
+{% comment %}
+  ZMF Product Configurator - Shopify Theme Integration
+  
+  Add this code to your product template:
+  - sections/product-template.liquid
+  - templates/product.liquid
+  - Or wherever your add-to-cart form is located
+  
+  Replace YOUR_API_URL with your actual API endpoint
+{% endcomment %}
+
+<!-- Product Configurator Container -->
+<div id="zmf-product-configurator" data-product-id="{{ product.id }}">
+  <!-- Loading state -->
+  <div class="zmf-loading">Loading configuration options...</div>
+</div>
+
+<!-- Hidden form that will be populated by JavaScript -->
+<form action="/cart/add" method="post" id="zmf-add-to-cart-form" style="display: none;">
+  <input type="hidden" name="id" id="zmf-variant-id" value="{{ product.selected_or_first_available_variant.id }}">
+  <!-- Line item properties will be dynamically added here -->
+  <button type="submit" name="add" id="zmf-add-to-cart">Add to Cart</button>
+</form>
+
+<!-- Add to cart button (visible) -->
+<button type="button" id="zmf-add-button" class="btn product-form__cart-submit" disabled>
+  Add to Cart - <span id="zmf-price">{{ product.price | money }}</span>
+</button>
+
+<script>
+(function() {
+  // Configuration
+  const API_URL = 'YOUR_API_URL'; // Replace with your actual API URL
+  const productId = '{{ product.id }}';
+  const shopifyDomain = '{{ shop.permanent_domain }}';
+  
+  // State
+  let productConfig = null;
+  let selectedOptions = {};
+  let calculatedPrice = 0;
+  
+  // Fetch configuration from your API
+  async function fetchProductConfiguration() {
+    try {
+      const response = await fetch(`${API_URL}/api/shopify/product-config/${productId}`, {
+        headers: {
+          'X-Shopify-Domain': shopifyDomain
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch configuration');
+      }
+      
+      productConfig = await response.json();
+      
+      if (productConfig.configured) {
+        renderConfigurator();
+      } else {
+        showStandardProduct();
+      }
+    } catch (error) {
+      console.error('Error loading product configuration:', error);
+      showStandardProduct();
+    }
+  }
+  
+  // Render the configurator UI
+  function renderConfigurator() {
+    const container = document.getElementById('zmf-product-configurator');
+    container.innerHTML = '';
+    
+    // Group options by type
+    const variantOptions = productConfig.options.filter(opt => opt.type === 'variant');
+    const propertyOptions = productConfig.options.filter(opt => opt.type === 'property');
+    
+    // Render variant options
+    if (variantOptions.length > 0) {
+      const variantSection = document.createElement('div');
+      variantSection.className = 'zmf-variant-options';
+      variantSection.innerHTML = '<h3>Product Options</h3>';
+      
+      variantOptions.forEach(option => {
+        variantSection.appendChild(renderOption(option));
+      });
+      
+      container.appendChild(variantSection);
+    }
+    
+    // Render property options
+    if (propertyOptions.length > 0) {
+      const propertySection = document.createElement('div');
+      propertySection.className = 'zmf-property-options';
+      propertySection.innerHTML = '<h3>Customization Options</h3>';
+      
+      propertyOptions.forEach(option => {
+        propertySection.appendChild(renderOption(option));
+      });
+      
+      container.appendChild(propertySection);
+    }
+    
+    // Initialize with default selections
+    initializeDefaults();
+    updatePrice();
+    document.getElementById('zmf-add-button').disabled = false;
+  }
+  
+  // Render a single option
+  function renderOption(option) {
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'zmf-option';
+    
+    const label = document.createElement('label');
+    label.textContent = option.name + (option.required ? ' *' : '');
+    optionDiv.appendChild(label);
+    
+    // For small number of values, use radio buttons
+    if (option.values.length <= 5) {
+      option.values.forEach(value => {
+        const radioDiv = document.createElement('div');
+        radioDiv.className = 'zmf-radio-option';
+        
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = `option_${option.id}`;
+        input.value = value.id;
+        input.id = `value_${value.id}`;
+        input.disabled = !value.available;
+        input.addEventListener('change', () => handleOptionChange(option, value));
+        
+        const radioLabel = document.createElement('label');
+        radioLabel.htmlFor = `value_${value.id}`;
+        radioLabel.textContent = value.name;
+        
+        if (value.priceModifier > 0) {
+          radioLabel.textContent += ` (+$${(value.priceModifier / 100).toFixed(2)})`;
+        }
+        
+        if (!value.available) {
+          radioLabel.textContent += ' (Out of Stock)';
+        }
+        
+        radioDiv.appendChild(input);
+        radioDiv.appendChild(radioLabel);
+        optionDiv.appendChild(radioDiv);
+      });
+    } else {
+      // For many values, use dropdown
+      const select = document.createElement('select');
+      select.name = `option_${option.id}`;
+      select.addEventListener('change', (e) => {
+        const value = option.values.find(v => v.id === e.target.value);
+        if (value) handleOptionChange(option, value);
+      });
+      
+      // Add empty option if not required
+      if (!option.required) {
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'Select ' + option.name;
+        select.appendChild(emptyOption);
+      }
+      
+      option.values.forEach(value => {
+        const optionEl = document.createElement('option');
+        optionEl.value = value.id;
+        optionEl.textContent = value.name;
+        optionEl.disabled = !value.available;
+        
+        if (value.priceModifier > 0) {
+          optionEl.textContent += ` (+$${(value.priceModifier / 100).toFixed(2)})`;
+        }
+        
+        if (!value.available) {
+          optionEl.textContent += ' (Out of Stock)';
+        }
+        
+        select.appendChild(optionEl);
+      });
+      
+      optionDiv.appendChild(select);
+    }
+    
+    return optionDiv;
+  }
+  
+  // Handle option selection
+  function handleOptionChange(option, value) {
+    selectedOptions[option.id] = {
+      option: option,
+      value: value
+    };
+    
+    updateVariant();
+    updatePrice();
+  }
+  
+  // Initialize default selections
+  function initializeDefaults() {
+    productConfig.options.forEach(option => {
+      if (option.required && option.values.length > 0) {
+        const firstAvailable = option.values.find(v => v.available);
+        if (firstAvailable) {
+          selectedOptions[option.id] = {
+            option: option,
+            value: firstAvailable
+          };
+        }
+      }
+    });
+  }
+  
+  // Update the selected variant based on variant options
+  function updateVariant() {
+    // Get variant options in the correct order
+    const variantOptions = productConfig.options
+      .filter(opt => opt.type === 'variant')
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+    
+    // Build variant title
+    const variantParts = variantOptions
+      .map(opt => selectedOptions[opt.id]?.value.name)
+      .filter(Boolean);
+    
+    if (variantParts.length === 0) return;
+    
+    // Find matching Shopify variant
+    const variantTitle = variantParts.join(' / ');
+    
+    // This assumes your variant titles match the option values
+    // You may need to adjust based on your specific setup
+    {% for variant in product.variants %}
+      if ('{{ variant.title }}' === variantTitle) {
+        document.getElementById('zmf-variant-id').value = '{{ variant.id }}';
+      }
+    {% endfor %}
+  }
+  
+  // Update the displayed price
+  function updatePrice() {
+    let totalPrice = productConfig.basePrice;
+    
+    Object.values(selectedOptions).forEach(selection => {
+      totalPrice += selection.value.priceModifier;
+    });
+    
+    calculatedPrice = totalPrice;
+    document.getElementById('zmf-price').textContent = formatMoney(totalPrice);
+  }
+  
+  // Format money (basic implementation - you may want to use Shopify's money filters)
+  function formatMoney(cents) {
+    return '$' + (cents / 100).toFixed(2);
+  }
+  
+  // Show standard product form if no configuration
+  function showStandardProduct() {
+    document.getElementById('zmf-product-configurator').style.display = 'none';
+    // Show your theme's standard product form
+  }
+  
+  // Handle add to cart
+  document.getElementById('zmf-add-button').addEventListener('click', function() {
+    const form = document.getElementById('zmf-add-to-cart-form');
+    
+    // Clear existing properties
+    form.querySelectorAll('input[name^="properties"]').forEach(el => el.remove());
+    
+    // Add line item properties
+    Object.values(selectedOptions).forEach(selection => {
+      if (selection.option.type === 'property') {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = `properties[${selection.option.name}]`;
+        input.value = selection.value.name;
+        form.appendChild(input);
+      }
+    });
+    
+    // Add price adjustment for backend processing
+    const priceAdjustment = calculatedPrice - productConfig.basePrice;
+    if (priceAdjustment > 0) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'properties[_price_adjustment]';
+      input.value = (priceAdjustment / 100).toFixed(2);
+      form.appendChild(input);
+    }
+    
+    // Submit the form
+    form.submit();
+  });
+  
+  // Initialize on page load
+  fetchProductConfiguration();
+})();
+</script>
+
+<style>
+/* Basic styling - customize to match your theme */
+#zmf-product-configurator {
+  margin: 20px 0;
+}
+
+.zmf-loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.zmf-variant-options,
+.zmf-property-options {
+  margin-bottom: 30px;
+}
+
+.zmf-option {
+  margin-bottom: 20px;
+}
+
+.zmf-option label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.zmf-radio-option {
+  margin: 5px 0;
+}
+
+.zmf-radio-option input {
+  margin-right: 10px;
+}
+
+.zmf-option select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+#zmf-add-button {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#zmf-add-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+</style>
