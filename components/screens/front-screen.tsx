@@ -1,22 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { RoleSelectionCard } from "./components/role-selection-card"
-import { SystemStatus } from "./components/system-status"
+import { RoleSelectionCard } from "@/components/role-selection-card"
+import { SystemStatus } from "@/components/system-status"
 import { Settings, Monitor, Smartphone, Headphones, ArrowRight, BarChart3, Plus, Calendar, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DebugNavigation } from "./components/debug-navigation"
+import { DebugNavigation } from "@/components/debug-navigation"
 
 // Import the other interfaces
-import ProductionManagerDashboard from "./production-manager-dashboard"
-import MobileWorkerInterface from "./mobile-worker-interface"
-import BatchManagement from "./batch-management"
-import QualityControlDashboard from "./quality-control-dashboard"
-import BatchOrderCreator from "./components/batch-order-creator"
-import ProductionCalendar from "./production-calendar"
-import OrderManagement from "./order-management"
-import SimplifiedWorkerInterface from "./simplified-worker-interface"
+import ProductionManagerDashboard from "@/production-manager-dashboard"
+import MobileWorkerInterface from "@/mobile-worker-interface"
+import BatchManagement from "@/batch-management"
+import QualityControlDashboard from "@/quality-control-dashboard"
+import BatchOrderCreator from "@/components/batch-order-creator"
+import ProductionCalendar from "@/production-calendar"
+import OrderManagement from "@/order-management"
+import SimplifiedWorkerInterface from "@/simplified-worker-interface"
 
 type ViewMode =
   | "front"

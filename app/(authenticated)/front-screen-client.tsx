@@ -1,6 +1,6 @@
 "use client"
 
-import FrontScreen from '../../front-screen'
+import FrontScreen from '@/components/screens/front-screen'
 
 export default function FrontScreenClient() {
   return <FrontScreen />
