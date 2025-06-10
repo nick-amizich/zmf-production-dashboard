@@ -1,35 +1,69 @@
+import Link from 'next/link'
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="max-w-2xl text-center">
-        <h1 className="text-4xl font-bold mb-4">Shopify Product Configurator API</h1>
-        <p className="text-lg text-gray-600 mb-8">
-          This is a minimal API service for handling product configurations from Shopify.
-        </p>
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">
+          ZMF Product Configurator API
+        </h1>
         
-        <div className="bg-gray-100 p-6 rounded-lg text-left">
-          <h2 className="text-xl font-semibold mb-4">API Endpoints:</h2>
-          <ul className="space-y-2">
-            <li>
-              <code className="bg-gray-200 px-2 py-1 rounded">GET /api/shopify/product-config/[productId]</code>
-              <p className="text-sm text-gray-600 mt-1">Retrieve product configuration</p>
-            </li>
-            <li>
-              <code className="bg-gray-200 px-2 py-1 rounded">POST /api/shopify/product-config/[productId]</code>
-              <p className="text-sm text-gray-600 mt-1">Create or update product configuration</p>
-            </li>
-            <li>
-              <code className="bg-gray-200 px-2 py-1 rounded">DELETE /api/shopify/product-config/[productId]</code>
-              <p className="text-sm text-gray-600 mt-1">Delete product configuration</p>
-            </li>
-          </ul>
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-4">API Endpoints</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-mono text-lg text-blue-600">
+                GET /api/shopify/product-config/[productId]
+              </h3>
+              <p className="text-gray-600">
+                Fetch configuration for a specific product
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-mono text-lg text-green-600">
+                POST /api/shopify/product-config/[productId]
+              </h3>
+              <p className="text-gray-600">
+                Create or update product configuration
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-mono text-lg text-red-600">
+                DELETE /api/shopify/product-config/[productId]
+              </h3>
+              <p className="text-gray-600">
+                Delete product configuration
+              </p>
+            </div>
+          </div>
         </div>
-        
-        <div className="mt-8 text-sm text-gray-500">
-          <p>CORS is enabled for all API endpoints.</p>
-          <p>See README for deployment instructions.</p>
+
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Quick Start</h2>
+          <ol className="list-decimal list-inside space-y-2 text-gray-600">
+            <li>Deploy this app to Vercel or your preferred platform</li>
+            <li>Set up your Supabase database with the provided migration</li>
+            <li>Configure environment variables</li>
+            <li>Test the API endpoint with your Shopify product IDs</li>
+          </ol>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-semibold mb-4">Management UI</h2>
+          <p className="text-gray-600 mb-4">
+            Use the configuration manager to set up your product options:
+          </p>
+          <Link 
+            href="/configurator"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+          >
+            Open Configuration Manager
+          </Link>
         </div>
       </div>
-    </main>
-  );
+    </div>
+  )
 }
