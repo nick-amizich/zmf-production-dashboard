@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
+import dynamic from "next/dynamic"
 import { RoleSelectionCard } from "@/components/role-selection-card"
 import { SystemStatus } from "@/components/system-status"
 import { Settings, Monitor, Smartphone, Headphones, ArrowRight, BarChart3, Plus, Calendar, Package } from "lucide-react"
@@ -8,15 +9,46 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DebugNavigation } from "@/components/debug-navigation"
 
-// Import the other interfaces
-import ProductionManagerDashboard from "@/production-manager-dashboard"
-import MobileWorkerInterface from "@/mobile-worker-interface"
-import BatchManagement from "@/batch-management"
-import QualityControlDashboard from "@/quality-control-dashboard"
-import BatchOrderCreator from "@/components/batch-order-creator"
-import ProductionCalendar from "@/production-calendar"
-import OrderManagement from "@/order-management"
-import SimplifiedWorkerInterface from "@/simplified-worker-interface"
+// Dynamic imports to prevent client-reference-manifest issues
+const ProductionManagerDashboard = dynamic(() => import("@/production-manager-dashboard"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const MobileWorkerInterface = dynamic(() => import("@/mobile-worker-interface"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const BatchManagement = dynamic(() => import("@/batch-management"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const QualityControlDashboard = dynamic(() => import("@/quality-control-dashboard"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const BatchOrderCreator = dynamic(() => import("@/components/batch-order-creator"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const ProductionCalendar = dynamic(() => import("@/production-calendar"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const OrderManagement = dynamic(() => import("@/order-management"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
+
+const SimplifiedWorkerInterface = dynamic(() => import("@/simplified-worker-interface"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
+})
 
 type ViewMode =
   | "front"
