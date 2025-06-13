@@ -1,14 +1,9 @@
-import { AuthHeader } from '@/components/auth-header'
+import { AuthenticatedLayout } from '@/components/authenticated-layout'
 
-export default function AuthenticatedLayout({
+export default function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <div className="relative">
-      <AuthHeader />
-      {children}
-    </div>
-  )
+  return <AuthenticatedLayout>{children}</AuthenticatedLayout>
 }
