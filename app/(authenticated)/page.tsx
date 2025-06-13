@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Suspense } from 'react'
 
-async function AuthenticatedContent() {
+export default async function Page() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -23,9 +22,4 @@ async function AuthenticatedContent() {
 
   // Redirect to the main dashboard
   redirect('/dashboard')
-}
-
-export default async function Page() {
-  await AuthenticatedContent()
-  return null // This will never be rendered due to the redirect
 }
