@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { AuthenticatedLayout } from '@/components/authenticated-layout'
 
 export default function Layout({
@@ -5,5 +6,9 @@ export default function Layout({
 }: {
   children: React.ReactNode
 }) {
-  return <AuthenticatedLayout>{children}</AuthenticatedLayout>
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthenticatedLayout>{children}</AuthenticatedLayout>
+    </Suspense>
+  )
 }
