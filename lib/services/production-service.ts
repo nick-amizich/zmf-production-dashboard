@@ -54,7 +54,7 @@ export class ProductionService {
     if (!worker) throw new Error('Worker not found')
 
     // Use transaction function to create batch with all related data
-    const { data: batchId, error } = await this.supabase
+    const { data: batchId, error: batchError } = await this.supabase
       .rpc('create_batch_with_orders', {
         p_batch_number: batchNumber,
         p_priority: priority,
@@ -63,7 +63,7 @@ export class ProductionService {
         p_notes: notes
       })
 
-    if (error) throw error
+    if (batchError) throw batchError
 
     // Fetch and return the created batch
     return this.batchRepo.findById(batchId)
