@@ -67,9 +67,9 @@ export default function SignUpPage() {
             email: email,
             name: fullName,
             role: 'worker', // Default role
-            is_active: true,
-            approval_status: 'pending', // New workers need approval
-            requested_at: new Date().toISOString()
+            is_active: true
+            // approval_status defaults to 'pending' in the database
+            // requested_at defaults to NOW() in the database
           })
 
         if (workerError) {
