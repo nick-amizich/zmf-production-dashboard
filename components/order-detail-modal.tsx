@@ -54,28 +54,28 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] bg-[#1a0d08] border-[#8B4513]/30 text-white overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-[#d4a574] text-xl">{order.orderNumber} - Order Details</DialogTitle>
+          <DialogTitle className="text-theme-text-secondary text-xl">{order.orderNumber} - Order Details</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-3 gap-6">
           {/* Left Column - Order Info */}
           <div className="space-y-4">
             {/* Customer Information */}
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Customer Information</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Customer Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-[#d4a574]" />
-                  <span className="text-white">{order.customerName}</span>
+                  <User className="h-4 w-4 text-theme-text-secondary" />
+                  <span className="text-theme-text-primary">{order.customerName}</span>
                 </div>
-                <div className="text-gray-300">{order.customerEmail}</div>
+                <div className="text-theme-text-tertiary">{order.customerEmail}</div>
                 <div className="flex items-start gap-2 mt-3">
-                  <MapPin className="h-4 w-4 text-[#d4a574] mt-0.5" />
-                  <div className="text-gray-300">
+                  <MapPin className="h-4 w-4 text-theme-text-secondary mt-0.5" />
+                  <div className="text-theme-text-tertiary">
                     <div>123 Main Street</div>
                     <div>Chicago, IL 60601</div>
                     <div>United States</div>
@@ -85,64 +85,64 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
             </Card>
 
             {/* Product Specifications */}
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Product Specifications</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Product Specifications</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Model:</span>
-                  <span className="text-white">{order.model}</span>
+                  <span className="text-theme-text-tertiary">Model:</span>
+                  <span className="text-theme-text-primary">{order.model}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Wood Type:</span>
-                  <span className="text-white">{order.woodType}</span>
+                  <span className="text-theme-text-tertiary">Wood Type:</span>
+                  <span className="text-theme-text-primary">{order.woodType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Grille Color:</span>
-                  <span className="text-white">Black</span>
+                  <span className="text-theme-text-tertiary">Grille Color:</span>
+                  <span className="text-theme-text-primary">Black</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Chassis:</span>
-                  <span className="text-white">Aluminum</span>
+                  <span className="text-theme-text-tertiary">Chassis:</span>
+                  <span className="text-theme-text-primary">Aluminum</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Pads:</span>
-                  <span className="text-white">Universe Perforated</span>
+                  <span className="text-theme-text-tertiary">Pads:</span>
+                  <span className="text-theme-text-primary">Universe Perforated</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Order Status */}
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Order Status</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Order Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Status:</span>
-                  <Badge className="bg-blue-600 text-white">{order.status}</Badge>
+                  <span className="text-theme-text-tertiary">Status:</span>
+                  <Badge className="bg-theme-status-info text-theme-text-primary">{order.status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Priority:</span>
-                  <Badge className={`${order.priority === "urgent" ? "bg-red-600" : "bg-amber-600"} text-white`}>
+                  <span className="text-theme-text-tertiary">Priority:</span>
+                  <Badge className={`${order.priority === "urgent" ? "bg-theme-status-error" : "bg-theme-status-warning"} text-theme-text-primary`}>
                     {order.priority}
                   </Badge>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Progress:</span>
-                    <span className="text-[#d4a574]">{order.progress}%</span>
+                    <span className="text-theme-text-tertiary">Progress:</span>
+                    <span className="text-theme-text-secondary">{order.progress}%</span>
                   </div>
                   <Progress value={order.progress} className="h-2" />
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Due Date:</span>
-                  <span className="text-white">{order.dueDate}</span>
+                  <span className="text-theme-text-tertiary">Due Date:</span>
+                  <span className="text-theme-text-primary">{order.dueDate}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Est. Completion:</span>
-                  <span className="text-white">{order.estimatedCompletion}</span>
+                  <span className="text-theme-text-tertiary">Est. Completion:</span>
+                  <span className="text-theme-text-primary">{order.estimatedCompletion}</span>
                 </div>
               </CardContent>
             </Card>
@@ -150,9 +150,9 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
 
           {/* Middle Column - Production Timeline */}
           <div className="space-y-4">
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Production Timeline</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Production Timeline</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {productionStages.map((stage, index) => (
@@ -161,9 +161,9 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
                       <div
                         className={`w-3 h-3 rounded-full ${
                           stage.status === "completed"
-                            ? "bg-green-500"
+                            ? "bg-theme-status-success"
                             : stage.status === "in-progress"
-                              ? "bg-blue-500"
+                              ? "bg-theme-status-info"
                               : "bg-gray-500"
                         }`}
                       />
@@ -171,12 +171,12 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-medium">{stage.name}</span>
-                        <span className="text-xs text-gray-400">{stage.duration}</span>
+                        <span className="text-theme-text-primary font-medium">{stage.name}</span>
+                        <span className="text-xs text-theme-text-tertiary">{stage.duration}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <div className="flex items-center gap-2 text-xs text-theme-text-tertiary">
                         <Avatar className="h-4 w-4">
-                          <AvatarFallback className="bg-[#8B4513] text-[#d4a574] text-xs">
+                          <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary text-xs">
                             {stage.worker
                               .split(" ")
                               .map((n) => n[0])
@@ -192,26 +192,26 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
             </Card>
 
             {/* Communication Log */}
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Communication Log</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Communication Log</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  <div className="text-xs text-gray-400">2024-01-15 10:30</div>
-                  <div className="text-sm text-white">Order confirmed and entered into production queue</div>
+                  <div className="text-xs text-theme-text-tertiary">2024-01-15 10:30</div>
+                  <div className="text-sm text-theme-text-primary">Order confirmed and entered into production queue</div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-xs text-gray-400">2024-01-15 14:45</div>
-                  <div className="text-sm text-white">Customer notified of production start</div>
+                  <div className="text-xs text-theme-text-tertiary">2024-01-15 14:45</div>
+                  <div className="text-sm text-theme-text-primary">Customer notified of production start</div>
                 </div>
                 <div className="mt-4">
                   <Textarea
                     placeholder="Add a note or communication..."
-                    className="bg-[#1a0d08] border-[#8B4513]/30 text-white placeholder-gray-400"
+                    className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary placeholder-gray-400"
                     rows={3}
                   />
-                  <Button className="mt-2 bg-[#8B4513] hover:bg-[#8B4513]/80 text-white" size="sm">
+                  <Button className="mt-2 bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary" size="sm">
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Add Note
                   </Button>
@@ -223,30 +223,30 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
           {/* Right Column - Quality & Shipping */}
           <div className="space-y-4">
             {/* Quality Checkpoints */}
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Quality Checkpoints</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Quality Checkpoints</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {qualityCheckpoints.map((checkpoint) => (
                   <div key={checkpoint.stage} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-white font-medium">{checkpoint.stage}</span>
+                      <span className="text-theme-text-primary font-medium">{checkpoint.stage}</span>
                       <div className="flex items-center gap-1">
                         {checkpoint.status === "passed" ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-theme-status-success" />
                         ) : (
-                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          <AlertTriangle className="h-4 w-4 text-theme-status-warning" />
                         )}
                         <span
-                          className={`text-xs ${checkpoint.status === "passed" ? "text-green-500" : "text-amber-500"}`}
+                          className={`text-xs ${checkpoint.status === "passed" ? "text-theme-status-success" : "text-theme-status-warning"}`}
                         >
                           {checkpoint.status}
                         </span>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-400">{checkpoint.notes}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-theme-text-tertiary">{checkpoint.notes}</div>
+                    <div className="text-xs text-theme-text-tertiary">
                       {checkpoint.timestamp} - {checkpoint.worker}
                     </div>
                   </div>
@@ -255,38 +255,38 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
             </Card>
 
             {/* Shipping Information */}
-            <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card className="bg-theme-bg-primary border-theme-border-secondary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-sm">Shipping Information</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-sm">Shipping Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-[#d4a574]" />
-                  <span className="text-gray-400">Shipping Method:</span>
-                  <span className="text-white">FedEx Express</span>
+                  <Truck className="h-4 w-4 text-theme-text-secondary" />
+                  <span className="text-theme-text-tertiary">Shipping Method:</span>
+                  <span className="text-theme-text-primary">FedEx Express</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Tracking Number:</span>
-                  <span className="text-white">-</span>
+                  <span className="text-theme-text-tertiary">Tracking Number:</span>
+                  <span className="text-theme-text-primary">-</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Ship Date:</span>
-                  <span className="text-white">Pending</span>
+                  <span className="text-theme-text-tertiary">Ship Date:</span>
+                  <span className="text-theme-text-primary">Pending</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Delivery Est.:</span>
-                  <span className="text-white">-</span>
+                  <span className="text-theme-text-tertiary">Delivery Est.:</span>
+                  <span className="text-theme-text-primary">-</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Actions */}
             <div className="space-y-2">
-              <Button className="w-full bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">Update Status</Button>
-              <Button variant="outline" className="w-full border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20">
+              <Button className="w-full bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">Update Status</Button>
+              <Button variant="outline" className="w-full border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
                 Send Customer Update
               </Button>
-              <Button variant="outline" className="w-full border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20">
+              <Button variant="outline" className="w-full border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
                 Print Order Sheet
               </Button>
             </div>

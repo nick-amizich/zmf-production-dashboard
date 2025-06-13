@@ -43,35 +43,35 @@ export function StageColumn({ stage, batches, onDrop, onDragOver, onDragStart }:
 
   return (
     <div className="flex-1 min-w-[280px]">
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30 h-full">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary h-full">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-[#d4a574] text-lg">{stage.name}</CardTitle>
-              <p className="text-sm text-gray-400">{stage.description}</p>
+              <CardTitle className="text-theme-text-secondary text-lg">{stage.name}</CardTitle>
+              <p className="text-sm text-theme-text-tertiary">{stage.description}</p>
             </div>
-            {stage.bottleneck && <AlertTriangle className="h-5 w-5 text-amber-500" title="Bottleneck detected" />}
+            {stage.bottleneck && <AlertTriangle className="h-5 w-5 text-theme-status-warning" title="Bottleneck detected" />}
           </div>
 
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="border-[#8B4513] text-[#d4a574]">
+              <Badge variant="outline" className="border-theme-border-active text-theme-text-secondary">
                 {batches.length} batches
               </Badge>
             </div>
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="border-[#8B4513] text-[#d4a574]">
+              <Badge variant="outline" className="border-theme-border-active text-theme-text-secondary">
                 {totalUnits} units
               </Badge>
             </div>
-            <div className="flex items-center gap-1 text-gray-400">
+            <div className="flex items-center gap-1 text-theme-text-tertiary">
               <Clock className="h-3 w-3" />
               <span>{stage.averageTime} avg</span>
             </div>
           </div>
 
           {hasQualityIssues && (
-            <div className="flex items-center gap-1 text-amber-400 text-xs">
+            <div className="flex items-center gap-1 text-theme-status-warning text-xs">
               <AlertTriangle className="h-3 w-3" />
               <span>Quality issues detected</span>
             </div>
@@ -88,7 +88,7 @@ export function StageColumn({ stage, batches, onDrop, onDragOver, onDragStart }:
           ))}
 
           {batches.length === 0 && (
-            <div className="text-center text-gray-500 py-8">
+            <div className="text-center text-theme-text-tertiary py-8">
               <p>No batches in this stage</p>
             </div>
           )}

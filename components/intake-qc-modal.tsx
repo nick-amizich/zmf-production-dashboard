@@ -93,45 +93,45 @@ export default function IntakeQCModal({ isOpen, onClose, onStartWork, onReportIs
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-[#2a1810] border-[#8B4513] text-white">
+      <DialogContent className="max-w-2xl bg-theme-bg-tertiary border-theme-border-active text-theme-text-primary">
         <DialogHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-[#8B4513] rounded-full flex items-center justify-center mb-4">
-            <Search className="w-8 h-8 text-[#d4a574]" />
+          <div className="mx-auto w-16 h-16 bg-theme-brand-secondary rounded-full flex items-center justify-center mb-4">
+            <Search className="w-8 h-8 text-theme-text-secondary" />
           </div>
-          <DialogTitle className="text-2xl font-bold text-[#d4a574]">Intake Quality Check</DialogTitle>
-          <p className="text-gray-300">Required before starting work</p>
+          <DialogTitle className="text-2xl font-bold text-theme-text-secondary">Intake Quality Check</DialogTitle>
+          <p className="text-theme-text-tertiary">Required before starting work</p>
         </DialogHeader>
 
-        <Card className="bg-[#1a0d08] border-[#8B4513]/30 mb-6">
+        <Card className="bg-theme-bg-secondary border-theme-border-primary mb-6">
           <CardContent className="p-4">
-            <div className="font-semibold text-[#d4a574]">
+            <div className="font-semibold text-theme-text-secondary">
               {batchInfo.batchNumber} • {batchInfo.unitCount} Units • {batchInfo.model}
             </div>
-            <div className="text-sm text-gray-300">
+            <div className="text-sm text-theme-text-tertiary">
               Worker: {batchInfo.worker} • Stage: {batchInfo.stage}
             </div>
           </CardContent>
         </Card>
 
         <div className="space-y-4">
-          <p className="font-medium text-[#d4a574]">Complete all checks before beginning:</p>
+          <p className="font-medium text-theme-text-secondary">Complete all checks before beginning:</p>
 
           <div className="max-h-80 overflow-y-auto space-y-3">
             {checklist.map((item) => (
-              <Card key={item.id} className="bg-[#1a0d08] border-[#8B4513]/30 hover:bg-[#2a1810] transition-colors">
+              <Card key={item.id} className="bg-theme-bg-secondary border-theme-border-primary hover:bg-theme-bg-tertiary transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
                     <Checkbox
                       id={item.id}
                       checked={item.checked}
                       onCheckedChange={() => handleCheckboxChange(item.id)}
-                      className="mt-1 h-5 w-5 border-[#8B4513] data-[state=checked]:bg-[#8B4513] data-[state=checked]:border-[#8B4513]"
+                      className="mt-1 h-5 w-5 border-theme-border-active data-[state=checked]:bg-theme-brand-secondary data-[state=checked]:border-theme-border-active"
                     />
                     <div className="flex-1">
-                      <label htmlFor={item.id} className="font-medium text-white cursor-pointer block">
+                      <label htmlFor={item.id} className="font-medium text-theme-text-primary cursor-pointer block">
                         {item.text}
                       </label>
-                      <p className="text-sm text-gray-400 mt-1">{item.description}</p>
+                      <p className="text-sm text-theme-text-tertiary mt-1">{item.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -141,19 +141,19 @@ export default function IntakeQCModal({ isOpen, onClose, onStartWork, onReportIs
         </div>
 
         <div className="flex gap-3 mt-6">
-          <Button onClick={handleSelectAll} className="bg-gray-600 hover:bg-gray-700 text-white border-gray-500">
+          <Button onClick={handleSelectAll} className="bg-gray-600 hover:bg-gray-700 text-theme-text-primary border-gray-500">
             SELECT ALL
           </Button>
-          <Button onClick={handleClearAll} className="bg-gray-600 hover:bg-gray-700 text-white border-gray-500">
+          <Button onClick={handleClearAll} className="bg-gray-600 hover:bg-gray-700 text-theme-text-primary border-gray-500">
             CLEAR ALL
           </Button>
         </div>
 
         {!allChecked && (
-          <Card className="bg-amber-900/20 border-amber-600/30 mt-4">
+          <Card className="bg-amber-900/20 border-theme-status-warning/30 mt-4">
             <CardContent className="p-3">
               <div className="flex items-center">
-                <AlertCircle className="w-5 h-5 text-amber-400 mr-2" />
+                <AlertCircle className="w-5 h-5 text-theme-status-warning mr-2" />
                 <span className="text-amber-100 font-medium">All items must be checked to begin work</span>
               </div>
             </CardContent>
@@ -161,12 +161,12 @@ export default function IntakeQCModal({ isOpen, onClose, onStartWork, onReportIs
         )}
 
         <DialogFooter className="mt-6 flex gap-3">
-          <Button onClick={onClose} className="bg-gray-600 hover:bg-gray-700 text-white">
+          <Button onClick={onClose} className="bg-gray-600 hover:bg-gray-700 text-theme-text-primary">
             <ArrowLeft className="w-4 h-4 mr-2" />
             BACK
           </Button>
 
-          <Button onClick={onReportIssue} className="bg-red-600 hover:bg-red-700 text-white">
+          <Button onClick={onReportIssue} className="bg-theme-status-error hover:bg-red-700 text-theme-text-primary">
             <X className="w-4 h-4 mr-2" />
             REPORT ISSUE
           </Button>
@@ -175,7 +175,7 @@ export default function IntakeQCModal({ isOpen, onClose, onStartWork, onReportIs
             onClick={handleStartWork}
             disabled={!allChecked}
             className={`${
-              allChecked ? "bg-green-600 hover:bg-green-700 text-white" : "bg-gray-400 text-gray-600 cursor-not-allowed"
+              allChecked ? "bg-theme-status-success hover:bg-green-700 text-theme-text-primary" : "bg-gray-400 text-theme-text-tertiary cursor-not-allowed"
             }`}
           >
             <CheckCircle className="w-4 h-4 mr-2" />

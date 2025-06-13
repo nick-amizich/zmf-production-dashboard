@@ -22,32 +22,32 @@ interface OrderCardProps {
 
 export function OrderCard({ order }: OrderCardProps) {
   const qualityColors = {
-    good: "bg-green-600",
-    warning: "bg-amber-600",
-    critical: "bg-red-600",
+    good: "bg-theme-status-success",
+    warning: "bg-theme-status-warning",
+    critical: "bg-theme-status-error",
   }
 
   const stageColors = {
-    Intake: "bg-blue-600",
+    Intake: "bg-theme-status-info",
     Sanding: "bg-orange-600",
     Finishing: "bg-purple-600",
     "Sub-Assembly": "bg-teal-600",
     "Final Assembly": "bg-indigo-600",
     "Acoustic QC": "bg-pink-600",
-    Shipping: "bg-green-600",
+    Shipping: "bg-theme-status-success",
   }
 
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30 hover:border-[#d4a574]/50 transition-all cursor-move group">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary hover:border-theme-text-secondary/50 transition-all cursor-move group">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          <GripVertical className="h-5 w-5 text-[#8B4513] mt-1 opacity-50 group-hover:opacity-100 transition-opacity" />
+          <GripVertical className="h-5 w-5 text-theme-brand-secondary mt-1 opacity-50 group-hover:opacity-100 transition-opacity" />
 
           <div className="flex-1 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-[#d4a574]">{order.orderNumber}</h3>
-                <p className="text-sm text-gray-300 flex items-center gap-1">
+                <h3 className="font-semibold text-theme-text-secondary">{order.orderNumber}</h3>
+                <p className="text-sm text-theme-text-tertiary flex items-center gap-1">
                   <User className="h-3 w-3" />
                   {order.customerName}
                 </p>
@@ -60,31 +60,31 @@ export function OrderCard({ order }: OrderCardProps) {
 
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <span className="text-[#d4a574]">Model:</span>
-                <p className="text-gray-300">{order.model}</p>
+                <span className="text-theme-text-secondary">Model:</span>
+                <p className="text-theme-text-tertiary">{order.model}</p>
               </div>
               <div>
-                <span className="text-[#d4a574]">Wood:</span>
-                <p className="text-gray-300">{order.woodType}</p>
+                <span className="text-theme-text-secondary">Wood:</span>
+                <p className="text-theme-text-tertiary">{order.woodType}</p>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Badge
-                  className={`${stageColors[order.currentStage as keyof typeof stageColors] || "bg-gray-600"} text-white`}
+                  className={`${stageColors[order.currentStage as keyof typeof stageColors] || "bg-gray-600"} text-theme-text-primary`}
                 >
                   {order.currentStage}
                 </Badge>
-                <span className="text-xs text-gray-400">{order.progress}% complete</span>
+                <span className="text-xs text-theme-text-tertiary">{order.progress}% complete</span>
               </div>
-              <Progress value={order.progress} className="h-2 bg-[#8B4513]/20" />
+              <Progress value={order.progress} className="h-2 bg-theme-brand-secondary/20" />
             </div>
 
-            <div className="flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
               <div className="flex items-center gap-1">
                 <Avatar className="h-5 w-5">
-                  <AvatarFallback className="bg-[#8B4513] text-[#d4a574] text-xs">
+                  <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary text-xs">
                     {order.assignedWorker
                       .split(" ")
                       .map((n) => n[0])

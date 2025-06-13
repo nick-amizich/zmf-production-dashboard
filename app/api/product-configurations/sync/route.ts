@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+import { logger } from '@/lib/logger'
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required. Please log in first.' }, { status: 401 })
     }
     
-    console.log('Sync initiated by user:', user.email)
+    logger.debug('Sync initiated by user:', user.email)
     
     const { configurations } = await request.json()
     
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
         })
         
       } catch (error) {
-        console.error('Error syncing configuration:', error)
+        logger.error('Error syncing configuration:', error)
         results.push({
           shopifyProductId: config.shopifyProductId || config.id,
           success: false,
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Sync error:', error)
+    logger.error('Sync error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

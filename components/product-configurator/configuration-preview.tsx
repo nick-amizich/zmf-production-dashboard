@@ -114,7 +114,7 @@ export default function ConfigurationPreview({ model }: ConfigurationPreviewProp
                 <div key={option.id} className="space-y-2">
                   <Label htmlFor={option.id}>
                     {option.name}
-                    {option.required && <span className="text-red-500 ml-1">*</span>}
+                    {option.required && <span className="text-theme-status-error ml-1">*</span>}
                   </Label>
                   {option.values.length <= 5 ? (
                     <RadioGroup
@@ -190,7 +190,7 @@ export default function ConfigurationPreview({ model }: ConfigurationPreviewProp
                   <div key={option.id} className="space-y-2">
                     <Label htmlFor={option.id}>
                       {option.name}
-                      {option.required && <span className="text-red-500 ml-1">*</span>}
+                      {option.required && <span className="text-theme-status-error ml-1">*</span>}
                     </Label>
                     <Select
                       value={selectedOptions[option.id] || ''}

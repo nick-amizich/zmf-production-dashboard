@@ -8,12 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function TestAuth() {
-  const [email, setEmail] = useState('test@example.com')
-  const [password, setPassword] = useState('testpassword123')
+  const [email, setEmail] = useState('admin@zmf.com')
+  const [password, setPassword] = useState('password123')
   const [status, setStatus] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
 
   const handleSignUp = async () => {
+    setIsLoading(true)
     setStatus('Signing up...')
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -26,47 +28,113 @@ export default function TestAuth() {
     if (error) {
       setStatus(`Error: ${error.message}`)
     } else {
-      setStatus(`Success! User created: ${data.user?.email}. You can now sign in.`)
+      setStatus(`Success! User created: ${data.user?.email}. Check your email for confirmation.`)
     }
+    setIsLoading(false)
   }
 
   const handleSignIn = async () => {
+    setIsLoading(true)
     setStatus('Signing in...')
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
     
-    if (error) {
-      setStatus(`Error: ${error.message}`)
-    } else {
-      setStatus(`Success! Logged in as: ${data.user?.email}`)
-      // Redirect to product configurator
-      window.location.href = '/product-configurator'
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (error) {
+        setStatus(`Error: ${error.message}`)
+        setIsLoading(false)
+        return
+      }
+
+      if (data.user) {
+        // Check if user has a worker record
+        const { data: worker, error: workerError } = await supabase
+          .from('workers')
+          .select('id, role, is_active, name')
+          .eq('auth_user_id', data.user.id)
+          .single()
+
+        if (workerError) {
+          setStatus(`Worker lookup error: ${workerError.message}`)
+          setIsLoading(false)
+          return
+        }
+
+        if (!worker) {
+          setStatus('No worker account found. Please contact an administrator.')
+          await supabase.auth.signOut()
+          setIsLoading(false)
+          return
+        }
+
+        if (!worker.is_active) {
+          setStatus('Your account is inactive. Please contact an administrator.')
+          await supabase.auth.signOut()
+          setIsLoading(false)
+          return
+        }
+
+        setStatus(`Success! Logged in as: ${worker.name} (${worker.role})`)
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 2000)
+      }
+    } catch (err) {
+      setStatus(`Unexpected error: ${err}`)
     }
+    setIsLoading(false)
   }
 
   const handleSignOut = async () => {
+    setIsLoading(true)
     const { error } = await supabase.auth.signOut()
     if (!error) {
       setStatus('Signed out successfully')
+    } else {
+      setStatus(`Sign out error: ${error.message}`)
     }
+    setIsLoading(false)
   }
 
   const checkSession = async () => {
+    setIsLoading(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
-      setStatus(`Currently logged in as: ${session.user.email}`)
+      // Also check worker record
+      const { data: worker } = await supabase
+        .from('workers')
+        .select('name, role, is_active')
+        .eq('auth_user_id', session.user.id)
+        .single()
+      
+      if (worker) {
+        setStatus(`Currently logged in as: ${worker.name} (${worker.role}) - Active: ${worker.is_active}`)
+      } else {
+        setStatus(`Logged in as: ${session.user.email} but no worker record found`)
+      }
     } else {
       setStatus('Not logged in')
     }
+    setIsLoading(false)
   }
+
+  const testDemoAccounts = [
+    { email: 'admin@zmf.com', role: 'Admin' },
+    { email: 'manager@zmf.com', role: 'Manager' },
+    { email: 'sarah@zmf.com', role: 'Worker' },
+    { email: 'mike@zmf.com', role: 'Worker' }
+  ]
 
   return (
     <div className="container mx-auto py-8 max-w-md">
       <Card>
         <CardHeader>
-          <CardTitle>Simple Auth Test</CardTitle>
+          <CardTitle>ZMF Auth Test</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -75,28 +143,27 @@ export default function TestAuth() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
             />
             <Input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
             />
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleSignUp} variant="outline">
-              Sign Up
-            </Button>
-            <Button onClick={handleSignIn}>
+            <Button onClick={handleSignIn} disabled={isLoading}>
               Sign In
             </Button>
-            <Button onClick={handleSignOut} variant="destructive">
+            <Button onClick={handleSignOut} variant="destructive" disabled={isLoading}>
               Sign Out
             </Button>
           </div>
 
-          <Button onClick={checkSession} variant="secondary" className="w-full">
+          <Button onClick={checkSession} variant="secondary" className="w-full" disabled={isLoading}>
             Check Session
           </Button>
 
@@ -106,13 +173,22 @@ export default function TestAuth() {
             </Alert>
           )}
 
-          <div className="text-sm text-gray-500">
-            <p>Quick test:</p>
-            <ol className="list-decimal list-inside mt-2">
-              <li>Click "Sign Up" to create a test user</li>
-              <li>Then click "Sign In" to login</li>
-              <li>You'll be redirected to the product configurator</li>
-            </ol>
+          <div className="text-sm text-theme-text-tertiary">
+            <p className="font-semibold">Demo Accounts (password: password123):</p>
+            <div className="mt-2 space-y-1">
+              {testDemoAccounts.map((account) => (
+                <div key={account.email} className="flex justify-between">
+                  <button
+                    onClick={() => setEmail(account.email)}
+                    className="text-theme-status-info hover:underline text-left"
+                    disabled={isLoading}
+                  >
+                    {account.email}
+                  </button>
+                  <span className="text-xs text-theme-text-tertiary">{account.role}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>

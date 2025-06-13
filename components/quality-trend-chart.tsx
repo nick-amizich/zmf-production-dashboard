@@ -64,9 +64,9 @@ const qualityTrendData = [
 
 export function QualityTrendChart() {
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary">
       <CardHeader>
-        <CardTitle className="text-[#d4a574]">Quality Trends - Last 30 Days</CardTitle>
+        <CardTitle className="text-theme-text-secondary">Quality Trends - Last 30 Days</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer

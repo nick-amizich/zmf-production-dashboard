@@ -64,7 +64,7 @@ export default function TestSupabase() {
             <p><strong>Supabase URL:</strong> {status.supabaseUrl}</p>
             <p><strong>Database Connection:</strong> {status.connection}</p>
             {status.connectionError && (
-              <p className="text-red-500 text-sm">Error: {status.connectionError}</p>
+              <p className="text-theme-status-error text-sm">Error: {status.connectionError}</p>
             )}
             <p><strong>Auth Status:</strong> {status.currentSession}</p>
             {status.sessionEmail && (
@@ -72,10 +72,10 @@ export default function TestSupabase() {
             )}
             <p><strong>Test Sign Up:</strong> {status.testSignUp}</p>
             {status.testSignUpError && (
-              <p className="text-red-500 text-sm">Error: {status.testSignUpError}</p>
+              <p className="text-theme-status-error text-sm">Error: {status.testSignUpError}</p>
             )}
             {status.testSignUpUser && (
-              <p className="text-green-500 text-sm">Created: {status.testSignUpUser}</p>
+              <p className="text-theme-status-success text-sm">Created: {status.testSignUpUser}</p>
             )}
           </div>
 

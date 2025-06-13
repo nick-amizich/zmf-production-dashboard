@@ -134,50 +134,50 @@ export default function StageProgressContent({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle className="h-5 w-5 text-green-400" />
+        return <CheckCircle className="h-5 w-5 text-theme-status-success" />
       case "in-progress":
-        return <Clock className="h-5 w-5 text-amber-400" />
+        return <Clock className="h-5 w-5 text-theme-status-warning" />
       case "waiting":
-        return <Clock className="h-5 w-5 text-gray-400" />
+        return <Clock className="h-5 w-5 text-theme-text-tertiary" />
       default:
-        return <Clock className="h-5 w-5 text-gray-400" />
+        return <Clock className="h-5 w-5 text-theme-text-tertiary" />
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "text-green-400"
+        return "text-theme-status-success"
       case "in-progress":
-        return "text-amber-400"
+        return "text-theme-status-warning"
       case "waiting":
-        return "text-gray-400"
+        return "text-theme-text-tertiary"
       default:
-        return "text-gray-400"
+        return "text-theme-text-tertiary"
     }
   }
 
   const getPaceIndicator = () => {
     if (stats.isAhead) {
       return {
-        icon: <TrendingUp className="h-5 w-5 text-green-400" />,
+        icon: <TrendingUp className="h-5 w-5 text-theme-status-success" />,
         text: "Ahead of Schedule",
-        color: "text-green-400",
-        bgColor: "bg-green-900/20 border-green-500/30",
+        color: "text-theme-status-success",
+        bgColor: "bg-green-900/20 border-theme-status-success/30",
       }
     } else if (stats.isBehind) {
       return {
-        icon: <TrendingDown className="h-5 w-5 text-red-400" />,
+        icon: <TrendingDown className="h-5 w-5 text-theme-status-error" />,
         text: "Behind Schedule",
-        color: "text-red-400",
-        bgColor: "bg-red-900/20 border-red-500/30",
+        color: "text-theme-status-error",
+        bgColor: "bg-red-900/20 border-theme-status-error/30",
       }
     } else {
       return {
-        icon: <Target className="h-5 w-5 text-blue-400" />,
+        icon: <Target className="h-5 w-5 text-theme-status-info" />,
         text: "On Track",
-        color: "text-blue-400",
-        bgColor: "bg-blue-900/20 border-blue-500/30",
+        color: "text-theme-status-info",
+        bgColor: "bg-blue-900/20 border-theme-status-info/30",
       }
     }
   }
@@ -187,9 +187,9 @@ export default function StageProgressContent({
   return (
     <div className="space-y-6">
       {/* Today's Targets vs Actual */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-xl text-[#d4a574] flex items-center gap-2">
+          <CardTitle className="text-xl text-theme-text-secondary flex items-center gap-2">
             <Target className="h-6 w-6" />
             Today's Targets vs Actual
           </CardTitle>
@@ -197,14 +197,14 @@ export default function StageProgressContent({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{stats.projectedFinish}</div>
-              <div className="text-sm text-gray-400">Projected Completion</div>
+              <div className="text-2xl font-bold text-theme-text-primary">{stats.projectedFinish}</div>
+              <div className="text-sm text-theme-text-tertiary">Projected Completion</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#d4a574]">
+              <div className="text-2xl font-bold text-theme-text-secondary">
                 {stats.completedTasks}/{stats.totalTasks}
               </div>
-              <div className="text-sm text-gray-400">Units Completed</div>
+              <div className="text-sm text-theme-text-tertiary">Units Completed</div>
             </div>
           </div>
 
@@ -218,35 +218,35 @@ export default function StageProgressContent({
       </Card>
 
       {/* Detailed Timeline */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-xl text-[#d4a574] flex items-center gap-2">
+          <CardTitle className="text-xl text-theme-text-secondary flex items-center gap-2">
             <Clock className="h-6 w-6" />
             Detailed Timeline
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {timeline.map((item, index) => (
-            <div key={index} className="flex items-center gap-4 p-3 bg-[#0a0a0a]/50 rounded">
+            <div key={index} className="flex items-center gap-4 p-3 bg-theme-bg-primary/50 rounded">
               <div className="flex-shrink-0">{getStatusIcon(item.status)}</div>
 
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-medium">
+                    <span className="text-theme-text-primary font-medium">
                       Unit {index + 1}: {item.task.model} {item.task.woodType}
                     </span>
                     {item.task.priority !== "Standard" && (
                       <Badge
                         className={`text-xs ${
-                          item.task.priority === "Expedite" ? "bg-red-600" : "bg-amber-600"
-                        } text-white`}
+                          item.task.priority === "Expedite" ? "bg-theme-status-error" : "bg-theme-status-warning"
+                        } text-theme-text-primary`}
                       >
                         {item.task.priority}
                       </Badge>
                     )}
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-theme-text-tertiary">
                     {item.startTime.toLocaleTimeString("en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -274,7 +274,7 @@ export default function StageProgressContent({
                 </div>
 
                 {item.task.specialNotes && (
-                  <div className="mt-2 text-xs text-amber-400 flex items-start gap-1">
+                  <div className="mt-2 text-xs text-theme-status-warning flex items-start gap-1">
                     <AlertTriangle className="h-3 w-3 flex-shrink-0 mt-0.5" />
                     {item.task.specialNotes}
                   </div>
@@ -286,54 +286,54 @@ export default function StageProgressContent({
       </Card>
 
       {/* Performance Metrics */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-xl text-[#d4a574] flex items-center gap-2">
+          <CardTitle className="text-xl text-theme-text-secondary flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
             Performance Metrics
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-[#0a0a0a]/50 rounded">
-              <div className="text-2xl font-bold text-green-400">{stats.efficiency}%</div>
-              <div className="text-sm text-gray-400">Daily Efficiency</div>
+            <div className="text-center p-3 bg-theme-bg-primary/50 rounded">
+              <div className="text-2xl font-bold text-theme-status-success">{stats.efficiency}%</div>
+              <div className="text-sm text-theme-text-tertiary">Daily Efficiency</div>
             </div>
-            <div className="text-center p-3 bg-[#0a0a0a]/50 rounded">
-              <div className="text-2xl font-bold text-[#d4a574]">{stats.averagePerUnit}min</div>
-              <div className="text-sm text-gray-400">Average per Unit</div>
+            <div className="text-center p-3 bg-theme-bg-primary/50 rounded">
+              <div className="text-2xl font-bold text-theme-text-secondary">{stats.averagePerUnit}min</div>
+              <div className="text-sm text-theme-text-tertiary">Average per Unit</div>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Quality Rate:</span>
-              <span className="text-green-400 font-medium">100% first-pass</span>
+              <span className="text-theme-text-tertiary">Quality Rate:</span>
+              <span className="text-theme-status-success font-medium">100% first-pass</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Projected Finish:</span>
-              <span className="text-[#d4a574] font-medium">{stats.projectedFinish}</span>
+              <span className="text-theme-text-tertiary">Projected Finish:</span>
+              <span className="text-theme-text-secondary font-medium">{stats.projectedFinish}</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Pace Indicators Legend */}
-      <Card className="bg-[#0a0a0a] border-[#8B4513]/20">
+      <Card className="bg-theme-bg-primary border-theme-border-secondary">
         <CardContent className="p-4">
-          <h4 className="text-sm font-medium text-[#d4a574] mb-3">Pace Indicators</h4>
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Pace Indicators</h4>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <span className="text-gray-300">Ahead of Schedule (5%+ faster)</span>
+              <div className="w-3 h-3 bg-theme-status-success rounded-full"></div>
+              <span className="text-theme-text-tertiary">Ahead of Schedule (5%+ faster)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-              <span className="text-gray-300">On Track (within ±5%)</span>
+              <div className="w-3 h-3 bg-theme-status-info rounded-full"></div>
+              <span className="text-theme-text-tertiary">On Track (within ±5%)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-              <span className="text-gray-300">Behind Schedule (5%+ slower)</span>
+              <div className="w-3 h-3 bg-theme-status-error rounded-full"></div>
+              <span className="text-theme-text-tertiary">Behind Schedule (5%+ slower)</span>
             </div>
           </div>
         </CardContent>
@@ -341,11 +341,11 @@ export default function StageProgressContent({
 
       {/* Action Buttons */}
       <div className="flex gap-4">
-        <Button variant="outline" className="flex-1 border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20">
+        <Button variant="outline" className="flex-1 border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
           <Zap className="h-4 w-4 mr-2" />
           Adjust Expectations
         </Button>
-        <Button variant="outline" className="flex-1 border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20">
+        <Button variant="outline" className="flex-1 border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
           <Award className="h-4 w-4 mr-2" />
           Request Help
         </Button>

@@ -54,9 +54,9 @@ export default function LoginPage() {
           return
         }
 
-        // Redirect based on role
-        router.push('/')
-        router.refresh()
+        // Redirect after successful login
+        // Use window.location for a full page reload to ensure cookies are set
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -66,31 +66,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-[#8B4513] to-[#d4a574] rounded-lg flex items-center justify-center">
-            <Headphones className="h-10 w-10 text-white" />
+          <div className="w-20 h-20 bg-gradient-to-br from-theme-brand-secondary to-theme-brand-primary rounded-lg flex items-center justify-center">
+            <Headphones className="h-10 w-10 text-theme-text-primary" />
           </div>
         </div>
 
-        <Card className="bg-[#1a0d08]/50 border-[#8B4513]/30">
+        <Card className="bg-theme-bg-secondary/50 border-theme-border-primary">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-[#d4a574]">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardTitle className="text-2xl text-theme-text-secondary">Welcome Back</CardTitle>
+            <CardDescription className="text-theme-text-tertiary">
               Sign in to ZMF Production System
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               {error && (
-                <Alert className="bg-red-900/20 border-red-900/50 text-red-400">
+                <Alert className="bg-red-900/20 border-red-900/50 text-theme-status-error">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300">
+                <Label htmlFor="email" className="text-theme-text-tertiary">
                   Email
                 </Label>
                 <Input
@@ -100,12 +100,12 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-[#0a0a0a] border-[#8B4513]/30 text-white placeholder:text-gray-500"
+                  className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary placeholder:text-theme-text-tertiary"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300">
+                <Label htmlFor="password" className="text-theme-text-tertiary">
                   Password
                 </Label>
                 <Input
@@ -114,14 +114,14 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                  className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                 />
               </div>
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#8B4513] hover:bg-[#8B4513]/80 text-white"
+                className="w-full bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary"
               >
                 {isLoading ? (
                   <>
@@ -134,10 +134,11 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-gray-400">
+            <div className="mt-6 text-center text-sm text-theme-text-tertiary">
               <p>Demo Accounts:</p>
-              <p className="mt-2">Manager: manager@zmf.com</p>
-              <p>Worker: worker@zmf.com</p>
+              <p className="mt-2">Admin: admin@zmf.com</p>
+              <p>Worker: sarah@zmf.com</p>
+              <p>Worker: mike@zmf.com</p>
               <p className="mt-2 text-xs">Password: password123</p>
             </div>
           </CardContent>

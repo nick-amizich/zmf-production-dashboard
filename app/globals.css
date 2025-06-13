@@ -91,4 +91,46 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Theme CSS Variables */
+  :root {
+    /* Background colors */
+    --color-bg-primary: #0a0a0a;
+    --color-bg-secondary: #1a0d08;
+    --color-bg-tertiary: #2a1510;
+    --color-bg-gradient-from: #0a0a0a;
+    --color-bg-gradient-to: #1a0d08;
+    
+    /* Border colors */
+    --color-border-primary: rgba(139, 69, 19, 0.3);
+    --color-border-secondary: rgba(139, 69, 19, 0.2);
+    --color-border-active: #8B4513;
+    
+    /* Text colors */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #d4a574;
+    --color-text-tertiary: #9ca3af;
+    --color-text-inverse: #000000;
+    
+    /* Brand colors */
+    --color-brand-primary: #d4a574;
+    --color-brand-secondary: #8B4513;
+    --color-brand-accent: #daa520;
+    --color-brand-hover: rgba(139, 69, 19, 0.8);
+    
+    /* Status colors */
+    --color-status-success: #10b981;
+    --color-status-warning: #f59e0b;
+    --color-status-error: #ef4444;
+    --color-status-info: #3b82f6;
+    
+    /* UI element colors */
+    --color-ui-button-primary: #8B4513;
+    --color-ui-button-secondary: rgba(139, 69, 19, 0.2);
+    --color-ui-button-hover: rgba(139, 69, 19, 0.8);
+    --color-ui-badge: #8B4513;
+    --color-ui-progress: #d4a574;
+    --color-ui-input: #0a0a0a;
+    --color-ui-input-border: rgba(139, 69, 19, 0.3);
+  }
 }

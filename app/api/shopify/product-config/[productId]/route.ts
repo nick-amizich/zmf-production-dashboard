@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+import { logger } from '@/lib/logger'
 // CORS headers for Shopify storefront
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*', // In production, replace with your Shopify domain
@@ -86,7 +87,7 @@ export async function GET(
     return NextResponse.json(formattedConfig, { headers: corsHeaders })
 
   } catch (error) {
-    console.error('Error fetching product config:', error)
+    logger.error('Error fetching product config:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: corsHeaders }

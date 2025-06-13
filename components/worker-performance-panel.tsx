@@ -82,10 +82,10 @@ const workerData: WorkerPerformance[] = [
 
 export function WorkerPerformancePanel() {
   const getScoreColor = (score: number) => {
-    if (score >= 97) return "text-green-400"
-    if (score >= 95) return "text-[#d4a574]"
-    if (score >= 93) return "text-amber-400"
-    return "text-red-400"
+    if (score >= 97) return "text-theme-status-success"
+    if (score >= 95) return "text-theme-text-secondary"
+    if (score >= 93) return "text-theme-status-warning"
+    return "text-theme-status-error"
   }
 
   const getTrendIcon = (trend: string) => {
@@ -95,27 +95,27 @@ export function WorkerPerformancePanel() {
   }
 
   const getTrendColor = (trend: string) => {
-    if (trend === "up") return "text-green-400"
-    if (trend === "down") return "text-red-400"
-    return "text-gray-400"
+    if (trend === "up") return "text-theme-status-success"
+    if (trend === "down") return "text-theme-status-error"
+    return "text-theme-text-tertiary"
   }
 
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary">
       <CardHeader>
-        <CardTitle className="text-[#d4a574]">Worker Quality Performance</CardTitle>
+        <CardTitle className="text-theme-text-secondary">Worker Quality Performance</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[400px] overflow-y-auto">
         {workerData.map((worker) => {
           const TrendIcon = getTrendIcon(worker.trend)
           return (
-            <Card key={worker.name} className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card key={worker.name} className="bg-theme-bg-primary border-theme-border-secondary">
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-[#8B4513] text-[#d4a574]">
+                        <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary">
                           {worker.name
                             .split(" ")
                             .map((n) => n[0])
@@ -123,11 +123,11 @@ export function WorkerPerformancePanel() {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h4 className="text-white font-medium">{worker.name}</h4>
+                        <h4 className="text-theme-text-primary font-medium">{worker.name}</h4>
                         <div className="flex items-center gap-2">
-                          {worker.recognition && <Award className="h-4 w-4 text-[#d4a574]" title="Top Performer" />}
+                          {worker.recognition && <Award className="h-4 w-4 text-theme-text-secondary" title="Top Performer" />}
                           {worker.trainingNeeded && (
-                            <AlertTriangle className="h-4 w-4 text-amber-500" title="Training Needed" />
+                            <AlertTriangle className="h-4 w-4 text-theme-status-warning" title="Training Needed" />
                           )}
                         </div>
                       </div>
@@ -145,7 +145,7 @@ export function WorkerPerformancePanel() {
 
                   <div className="space-y-2">
                     <Progress value={worker.qualityScore} className="h-2" />
-                    <div className="flex justify-between text-xs text-gray-400">
+                    <div className="flex justify-between text-xs text-theme-text-tertiary">
                       <span>Target: 95%</span>
                       <span>Recent Issues: {worker.recentIssues}</span>
                     </div>
@@ -153,7 +153,7 @@ export function WorkerPerformancePanel() {
 
                   <div className="flex flex-wrap gap-1">
                     {worker.specialties.map((specialty) => (
-                      <Badge key={specialty} variant="outline" className="border-[#8B4513] text-[#d4a574] text-xs">
+                      <Badge key={specialty} variant="outline" className="border-theme-border-active text-theme-text-secondary text-xs">
                         {specialty}
                       </Badge>
                     ))}

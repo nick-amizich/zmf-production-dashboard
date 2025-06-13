@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
+import { logger } from '@/lib/logger'
 import {
   ArrowLeft,
   ArrowRight,
@@ -438,9 +439,9 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
     try {
       // Mock API call to sync with Shopify
       await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Synced with Shopify successfully")
+      logger.debug("Synced with Shopify successfully")
     } catch (error) {
-      console.error("Failed to sync with Shopify:", error)
+      logger.error("Failed to sync with Shopify:", error)
     } finally {
       setSyncingWithShopify(false)
     }
@@ -564,35 +565,35 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
               step < currentStep
-                ? "bg-green-600 text-white"
+                ? "bg-theme-status-success text-theme-text-primary"
                 : step === currentStep
-                  ? "bg-[#8B4513] text-white"
-                  : "bg-gray-600 text-gray-300"
+                  ? "bg-theme-brand-secondary text-theme-text-primary"
+                  : "bg-gray-600 text-theme-text-tertiary"
             }`}
           >
             {step < currentStep ? <Check className="h-5 w-5" /> : step}
           </div>
-          {index < 4 && <div className={`w-16 h-1 mx-2 ${step < currentStep ? "bg-green-600" : "bg-gray-600"}`} />}
+          {index < 4 && <div className={`w-16 h-1 mx-2 ${step < currentStep ? "bg-theme-status-success" : "bg-gray-600"}`} />}
         </div>
       ))}
     </div>
   )
 
   const renderShopifyStatus = () => (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30 mb-6">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary mb-6">
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${shopifyConnected ? "bg-green-500" : "bg-red-500"}`} />
-            <span className="text-white font-medium">
+            <div className={`w-3 h-3 rounded-full ${shopifyConnected ? "bg-theme-status-success" : "bg-theme-status-error"}`} />
+            <span className="text-theme-text-primary font-medium">
               Shopify Integration: {shopifyConnected ? "Connected" : "Disconnected"}
             </span>
-            {syncingWithShopify && <span className="text-gray-400">Syncing...</span>}
+            {syncingWithShopify && <span className="text-theme-text-tertiary">Syncing...</span>}
           </div>
           <Button
             onClick={syncWithShopify}
             disabled={syncingWithShopify}
-            className="bg-[#8B4513] hover:bg-[#8B4513]/80"
+            className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
             size="sm"
           >
             {syncingWithShopify ? "Syncing..." : "Sync Now"}
@@ -607,39 +608,39 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       {renderShopifyStatus()}
 
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#d4a574] mb-2">Select Headphone Model</h2>
-        <p className="text-gray-300">All headphones in this batch must be the same model</p>
+        <h2 className="text-2xl font-bold text-theme-text-secondary mb-2">Select Headphone Model</h2>
+        <p className="text-theme-text-tertiary">All headphones in this batch must be the same model</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {headphoneModels.map((model) => (
           <Card
             key={model.id}
-            className="bg-[#1a0d08] border-[#8B4513]/30 hover:border-[#d4a574]/50 transition-all cursor-pointer group"
+            className="bg-theme-bg-secondary border-theme-border-primary hover:border-theme-text-secondary/50 transition-all cursor-pointer group"
             onClick={() => handleModelSelect(model.id)}
           >
             <CardContent className="p-6 text-center">
               <div className="h-32 bg-gradient-to-br from-[#8B4513]/20 to-[#d4a574]/20 rounded-lg mb-4 flex items-center justify-center">
-                <Package className="h-16 w-16 text-[#d4a574] group-hover:scale-110 transition-transform" />
+                <Package className="h-16 w-16 text-theme-text-secondary group-hover:scale-110 transition-transform" />
               </div>
-              <h3 className="text-lg font-bold text-[#d4a574] mb-2">{model.name}</h3>
-              <p className="text-sm text-gray-300 mb-3">{model.description}</p>
+              <h3 className="text-lg font-bold text-theme-text-secondary mb-2">{model.name}</h3>
+              <p className="text-sm text-theme-text-tertiary mb-3">{model.description}</p>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Production:</span>
-                  <span className="text-white">{model.productionTime}h</span>
+                  <span className="text-theme-text-tertiary">Production:</span>
+                  <span className="text-theme-text-primary">{model.productionTime}h</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Shopify:</span>
-                  <span className="text-green-400">✓ Linked</span>
+                  <span className="text-theme-text-tertiary">Shopify:</span>
+                  <span className="text-theme-status-success">✓ Linked</span>
                 </div>
                 <Badge
                   className={`w-full ${
                     model.complexity === "Medium"
-                      ? "bg-green-600"
+                      ? "bg-theme-status-success"
                       : model.complexity === "High"
-                        ? "bg-amber-600"
-                        : "bg-red-600"
+                        ? "bg-theme-status-warning"
+                        : "bg-theme-status-error"
                   }`}
                 >
                   {model.complexity} Complexity
@@ -655,28 +656,28 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#d4a574] mb-2">Batch Size & Wood Selection</h2>
-        <p className="text-gray-300">Configure {selectedModel?.name} batch</p>
+        <h2 className="text-2xl font-bold text-theme-text-secondary mb-2">Batch Size & Wood Selection</h2>
+        <p className="text-theme-text-tertiary">Configure {selectedModel?.name} batch</p>
       </div>
 
       {/* Batch Size Selector */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Batch Size</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Batch Size</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 mb-4">
-            <Label className="text-white">Quantity:</Label>
+            <Label className="text-theme-text-primary">Quantity:</Label>
             <Select
               value={batchConfig.quantity.toString()}
               onValueChange={(value) => handleQuantityChange(Number.parseInt(value))}
             >
-              <SelectTrigger className="w-32 bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+              <SelectTrigger className="w-32 bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
+              <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                 {Array.from({ length: 11 }, (_, i) => i + 2).map((num) => (
-                  <SelectItem key={num} value={num.toString()} className="text-white hover:bg-[#8B4513]/20">
+                  <SelectItem key={num} value={num.toString()} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                     {num} headphones
                   </SelectItem>
                 ))}
@@ -685,10 +686,10 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
             <Badge
               className={`${
                 batchTotals.efficiency >= 80
-                  ? "bg-green-600"
+                  ? "bg-theme-status-success"
                   : batchTotals.efficiency >= 60
-                    ? "bg-amber-600"
-                    : "bg-red-600"
+                    ? "bg-theme-status-warning"
+                    : "bg-theme-status-error"
               }`}
             >
               {batchTotals.efficiency}% Efficiency
@@ -696,7 +697,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
           </div>
 
           {batchTotals.efficiency < 80 && (
-            <div className="flex items-center gap-2 text-amber-400 text-sm">
+            <div className="flex items-center gap-2 text-theme-status-warning text-sm">
               <AlertCircle className="h-4 w-4" />
               <span>Consider grouping similar wood types for better efficiency</span>
             </div>
@@ -707,29 +708,29 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       {/* Individual Headphone Configuration */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {batchConfig.headphones.map((headphone, index) => (
-          <Card key={headphone.id} className="bg-[#1a0d08] border-[#8B4513]/30">
+          <Card key={headphone.id} className="bg-theme-bg-secondary border-theme-border-primary">
             <CardHeader>
-              <CardTitle className="text-[#d4a574] text-lg">Headphone #{index + 1}</CardTitle>
-              {headphone.generatedSKU && <p className="text-xs text-gray-400 font-mono">{headphone.generatedSKU}</p>}
+              <CardTitle className="text-theme-text-secondary text-lg">Headphone #{index + 1}</CardTitle>
+              {headphone.generatedSKU && <p className="text-xs text-theme-text-tertiary font-mono">{headphone.generatedSKU}</p>}
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-white">Wood Type</Label>
+                <Label className="text-theme-text-primary">Wood Type</Label>
                 <Select value={headphone.woodType} onValueChange={(value) => updateHeadphone(index, "woodType", value)}>
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                  <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                     <SelectValue placeholder="Select wood" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
+                  <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {woodOptions.map((wood) => (
                       <SelectItem
                         key={wood.id}
                         value={wood.id}
-                        className="text-white hover:bg-[#8B4513]/20"
+                        className="text-theme-text-primary hover:bg-theme-brand-secondary/20"
                         disabled={!wood.inStock}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <span className={!wood.inStock ? "text-gray-500" : ""}>{wood.name}</span>
-                          {!wood.inStock && <Badge className="ml-2 bg-red-600">Out of Stock</Badge>}
+                          <span className={!wood.inStock ? "text-theme-text-tertiary" : ""}>{wood.name}</span>
+                          {!wood.inStock && <Badge className="ml-2 bg-theme-status-error">Out of Stock</Badge>}
                         </div>
                       </SelectItem>
                     ))}
@@ -738,7 +739,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
               </div>
 
               {headphone.woodType && (
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-theme-text-tertiary">
                   {woodOptions.find((w) => w.id === headphone.woodType)?.description}
                 </div>
               )}
@@ -755,7 +756,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
         <Button
           onClick={() => setCurrentStep(3)}
           disabled={!canProceedToStep(3)}
-          className="bg-[#8B4513] hover:bg-[#8B4513]/80"
+          className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
         >
           Next
           <ArrowRight className="h-4 w-4 ml-2" />
@@ -767,25 +768,25 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#d4a574] mb-2">Chassis & Grille Options</h2>
-        <p className="text-gray-300">Configure hardware options for each headphone</p>
+        <h2 className="text-2xl font-bold text-theme-text-secondary mb-2">Chassis & Grille Options</h2>
+        <p className="text-theme-text-tertiary">Configure hardware options for each headphone</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {batchConfig.headphones.map((headphone, index) => (
           <Card
             key={headphone.id}
-            className={`bg-[#1a0d08] border-[#8B4513]/30 ${chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.background}`}
+            className={`bg-theme-bg-secondary border-theme-border-primary ${chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.background}`}
           >
             <CardHeader>
-              <CardTitle className="text-[#d4a574]">
+              <CardTitle className="text-theme-text-secondary">
                 Headphone #{index + 1} - {woodOptions.find((w) => w.id === headphone.woodType)?.name}
               </CardTitle>
-              {headphone.generatedSKU && <p className="text-xs text-gray-400 font-mono">{headphone.generatedSKU}</p>}
+              {headphone.generatedSKU && <p className="text-xs text-theme-text-tertiary font-mono">{headphone.generatedSKU}</p>}
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-white">Chassis Material</Label>
+                <Label className="text-theme-text-primary">Chassis Material</Label>
                 <Select
                   value={headphone.chassisMaterial}
                   onValueChange={(value) => {
@@ -800,20 +801,20 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                     }
                   }}
                 >
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                  <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
+                  <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {chassisOptions.map((chassis) => (
                       <SelectItem
                         key={chassis.id}
                         value={chassis.id}
-                        className="text-white hover:bg-[#8B4513]/20"
+                        className="text-theme-text-primary hover:bg-theme-brand-secondary/20"
                         disabled={!chassis.inStock}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <span className={!chassis.inStock ? "text-gray-500" : ""}>{chassis.name}</span>
-                          {!chassis.inStock && <Badge className="ml-2 bg-red-600">Out of Stock</Badge>}
+                          <span className={!chassis.inStock ? "text-theme-text-tertiary" : ""}>{chassis.name}</span>
+                          {!chassis.inStock && <Badge className="ml-2 bg-theme-status-error">Out of Stock</Badge>}
                         </div>
                       </SelectItem>
                     ))}
@@ -822,25 +823,25 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
               </div>
 
               <div>
-                <Label className="text-white">Grille Color</Label>
+                <Label className="text-theme-text-primary">Grille Color</Label>
                 <Select
                   value={headphone.grilleColor}
                   onValueChange={(value) => updateHeadphone(index, "grilleColor", value)}
                 >
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                  <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
+                  <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {grilleOptions.map((grille) => (
                       <SelectItem
                         key={grille.id}
                         value={grille.id}
-                        className="text-white hover:bg-[#8B4513]/20"
+                        className="text-theme-text-primary hover:bg-theme-brand-secondary/20"
                         disabled={!grille.inStock}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <span className={!grille.inStock ? "text-gray-500" : ""}>{grille.name}</span>
-                          {!grille.inStock && <Badge className="ml-2 bg-red-600">Out of Stock</Badge>}
+                          <span className={!grille.inStock ? "text-theme-text-tertiary" : ""}>{grille.name}</span>
+                          {!grille.inStock && <Badge className="ml-2 bg-theme-status-error">Out of Stock</Badge>}
                         </div>
                       </SelectItem>
                     ))}
@@ -849,26 +850,26 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
               </div>
 
               <div>
-                <Label className="text-white">Headband & Strap</Label>
+                <Label className="text-theme-text-primary">Headband & Strap</Label>
                 <Select
                   value={headphone.headbandMaterial}
                   onValueChange={(value) => updateHeadphone(index, "headbandMaterial", value)}
                   disabled={headphone.chassisMaterial === "vegan"}
                 >
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                  <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
+                  <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {headbandOptions.map((headband) => (
                       <SelectItem
                         key={headband.id}
                         value={headband.id}
-                        className="text-white hover:bg-[#8B4513]/20"
+                        className="text-theme-text-primary hover:bg-theme-brand-secondary/20"
                         disabled={!headband.inStock}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <span className={!headband.inStock ? "text-gray-500" : ""}>{headband.name}</span>
-                          {!headband.inStock && <Badge className="ml-2 bg-red-600">Out of Stock</Badge>}
+                          <span className={!headband.inStock ? "text-theme-text-tertiary" : ""}>{headband.name}</span>
+                          {!headband.inStock && <Badge className="ml-2 bg-theme-status-error">Out of Stock</Badge>}
                         </div>
                       </SelectItem>
                     ))}
@@ -888,7 +889,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
         <Button
           onClick={() => setCurrentStep(4)}
           disabled={!canProceedToStep(4)}
-          className="bg-[#8B4513] hover:bg-[#8B4513]/80"
+          className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
         >
           Next
           <ArrowRight className="h-4 w-4 ml-2" />
@@ -900,46 +901,46 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const renderStep4 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#d4a574] mb-2">Installed Pads</h2>
-        <p className="text-gray-300">Select ear pads for each headphone</p>
+        <h2 className="text-2xl font-bold text-theme-text-secondary mb-2">Installed Pads</h2>
+        <p className="text-theme-text-tertiary">Select ear pads for each headphone</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {batchConfig.headphones.map((headphone, index) => (
           <Card
             key={headphone.id}
-            className={`bg-[#1a0d08] border-[#8B4513]/30 ${chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.background}`}
+            className={`bg-theme-bg-secondary border-theme-border-primary ${chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.background}`}
           >
             <CardHeader>
-              <CardTitle className="text-[#d4a574] text-lg">Headphone #{index + 1}</CardTitle>
-              <p className="text-sm text-gray-400">{woodOptions.find((w) => w.id === headphone.woodType)?.name}</p>
-              {headphone.generatedSKU && <p className="text-xs text-gray-400 font-mono">{headphone.generatedSKU}</p>}
+              <CardTitle className="text-theme-text-secondary text-lg">Headphone #{index + 1}</CardTitle>
+              <p className="text-sm text-theme-text-tertiary">{woodOptions.find((w) => w.id === headphone.woodType)?.name}</p>
+              {headphone.generatedSKU && <p className="text-xs text-theme-text-tertiary font-mono">{headphone.generatedSKU}</p>}
             </CardHeader>
             <CardContent>
               <div>
-                <Label className="text-white">Installed Pads</Label>
+                <Label className="text-theme-text-primary">Installed Pads</Label>
                 <Select
                   value={headphone.installedPads}
                   onValueChange={(value) => updateHeadphone(index, "installedPads", value)}
                 >
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                  <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                     <SelectValue placeholder="Select pads" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
+                  <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {headphone.chassisMaterial === "vegan"
                       ? selectedModel?.availablePads.vegan.map((pad) => (
-                          <SelectItem key={pad} value={pad} className="text-white hover:bg-[#8B4513]/20">
+                          <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                             {pad}
                             {pad === selectedModel.defaultPads.vegan && (
-                              <Badge className="ml-2 bg-green-600">Default</Badge>
+                              <Badge className="ml-2 bg-theme-status-success">Default</Badge>
                             )}
                           </SelectItem>
                         ))
                       : selectedModel?.availablePads.leather.map((pad) => (
-                          <SelectItem key={pad} value={pad} className="text-white hover:bg-[#8B4513]/20">
+                          <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                             {pad}
                             {pad === selectedModel.defaultPads.leather && (
-                              <Badge className="ml-2 bg-green-600">Default</Badge>
+                              <Badge className="ml-2 bg-theme-status-success">Default</Badge>
                             )}
                           </SelectItem>
                         ))}
@@ -959,7 +960,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
         <Button
           onClick={() => setCurrentStep(5)}
           disabled={!canProceedToStep(5)}
-          className="bg-[#8B4513] hover:bg-[#8B4513]/80"
+          className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
         >
           Review Batch
           <ArrowRight className="h-4 w-4 ml-2" />
@@ -971,53 +972,53 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const renderStep5 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#d4a574] mb-2">Batch Summary & Shopify Push</h2>
-        <p className="text-gray-300">Review configuration and push to Shopify</p>
+        <h2 className="text-2xl font-bold text-theme-text-secondary mb-2">Batch Summary & Shopify Push</h2>
+        <p className="text-theme-text-tertiary">Review configuration and push to Shopify</p>
       </div>
 
       {/* Batch Overview */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Batch Overview</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Batch Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <div className="text-gray-400 text-sm">Batch Number</div>
-              <div className="text-white font-bold">{batchConfig.batchNumber}</div>
+              <div className="text-theme-text-tertiary text-sm">Batch Number</div>
+              <div className="text-theme-text-primary font-bold">{batchConfig.batchNumber}</div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm">Model</div>
-              <div className="text-white font-bold">{selectedModel?.name}</div>
+              <div className="text-theme-text-tertiary text-sm">Model</div>
+              <div className="text-theme-text-primary font-bold">{selectedModel?.name}</div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm">Quantity</div>
-              <div className="text-white font-bold">{batchConfig.quantity} headphones</div>
+              <div className="text-theme-text-tertiary text-sm">Quantity</div>
+              <div className="text-theme-text-primary font-bold">{batchConfig.quantity} headphones</div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm">Wood Types</div>
-              <div className="text-white font-bold">
+              <div className="text-theme-text-tertiary text-sm">Wood Types</div>
+              <div className="text-theme-text-primary font-bold">
                 {new Set(batchConfig.headphones.map((hp) => woodOptions.find((w) => w.id === hp.woodType)?.name)).size}{" "}
                 types
               </div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm">Production Time</div>
-              <div className="text-white font-bold flex items-center">
+              <div className="text-theme-text-tertiary text-sm">Production Time</div>
+              <div className="text-theme-text-primary font-bold flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
                 {batchTotals.totalTime}h
               </div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm">Efficiency</div>
-              <div className="text-white font-bold">
+              <div className="text-theme-text-tertiary text-sm">Efficiency</div>
+              <div className="text-theme-text-primary font-bold">
                 <Badge
                   className={`${
                     batchTotals.efficiency >= 80
-                      ? "bg-green-600"
+                      ? "bg-theme-status-success"
                       : batchTotals.efficiency >= 60
-                        ? "bg-amber-600"
-                        : "bg-red-600"
+                        ? "bg-theme-status-warning"
+                        : "bg-theme-status-error"
                   }`}
                 >
                   {batchTotals.efficiency}%
@@ -1025,8 +1026,8 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
               </div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm">Production Priority</div>
-              <div className="text-white font-bold">
+              <div className="text-theme-text-tertiary text-sm">Production Priority</div>
+              <div className="text-theme-text-primary font-bold">
                 {batchTotals.efficiency >= 80 ? "High" : batchTotals.efficiency >= 60 ? "Medium" : "Low"}
               </div>
             </div>
@@ -1035,27 +1036,27 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       </Card>
 
       {/* Technician Notes & Reference Images */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574] flex items-center gap-2">
+          <CardTitle className="text-theme-text-secondary flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
             Technician Instructions
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-white">Notes for Technicians</Label>
+            <Label className="text-theme-text-primary">Notes for Technicians</Label>
             <Textarea
               value={batchConfig.technicianNotes}
               onChange={(e) => setBatchConfig((prev) => ({ ...prev, technicianNotes: e.target.value }))}
-              className="bg-[#0a0a0a] border-[#8B4513]/30 text-white placeholder-gray-400"
+              className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary placeholder-gray-400"
               placeholder="Special instructions for workers (e.g., 'Use specific cup set from shelf B-3', 'Pay attention to grain direction', etc.)"
               rows={3}
             />
           </div>
 
           <div>
-            <Label className="text-white">Reference Images</Label>
+            <Label className="text-theme-text-primary">Reference Images</Label>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <input
@@ -1068,13 +1069,13 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                 />
                 <Button
                   onClick={() => document.getElementById("image-upload")?.click()}
-                  className="bg-[#8B4513] hover:bg-[#8B4513]/80"
+                  className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
                   size="sm"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Images
                 </Button>
-                <span className="text-gray-400 text-sm">
+                <span className="text-theme-text-tertiary text-sm">
                   Upload photos of specific cups, grain patterns, or assembly references
                 </span>
               </div>
@@ -1086,11 +1087,11 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                       <img
                         src={imageUrl || "/placeholder.svg"}
                         alt={`Reference ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border border-[#8B4513]/30"
+                        className="w-full h-24 object-cover rounded-lg border border-theme-border-primary"
                       />
                       <Button
                         onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-1 right-1 bg-theme-status-error hover:bg-red-700 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                         size="sm"
                       >
                         ×
@@ -1105,9 +1106,9 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       </Card>
 
       {/* Individual Headphones */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Individual Headphones & SKUs</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Individual Headphones & SKUs</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1120,40 +1121,40 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
               return (
                 <div
                   key={headphone.id}
-                  className={`border border-[#8B4513]/30 rounded-lg p-4 ${chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.background}`}
+                  className={`border border-theme-border-primary rounded-lg p-4 ${chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.background}`}
                 >
                   <div className="flex justify-between items-start mb-3">
-                    <h4 className="text-[#d4a574] font-bold">Headphone #{index + 1}</h4>
+                    <h4 className="text-theme-text-secondary font-bold">Headphone #{index + 1}</h4>
                     <span>{chassisTypes.find((ct) => ct.id === headphone.chassisMaterial)?.icon}</span>
                   </div>
                   {headphone.generatedSKU && (
-                    <div className="mb-3 p-2 bg-[#0a0a0a] rounded border border-[#8B4513]/20">
-                      <span className="text-xs text-gray-400">Generated SKU:</span>
-                      <div className="text-sm font-mono text-[#d4a574]">{headphone.generatedSKU}</div>
+                    <div className="mb-3 p-2 bg-theme-bg-primary rounded border border-theme-border-secondary">
+                      <span className="text-xs text-theme-text-tertiary">Generated SKU:</span>
+                      <div className="text-sm font-mono text-theme-text-secondary">{headphone.generatedSKU}</div>
                     </div>
                   )}
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Wood:</span>
-                      <span className="text-white">{wood?.name}</span>
+                      <span className="text-theme-text-tertiary">Wood:</span>
+                      <span className="text-theme-text-primary">{wood?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Chassis:</span>
-                      <span className="text-white">{chassis?.name}</span>
+                      <span className="text-theme-text-tertiary">Chassis:</span>
+                      <span className="text-theme-text-primary">{chassis?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Grille:</span>
-                      <span className="text-white">{grille?.name}</span>
+                      <span className="text-theme-text-tertiary">Grille:</span>
+                      <span className="text-theme-text-primary">{grille?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Headband:</span>
-                      <span className="text-white">
+                      <span className="text-theme-text-tertiary">Headband:</span>
+                      <span className="text-theme-text-primary">
                         {headphone.chassisMaterial === "vegan" ? "Vegan" : headband?.name}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Pads:</span>
-                      <span className="text-white">{headphone.installedPads}</span>
+                      <span className="text-theme-text-tertiary">Pads:</span>
+                      <span className="text-theme-text-primary">{headphone.installedPads}</span>
                     </div>
                   </div>
                 </div>
@@ -1164,30 +1165,30 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       </Card>
 
       {/* Order Creation Preview */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Order Creation Preview</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Order Creation Preview</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-300">Individual Shopify Orders:</span>
-              <Badge className="bg-blue-600">{batchConfig.quantity} orders</Badge>
+              <span className="text-theme-text-tertiary">Individual Shopify Orders:</span>
+              <Badge className="bg-theme-status-info">{batchConfig.quantity} orders</Badge>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-300">Production Batch:</span>
-              <Badge className="bg-[#8B4513]">1 batch ({batchConfig.batchNumber})</Badge>
+              <span className="text-theme-text-tertiary">Production Batch:</span>
+              <Badge className="bg-theme-brand-secondary">1 batch ({batchConfig.batchNumber})</Badge>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-300">Worker Assignment:</span>
-              <Badge className="bg-green-600">Auto-assign to Intake</Badge>
+              <span className="text-theme-text-tertiary">Worker Assignment:</span>
+              <Badge className="bg-theme-status-success">Auto-assign to Intake</Badge>
             </div>
 
-            <div className="mt-4 p-3 bg-[#0a0a0a] rounded border border-[#8B4513]/20">
-              <h4 className="text-[#d4a574] text-sm font-medium mb-2">Order Numbers Preview:</h4>
+            <div className="mt-4 p-3 bg-theme-bg-primary rounded border border-theme-border-secondary">
+              <h4 className="text-theme-text-secondary text-sm font-medium mb-2">Order Numbers Preview:</h4>
               <div className="space-y-1 text-xs font-mono">
                 {batchConfig.headphones.map((_, index) => (
-                  <div key={index} className="text-gray-300">
+                  <div key={index} className="text-theme-text-tertiary">
                     HP #{index + 1}: ZMF-{new Date().getFullYear()}-
                     {String(Math.floor(Math.random() * 10000)).padStart(4, "0")}
                   </div>
@@ -1199,31 +1200,31 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       </Card>
 
       {/* Shopify Integration */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Shopify Integration</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Shopify Integration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-white">Push Option</Label>
+              <Label className="text-theme-text-primary">Push Option</Label>
               <Select
                 value={batchConfig.pushOption}
                 onValueChange={(value: "draft" | "internal" | "variants") =>
                   setBatchConfig((prev) => ({ ...prev, pushOption: value }))
                 }
               >
-                <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
-                  <SelectItem value="draft" className="text-white hover:bg-[#8B4513]/20">
+                <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
+                  <SelectItem value="draft" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                     Create as Draft Orders
                   </SelectItem>
-                  <SelectItem value="internal" className="text-white hover:bg-[#8B4513]/20">
+                  <SelectItem value="internal" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                     Create as Internal Orders
                   </SelectItem>
-                  <SelectItem value="variants" className="text-white hover:bg-[#8B4513]/20">
+                  <SelectItem value="variants" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                     Generate SKU Variants
                   </SelectItem>
                 </SelectContent>
@@ -1231,19 +1232,19 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
             </div>
 
             <div>
-              <Label className="text-white">Priority Level</Label>
+              <Label className="text-theme-text-primary">Priority Level</Label>
               <Select
                 value={batchConfig.priority}
                 onValueChange={(value: "standard" | "rush") => setBatchConfig((prev) => ({ ...prev, priority: value }))}
               >
-                <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30 z-50">
-                  <SelectItem value="standard" className="text-white hover:bg-[#8B4513]/20">
+                <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
+                  <SelectItem value="standard" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                     Standard
                   </SelectItem>
-                  <SelectItem value="rush" className="text-white hover:bg-[#8B4513]/20">
+                  <SelectItem value="rush" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                     Rush
                   </SelectItem>
                 </SelectContent>
@@ -1260,7 +1261,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                   setBatchConfig((prev) => ({ ...prev, isSpeculative: checked as boolean }))
                 }
               />
-              <Label htmlFor="speculative" className="text-white">
+              <Label htmlFor="speculative" className="text-theme-text-primary">
                 Mark as Speculative Build
               </Label>
             </div>
@@ -1271,28 +1272,28 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                 checked={batchConfig.skipCables}
                 onCheckedChange={(checked) => setBatchConfig((prev) => ({ ...prev, skipCables: checked as boolean }))}
               />
-              <Label htmlFor="skip-cables" className="text-white">
+              <Label htmlFor="skip-cables" className="text-theme-text-primary">
                 Skip cables for now
               </Label>
             </div>
           </div>
 
           <div>
-            <Label className="text-white">Customer Field</Label>
+            <Label className="text-theme-text-primary">Customer Field</Label>
             <Input
               value={batchConfig.customerField}
               onChange={(e) => setBatchConfig((prev) => ({ ...prev, customerField: e.target.value }))}
-              className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+              className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
               placeholder="Internal Build"
             />
           </div>
 
           <div>
-            <Label className="text-white">Internal Notes (Management)</Label>
+            <Label className="text-theme-text-primary">Internal Notes (Management)</Label>
             <Textarea
               value={batchConfig.internalNotes}
               onChange={(e) => setBatchConfig((prev) => ({ ...prev, internalNotes: e.target.value }))}
-              className="bg-[#0a0a0a] border-[#8B4513]/30 text-white placeholder-gray-400"
+              className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary placeholder-gray-400"
               placeholder="Internal notes for management tracking..."
               rows={2}
             />
@@ -1306,12 +1307,12 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
           Back
         </Button>
         <div className="space-y-2">
-          <div className="text-right text-sm text-gray-400">
+          <div className="text-right text-sm text-theme-text-tertiary">
             Will create {batchConfig.quantity} individual Shopify orders
           </div>
           <Button
             onClick={handlePushToShopify}
-            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg"
+            className="bg-theme-status-success hover:bg-green-700 text-theme-text-primary px-8 py-3 text-lg"
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
             CREATE {batchConfig.quantity} ORDERS & PUSH TO PRODUCTION
@@ -1379,7 +1380,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
 
       await pushToProductionSystem(productionBatch)
 
-      console.log("Successfully created:", {
+      logger.debug("Successfully created:", {
         shopifyOrders: shopifyOrders.length,
         productionBatch: productionBatch.batchNumber,
       })
@@ -1390,7 +1391,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       )
       onBack()
     } catch (error) {
-      console.error("Failed to push batch:", error)
+      logger.error("Failed to push batch:", error)
       alert("Failed to create batch. Please try again.")
     }
   }
@@ -1409,16 +1410,16 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const pushToProductionSystem = async (batchData: any) => {
     // Simulate pushing to production system
     await new Promise((resolve) => setTimeout(resolve, 500))
-    console.log("Batch pushed to production system:", batchData)
+    logger.debug("Batch pushed to production system:", batchData)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-[#d4a574] mb-2">Create Speculative Batch</h1>
-          <div className="flex items-center gap-4 text-gray-300">
+          <h1 className="text-4xl font-bold text-theme-text-secondary mb-2">Create Speculative Batch</h1>
+          <div className="flex items-center gap-4 text-theme-text-tertiary">
             <span>Batch: {batchConfig.batchNumber}</span>
             <span>•</span>
             <span>Date: {new Date().toLocaleDateString()}</span>

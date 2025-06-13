@@ -124,32 +124,32 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574] text-2xl">Create New Order</CardTitle>
+          <CardTitle className="text-theme-text-secondary text-2xl">Create New Order</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Customer Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[#d4a574]">Customer Information</h3>
+              <h3 className="text-lg font-semibold text-theme-text-secondary">Customer Information</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#d4a574]">Customer Name *</Label>
+                  <Label className="text-theme-text-secondary">Customer Name *</Label>
                   <Input
                     value={formData.customerName}
                     onChange={(e) => updateFormData("customerName", e.target.value)}
-                    className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                    className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                     placeholder="John Smith"
                   />
                 </div>
                 <div>
-                  <Label className="text-[#d4a574]">Email Address *</Label>
+                  <Label className="text-theme-text-secondary">Email Address *</Label>
                   <Input
                     type="email"
                     value={formData.customerEmail}
                     onChange={(e) => updateFormData("customerEmail", e.target.value)}
-                    className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                    className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -158,42 +158,42 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
 
             {/* Shipping Address */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[#d4a574]">Shipping Address</h3>
+              <h3 className="text-lg font-semibold text-theme-text-secondary">Shipping Address</h3>
               <div className="space-y-4">
                 <div>
-                  <Label className="text-[#d4a574]">Street Address *</Label>
+                  <Label className="text-theme-text-secondary">Street Address *</Label>
                   <Input
                     value={formData.shippingAddress.street}
                     onChange={(e) => updateFormData("shippingAddress.street", e.target.value)}
-                    className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                    className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                     placeholder="123 Main Street"
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label className="text-[#d4a574]">City *</Label>
+                    <Label className="text-theme-text-secondary">City *</Label>
                     <Input
                       value={formData.shippingAddress.city}
                       onChange={(e) => updateFormData("shippingAddress.city", e.target.value)}
-                      className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                      className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                       placeholder="Chicago"
                     />
                   </div>
                   <div>
-                    <Label className="text-[#d4a574]">State</Label>
+                    <Label className="text-theme-text-secondary">State</Label>
                     <Input
                       value={formData.shippingAddress.state}
                       onChange={(e) => updateFormData("shippingAddress.state", e.target.value)}
-                      className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                      className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                       placeholder="IL"
                     />
                   </div>
                   <div>
-                    <Label className="text-[#d4a574]">ZIP Code</Label>
+                    <Label className="text-theme-text-secondary">ZIP Code</Label>
                     <Input
                       value={formData.shippingAddress.zipCode}
                       onChange={(e) => updateFormData("shippingAddress.zipCode", e.target.value)}
-                      className="bg-[#0a0a0a] border-[#8B4513]/30 text-white"
+                      className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary"
                       placeholder="60601"
                     />
                   </div>
@@ -203,17 +203,17 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
 
             {/* Product Specifications */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[#d4a574]">Product Specifications</h3>
+              <h3 className="text-lg font-semibold text-theme-text-secondary">Product Specifications</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#d4a574]">Headphone Model *</Label>
+                  <Label className="text-theme-text-secondary">Headphone Model *</Label>
                   <Select value={formData.model} onValueChange={(value) => updateFormData("model", value)}>
-                    <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                    <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                       <SelectValue placeholder="Select model" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
+                    <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
                       {headphoneModels.map((model) => (
-                        <SelectItem key={model} value={model} className="text-white hover:bg-[#8B4513]/20">
+                        <SelectItem key={model} value={model} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                           {model}
                         </SelectItem>
                       ))}
@@ -221,14 +221,14 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-[#d4a574]">Wood Type *</Label>
+                  <Label className="text-theme-text-secondary">Wood Type *</Label>
                   <Select value={formData.woodType} onValueChange={(value) => updateFormData("woodType", value)}>
-                    <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                    <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                       <SelectValue placeholder="Select wood type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
+                    <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
                       {woodTypes.map((wood) => (
-                        <SelectItem key={wood} value={wood} className="text-white hover:bg-[#8B4513]/20">
+                        <SelectItem key={wood} value={wood} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                           {wood}
                         </SelectItem>
                       ))}
@@ -239,14 +239,14 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label className="text-[#d4a574]">Grille Color</Label>
+                  <Label className="text-theme-text-secondary">Grille Color</Label>
                   <Select value={formData.grilleColor} onValueChange={(value) => updateFormData("grilleColor", value)}>
-                    <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                    <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                       <SelectValue placeholder="Select color" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
+                    <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
                       {grilleColors.map((color) => (
-                        <SelectItem key={color} value={color} className="text-white hover:bg-[#8B4513]/20">
+                        <SelectItem key={color} value={color} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                           {color}
                         </SelectItem>
                       ))}
@@ -254,17 +254,17 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-[#d4a574]">Chassis Material</Label>
+                  <Label className="text-theme-text-secondary">Chassis Material</Label>
                   <Select
                     value={formData.chassisMaterial}
                     onValueChange={(value) => updateFormData("chassisMaterial", value)}
                   >
-                    <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                    <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                       <SelectValue placeholder="Select material" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
+                    <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
                       {chassisMaterials.map((material) => (
-                        <SelectItem key={material} value={material} className="text-white hover:bg-[#8B4513]/20">
+                        <SelectItem key={material} value={material} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                           {material}
                         </SelectItem>
                       ))}
@@ -272,17 +272,17 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-[#d4a574]">Installed Pads</Label>
+                  <Label className="text-theme-text-secondary">Installed Pads</Label>
                   <Select
                     value={formData.installedPads}
                     onValueChange={(value) => updateFormData("installedPads", value)}
                   >
-                    <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                    <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                       <SelectValue placeholder="Select pads" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
+                    <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
                       {padOptions.map((pad) => (
-                        <SelectItem key={pad} value={pad} className="text-white hover:bg-[#8B4513]/20">
+                        <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                           {pad}
                         </SelectItem>
                       ))}
@@ -294,40 +294,40 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
 
             {/* Order Details */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[#d4a574]">Order Details</h3>
+              <h3 className="text-lg font-semibold text-theme-text-secondary">Order Details</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#d4a574]">Priority Level</Label>
+                  <Label className="text-theme-text-secondary">Priority Level</Label>
                   <Select value={formData.priority} onValueChange={(value) => updateFormData("priority", value)}>
-                    <SelectTrigger className="bg-[#0a0a0a] border-[#8B4513]/30 text-white">
+                    <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
-                      <SelectItem value="normal" className="text-white hover:bg-[#8B4513]/20">
+                    <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
+                      <SelectItem value="normal" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                         Normal
                       </SelectItem>
-                      <SelectItem value="high" className="text-white hover:bg-[#8B4513]/20">
+                      <SelectItem value="high" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                         High
                       </SelectItem>
-                      <SelectItem value="urgent" className="text-white hover:bg-[#8B4513]/20">
+                      <SelectItem value="urgent" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                         Urgent
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-[#d4a574]">Due Date</Label>
+                  <Label className="text-theme-text-secondary">Due Date</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-start text-left bg-[#0a0a0a] border-[#8B4513]/30 text-white hover:bg-[#8B4513]/20"
+                        className="w-full justify-start text-left bg-theme-bg-primary border-theme-border-primary text-theme-text-primary hover:bg-theme-brand-secondary/20"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.dueDate ? format(formData.dueDate, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-[#1a0d08] border-[#8B4513]/30">
+                    <PopoverContent className="w-auto p-0 bg-theme-bg-secondary border-theme-border-primary">
                       <Calendar
                         mode="single"
                         selected={formData.dueDate}
@@ -340,11 +340,11 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
               </div>
 
               <div>
-                <Label className="text-[#d4a574]">Special Instructions</Label>
+                <Label className="text-theme-text-secondary">Special Instructions</Label>
                 <Textarea
                   value={formData.specialInstructions}
                   onChange={(e) => updateFormData("specialInstructions", e.target.value)}
-                  className="bg-[#0a0a0a] border-[#8B4513]/30 text-white placeholder-gray-400"
+                  className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary placeholder-gray-400"
                   placeholder="Any special requirements or notes..."
                   rows={4}
                 />
@@ -352,14 +352,14 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
             </div>
 
             {/* Form Actions */}
-            <div className="flex gap-4 pt-6 border-t border-[#8B4513]/30">
-              <Button type="button" onClick={onCancel} className="flex-1 bg-gray-600 hover:bg-gray-700 text-white">
+            <div className="flex gap-4 pt-6 border-t border-theme-border-primary">
+              <Button type="button" onClick={onCancel} className="flex-1 bg-gray-600 hover:bg-gray-700 text-theme-text-primary">
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={!isFormValid()}
-                className="flex-1 bg-[#8B4513] hover:bg-[#8B4513]/80 text-white disabled:opacity-50"
+                className="flex-1 bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary disabled:opacity-50"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Order

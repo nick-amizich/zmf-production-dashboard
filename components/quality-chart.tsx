@@ -16,9 +16,9 @@ const qualityData = [
 
 export function QualityChart() {
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary">
       <CardHeader>
-        <CardTitle className="text-[#d4a574]">Quality Pass Rates</CardTitle>
+        <CardTitle className="text-theme-text-secondary">Quality Pass Rates</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer

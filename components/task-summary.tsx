@@ -40,28 +40,28 @@ export function TaskSummary({
 
   return (
     <div className="space-y-6">
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574] text-xl">Task Summary</CardTitle>
+          <CardTitle className="text-theme-text-secondary text-xl">Task Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-center">
-            <div className="bg-[#0a0a0a] p-4 rounded-lg">
-              <div className="text-2xl font-bold text-white">
+            <div className="bg-theme-bg-primary p-4 rounded-lg">
+              <div className="text-2xl font-bold text-theme-text-primary">
                 {completedChecks}/{totalChecks}
               </div>
-              <div className="text-sm text-gray-400">Checks Completed</div>
+              <div className="text-sm text-theme-text-tertiary">Checks Completed</div>
             </div>
-            <div className="bg-[#0a0a0a] p-4 rounded-lg">
-              <div className="text-2xl font-bold text-[#d4a574]">{photosCaptured}</div>
-              <div className="text-sm text-gray-400">Photos Captured</div>
+            <div className="bg-theme-bg-primary p-4 rounded-lg">
+              <div className="text-2xl font-bold text-theme-text-secondary">{photosCaptured}</div>
+              <div className="text-sm text-theme-text-tertiary">Photos Captured</div>
             </div>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-300">Passed Checks:</span>
-              <Badge className="bg-green-600 text-white">
+              <span className="text-theme-text-tertiary">Passed Checks:</span>
+              <Badge className="bg-theme-status-success text-theme-text-primary">
                 <CheckCircle className="h-4 w-4 mr-1" />
                 {passedChecks}
               </Badge>
@@ -69,8 +69,8 @@ export function TaskSummary({
 
             {failedChecks > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-300">Failed Checks:</span>
-                <Badge className="bg-red-600 text-white">
+                <span className="text-theme-text-tertiary">Failed Checks:</span>
+                <Badge className="bg-theme-status-error text-theme-text-primary">
                   <XCircle className="h-4 w-4 mr-1" />
                   {failedChecks}
                 </Badge>
@@ -78,16 +78,16 @@ export function TaskSummary({
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-gray-300">Time Elapsed:</span>
-              <Badge className="bg-[#8B4513] text-white">
+              <span className="text-theme-text-tertiary">Time Elapsed:</span>
+              <Badge className="bg-theme-brand-secondary text-theme-text-primary">
                 <Clock className="h-4 w-4 mr-1" />
                 {timeElapsed}
               </Badge>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-gray-300">Worker:</span>
-              <Badge className="bg-[#d4a574] text-[#1a0d08]">
+              <span className="text-theme-text-tertiary">Worker:</span>
+              <Badge className="bg-theme-brand-primary text-theme-bg-secondary">
                 <User className="h-4 w-4 mr-1" />
                 {workerName}
               </Badge>
@@ -96,38 +96,38 @@ export function TaskSummary({
         </CardContent>
       </Card>
 
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Order Details</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Order Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-gray-300">Order:</span>
-            <span className="text-white font-medium">{order.orderNumber}</span>
+            <span className="text-theme-text-tertiary">Order:</span>
+            <span className="text-theme-text-primary font-medium">{order.orderNumber}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">Customer:</span>
-            <span className="text-white">{order.customerName}</span>
+            <span className="text-theme-text-tertiary">Customer:</span>
+            <span className="text-theme-text-primary">{order.customerName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">Model:</span>
-            <span className="text-white">{order.model}</span>
+            <span className="text-theme-text-tertiary">Model:</span>
+            <span className="text-theme-text-primary">{order.model}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">Wood:</span>
-            <span className="text-white">{order.woodType}</span>
+            <span className="text-theme-text-tertiary">Wood:</span>
+            <span className="text-theme-text-primary">{order.woodType}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">Stage:</span>
-            <span className="text-[#d4a574] font-medium">{order.stage}</span>
+            <span className="text-theme-text-tertiary">Stage:</span>
+            <span className="text-theme-text-secondary font-medium">{order.stage}</span>
           </div>
         </CardContent>
       </Card>
 
       {hasFailures && (
-        <Card className="bg-red-900/20 border-red-500/30">
+        <Card className="bg-red-900/20 border-theme-status-error/30">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-red-400">
+            <div className="flex items-center gap-2 text-theme-status-error">
               <XCircle className="h-5 w-5" />
               <span className="font-medium">Quality Issues Detected</span>
             </div>
@@ -139,15 +139,15 @@ export function TaskSummary({
       )}
 
       <div className="flex gap-3">
-        <Button onClick={onBack} className="flex-1 h-14 bg-gray-600 hover:bg-gray-700 text-white">
+        <Button onClick={onBack} className="flex-1 h-14 bg-gray-600 hover:bg-gray-700 text-theme-text-primary">
           Back to Checklist
         </Button>
 
         <Button
           onClick={onConfirm}
           className={`flex-1 h-14 ${
-            hasFailures ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
-          } text-white`}
+            hasFailures ? "bg-theme-status-error hover:bg-red-700" : "bg-theme-status-success hover:bg-green-700"
+          } text-theme-text-primary`}
         >
           {hasFailures ? "Send to Rework" : "Complete Stage"}
         </Button>

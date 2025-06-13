@@ -5,27 +5,28 @@ import dynamic from "next/dynamic"
 import { RoleSelectionCard } from "@/components/role-selection-card"
 import { SystemStatus } from "@/components/system-status"
 import { Settings, Monitor, Smartphone, Headphones, ArrowRight, BarChart3, Plus, Calendar, Package } from "lucide-react"
+import { ThemeSwitcher } from "@/components/theme-switcher"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DebugNavigation } from "@/components/debug-navigation"
 
 // Dynamic imports to prevent client-reference-manifest issues
-const ProductionManagerDashboard = dynamic(() => import("@/production-manager-dashboard"), {
+const ProductionManagerDashboard = dynamic(() => import("@/components/production/production-manager-dashboard"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const MobileWorkerInterface = dynamic(() => import("@/mobile-worker-interface"), {
+const MobileWorkerInterface = dynamic(() => import("@/components/worker/mobile-worker-interface"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const BatchManagement = dynamic(() => import("@/batch-management"), {
+const BatchManagement = dynamic(() => import("@/components/production/batch-management"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const QualityControlDashboard = dynamic(() => import("@/quality-control-dashboard"), {
+const QualityControlDashboard = dynamic(() => import("@/components/quality/quality-control-dashboard"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
@@ -35,17 +36,17 @@ const BatchOrderCreator = dynamic(() => import("@/components/batch-order-creator
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const ProductionCalendar = dynamic(() => import("@/production-calendar"), {
+const ProductionCalendar = dynamic(() => import("@/components/production/production-calendar"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const OrderManagement = dynamic(() => import("@/order-management"), {
+const OrderManagement = dynamic(() => import("@/components/orders/order-management"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const SimplifiedWorkerInterface = dynamic(() => import("@/simplified-worker-interface"), {
+const SimplifiedWorkerInterface = dynamic(() => import("@/components/worker/simplified-worker-interface"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
@@ -110,13 +111,13 @@ export default function FrontScreen() {
     return (
       <div className="relative">
         <div className="fixed top-4 left-4 z-50 flex gap-2">
-          <Button onClick={handleBackToProductionMenu} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToProductionMenu} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Production Menu
           </Button>
           <Button
             onClick={handleBackToFront}
             variant="outline"
-            className="border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10"
+            className="border-theme-border-active text-theme-brand-secondary hover:bg-theme-brand-secondary/10"
           >
             Home
           </Button>
@@ -130,13 +131,13 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50 flex gap-2">
-          <Button onClick={handleBackToProductionMenu} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToProductionMenu} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Production Menu
           </Button>
           <Button
             onClick={handleBackToFront}
             variant="outline"
-            className="border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10"
+            className="border-theme-border-active text-theme-brand-secondary hover:bg-theme-brand-secondary/10"
           >
             Home
           </Button>
@@ -150,7 +151,7 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50">
-          <Button onClick={handleBackToFront} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToFront} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Home
           </Button>
         </div>
@@ -163,13 +164,13 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50 flex gap-2">
-          <Button onClick={handleBackToProductionMenu} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToProductionMenu} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Production Menu
           </Button>
           <Button
             onClick={handleBackToFront}
             variant="outline"
-            className="border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10"
+            className="border-theme-border-active text-theme-brand-secondary hover:bg-theme-brand-secondary/10"
           >
             Home
           </Button>
@@ -183,13 +184,13 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50 flex gap-2">
-          <Button onClick={handleBackToProductionMenu} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToProductionMenu} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Production Menu
           </Button>
           <Button
             onClick={handleBackToFront}
             variant="outline"
-            className="border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10"
+            className="border-theme-border-active text-theme-brand-secondary hover:bg-theme-brand-secondary/10"
           >
             Home
           </Button>
@@ -203,13 +204,13 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50 flex gap-2">
-          <Button onClick={handleBackToProductionMenu} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToProductionMenu} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Production Menu
           </Button>
           <Button
             onClick={handleBackToFront}
             variant="outline"
-            className="border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10"
+            className="border-theme-border-active text-theme-brand-secondary hover:bg-theme-brand-secondary/10"
           >
             Home
           </Button>
@@ -223,13 +224,13 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50 flex gap-2">
-          <Button onClick={handleBackToProductionMenu} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToProductionMenu} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Production Menu
           </Button>
           <Button
             onClick={handleBackToFront}
             variant="outline"
-            className="border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10"
+            className="border-theme-border-active text-theme-brand-secondary hover:bg-theme-brand-secondary/10"
           >
             Home
           </Button>
@@ -243,7 +244,7 @@ export default function FrontScreen() {
     return (
       <div>
         <div className="fixed top-4 left-4 z-50">
-          <Button onClick={handleBackToFront} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+          <Button onClick={handleBackToFront} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
             ← Back to Home
           </Button>
         </div>
@@ -255,21 +256,21 @@ export default function FrontScreen() {
   // Production Management Menu
   if (currentView === "production-management-menu") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] text-white">
+      <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary">
         {/* Header */}
-        <header className="border-b border-[#8B4513]/30 bg-[#1a0d08]/50 backdrop-blur-sm">
+        <header className="border-b border-theme-border-primary bg-theme-bg-secondary/50 backdrop-blur-sm">
           <div className="container mx-auto px-6 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button onClick={handleBackToFront} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+                <Button onClick={handleBackToFront} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
                   ← Back to Home
                 </Button>
-                <div className="w-16 h-16 bg-gradient-to-br from-[#8B4513] to-[#d4a574] rounded-lg flex items-center justify-center">
-                  <Monitor className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-theme-brand-secondary to-theme-brand-primary rounded-lg flex items-center justify-center">
+                  <Monitor className="h-8 w-8 text-theme-text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-[#d4a574]">Production Management</h1>
-                  <p className="text-gray-400 text-lg">Choose your management interface</p>
+                  <h1 className="text-3xl font-bold text-theme-text-secondary">Production Management</h1>
+                  <p className="text-theme-text-tertiary text-lg">Choose your management interface</p>
                 </div>
               </div>
             </div>
@@ -279,8 +280,8 @@ export default function FrontScreen() {
         {/* Main Content */}
         <main className="container mx-auto px-6 py-12">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">Management Interfaces</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold text-theme-text-primary mb-4">Management Interfaces</h2>
+            <p className="text-xl text-theme-text-tertiary max-w-2xl mx-auto">
               Select the specific management tool you need. Each interface provides specialized functionality for
               different aspects of production oversight.
             </p>
@@ -300,7 +301,7 @@ export default function FrontScreen() {
               ]}
               buttonText="Open Dashboard"
               onClick={handleProductionDashboard}
-              gradient="bg-gradient-to-br from-[#8B4513] to-[#d4a574]"
+              gradient="bg-gradient-to-br from-theme-brand-secondary to-theme-brand-primary"
             />
 
             {/* Production Calendar */}
@@ -316,7 +317,7 @@ export default function FrontScreen() {
               ]}
               buttonText="Open Calendar"
               onClick={handleProductionCalendar}
-              gradient="bg-gradient-to-br from-indigo-600 to-blue-600"
+              gradient="bg-gradient-to-br from-indigo-600 to-theme-status-info"
             />
 
             {/* Batch Management */}
@@ -332,7 +333,7 @@ export default function FrontScreen() {
               ]}
               buttonText="Manage Batches"
               onClick={handleBatchManagement}
-              gradient="bg-gradient-to-br from-blue-600 to-purple-600"
+              gradient="bg-gradient-to-br from-theme-status-info to-purple-600"
             />
 
             {/* Quality Dashboard */}
@@ -348,7 +349,7 @@ export default function FrontScreen() {
               ]}
               buttonText="View Quality Dashboard"
               onClick={handleQualityDashboard}
-              gradient="bg-gradient-to-br from-orange-600 to-red-600"
+              gradient="bg-gradient-to-br from-theme-status-warning to-theme-status-error"
             />
 
             {/* Order Creator */}
@@ -364,7 +365,7 @@ export default function FrontScreen() {
               ]}
               buttonText="Create Orders"
               onClick={handleOrderCreator}
-              gradient="bg-gradient-to-br from-violet-600 to-purple-600"
+              gradient="bg-gradient-to-br from-purple-600 to-purple-700"
             />
 
             {/* Order Management */}
@@ -380,22 +381,22 @@ export default function FrontScreen() {
               ]}
               buttonText="Manage Orders"
               onClick={handleOrderManagement}
-              gradient="bg-gradient-to-br from-green-600 to-teal-600"
+              gradient="bg-gradient-to-br from-theme-status-success to-teal-600"
             />
           </div>
 
           {/* Quick Access Panel */}
           <div className="mt-16 max-w-5xl mx-auto">
-            <Card className="bg-[#1a0d08]/50 border-[#8B4513]/30">
+            <Card className="bg-theme-bg-secondary/50 border-theme-border-primary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] text-center">Quick Access</CardTitle>
+                <CardTitle className="text-theme-text-secondary text-center">Quick Access</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                   <Button
                     onClick={handleProductionDashboard}
                     variant="outline"
-                    className="border-[#8B4513]/50 text-[#d4a574] hover:bg-[#8B4513]/20 h-auto py-4 flex flex-col gap-2"
+                    className="border-theme-border-primary text-theme-text-secondary hover:bg-theme-brand-secondary/20 h-auto py-4 flex flex-col gap-2"
                   >
                     <Monitor className="h-6 w-6" />
                     <span className="text-sm">Dashboard</span>
@@ -403,7 +404,7 @@ export default function FrontScreen() {
                   <Button
                     onClick={handleProductionCalendar}
                     variant="outline"
-                    className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/20 h-auto py-4 flex flex-col gap-2"
+                    className="border-theme-status-info/50 text-theme-status-info hover:bg-theme-status-info/20 h-auto py-4 flex flex-col gap-2"
                   >
                     <Calendar className="h-6 w-6" />
                     <span className="text-sm">Calendar</span>
@@ -411,7 +412,7 @@ export default function FrontScreen() {
                   <Button
                     onClick={handleBatchManagement}
                     variant="outline"
-                    className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20 h-auto py-4 flex flex-col gap-2"
+                    className="border-theme-status-info/50 text-theme-status-info hover:bg-theme-status-info/20 h-auto py-4 flex flex-col gap-2"
                   >
                     <ArrowRight className="h-6 w-6" />
                     <span className="text-sm">Batches</span>
@@ -419,7 +420,7 @@ export default function FrontScreen() {
                   <Button
                     onClick={handleQualityDashboard}
                     variant="outline"
-                    className="border-orange-500/50 text-orange-400 hover:bg-orange-500/20 h-auto py-4 flex flex-col gap-2"
+                    className="border-theme-status-warning/50 text-theme-status-warning hover:bg-theme-status-warning/20 h-auto py-4 flex flex-col gap-2"
                   >
                     <BarChart3 className="h-6 w-6" />
                     <span className="text-sm">Quality</span>
@@ -427,7 +428,7 @@ export default function FrontScreen() {
                   <Button
                     onClick={handleOrderCreator}
                     variant="outline"
-                    className="border-violet-500/50 text-violet-400 hover:bg-violet-500/20 h-auto py-4 flex flex-col gap-2"
+                    className="border-purple-500/50 text-purple-400 hover:bg-purple-500/20 h-auto py-4 flex flex-col gap-2"
                   >
                     <Plus className="h-6 w-6" />
                     <span className="text-sm">Create</span>
@@ -435,7 +436,7 @@ export default function FrontScreen() {
                   <Button
                     onClick={handleOrderManagement}
                     variant="outline"
-                    className="border-green-500/50 text-green-400 hover:bg-green-500/20 h-auto py-4 flex flex-col gap-2"
+                    className="border-theme-status-success/50 text-theme-status-success hover:bg-theme-status-success/20 h-auto py-4 flex flex-col gap-2"
                   >
                     <Package className="h-6 w-6" />
                     <span className="text-sm">Orders</span>
@@ -454,24 +455,27 @@ export default function FrontScreen() {
 
   // Front screen view - Main landing page
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary">
       {/* Header */}
-      <header className="border-b border-[#8B4513]/30 bg-[#1a0d08]/50 backdrop-blur-sm">
+      <header className="border-b border-theme-border-primary bg-theme-bg-secondary/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#8B4513] to-[#d4a574] rounded-lg flex items-center justify-center">
-                <Headphones className="h-8 w-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-theme-brand-secondary to-theme-brand-primary rounded-lg flex items-center justify-center">
+                <Headphones className="h-8 w-8 text-theme-text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-[#d4a574]">ZMF Production System</h1>
-                <p className="text-gray-400 text-lg">Premium Headphone Manufacturing Control</p>
+                <h1 className="text-3xl font-bold text-theme-text-secondary">ZMF Production System</h1>
+                <p className="text-theme-text-tertiary text-lg">Premium Headphone Manufacturing Control</p>
               </div>
             </div>
-            <Button variant="outline" className="border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              <Button variant="outline" className="border-theme-border-primary text-theme-text-secondary hover:bg-theme-brand-secondary/20">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -479,8 +483,8 @@ export default function FrontScreen() {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4">Choose Your Role</h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold text-theme-text-primary mb-4">Choose Your Role</h2>
+          <p className="text-xl text-theme-text-tertiary max-w-2xl mx-auto">
             Select your primary role in the ZMF production process. Each interface is optimized for specific
             responsibilities and workflows.
           </p>
@@ -501,30 +505,30 @@ export default function FrontScreen() {
               ]}
               buttonText="Enter Management Suite"
               onClick={handleProductionManagementMenu}
-              gradient="bg-gradient-to-br from-[#8B4513] to-[#d4a574]"
+              gradient="bg-gradient-to-br from-theme-brand-secondary to-theme-brand-primary"
             />
 
             {/* Sub-options preview */}
-            <Card className="bg-[#1a0d08]/30 border-[#8B4513]/20">
+            <Card className="bg-theme-bg-secondary/30 border-theme-border-secondary">
               <CardContent className="p-4">
-                <h4 className="text-[#d4a574] font-semibold mb-3 text-sm uppercase tracking-wide">
+                <h4 className="text-theme-text-secondary font-semibold mb-3 text-sm uppercase tracking-wide">
                   Management Tools Include:
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Monitor className="h-3 w-3 text-[#8B4513]" />
+                  <div className="flex items-center gap-2 text-theme-text-tertiary">
+                    <Monitor className="h-3 w-3 text-theme-brand-secondary" />
                     <span>Production Dashboard</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Calendar className="h-3 w-3 text-indigo-400" />
+                  <div className="flex items-center gap-2 text-theme-text-tertiary">
+                    <Calendar className="h-3 w-3 text-theme-status-info" />
                     <span>Production Calendar</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <ArrowRight className="h-3 w-3 text-blue-400" />
+                  <div className="flex items-center gap-2 text-theme-text-tertiary">
+                    <ArrowRight className="h-3 w-3 text-theme-status-info" />
                     <span>Batch Management</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <BarChart3 className="h-3 w-3 text-orange-400" />
+                  <div className="flex items-center gap-2 text-theme-text-tertiary">
+                    <BarChart3 className="h-3 w-3 text-theme-status-warning" />
                     <span>Quality Control</span>
                   </div>
                 </div>
@@ -546,28 +550,28 @@ export default function FrontScreen() {
               ]}
               buttonText="Start Working"
               onClick={handleWorkerInterface}
-              gradient="bg-gradient-to-br from-green-600 to-teal-600"
+              gradient="bg-gradient-to-br from-theme-status-success to-teal-600"
             />
 
             {/* Worker features preview */}
-            <Card className="bg-[#1a0d08]/30 border-green-600/20">
+            <Card className="bg-theme-bg-secondary/30 border-theme-status-success/20">
               <CardContent className="p-4">
-                <h4 className="text-green-400 font-semibold mb-3 text-sm uppercase tracking-wide">Optimized For:</h4>
-                <div className="space-y-2 text-sm text-gray-300">
+                <h4 className="text-theme-status-success font-semibold mb-3 text-sm uppercase tracking-wide">Optimized For:</h4>
+                <div className="space-y-2 text-sm text-theme-text-tertiary">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-theme-status-success rounded-full"></div>
                     <span>Workshop environment with gloves</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-theme-status-success rounded-full"></div>
                     <span>Variable lighting conditions</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-theme-status-success rounded-full"></div>
                     <span>Offline capability for connectivity issues</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-theme-status-success rounded-full"></div>
                     <span>7-stage production workflow</span>
                   </div>
                 </div>
@@ -583,14 +587,14 @@ export default function FrontScreen() {
 
         {/* Footer Info */}
         <div className="mt-16 text-center">
-          <div className="bg-[#1a0d08]/50 rounded-lg p-6 max-w-4xl mx-auto border border-[#8B4513]/30">
-            <h3 className="text-xl font-semibold text-[#d4a574] mb-3">About ZMF Production System</h3>
-            <p className="text-gray-300 leading-relaxed">
+          <div className="bg-theme-bg-secondary/50 rounded-lg p-6 max-w-4xl mx-auto border border-theme-border-primary">
+            <h3 className="text-xl font-semibold text-theme-text-secondary mb-3">About ZMF Production System</h3>
+            <p className="text-theme-text-tertiary leading-relaxed">
               This quality-first production management system manages the complete workflow from raw materials to
               shipping across 7 production stages. Built specifically for ZMF's premium wooden headphone manufacturing
               process with comprehensive quality control at each stage.
             </p>
-            <div className="mt-4 flex items-center justify-center gap-6 text-sm text-gray-400">
+            <div className="mt-4 flex items-center justify-center gap-6 text-sm text-theme-text-tertiary">
               <span>7 Production Stages</span>
               <span>•</span>
               <span>15 Skilled Craftspeople</span>

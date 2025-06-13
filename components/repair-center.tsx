@@ -188,14 +188,14 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
     }
 
     return (
-      <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-        <Button onClick={onBack} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white h-10 px-4">
+      <div className="flex items-center gap-2 text-sm text-theme-text-tertiary mb-6">
+        <Button onClick={onBack} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary h-10 px-4">
           <Home className="h-4 w-4 mr-2" />
           Home
         </Button>
         <span>→</span>
         {paths.map((path, index) => (
-          <span key={index} className={index === paths.length - 1 ? "text-[#d4a574]" : ""}>
+          <span key={index} className={index === paths.length - 1 ? "text-theme-text-secondary" : ""}>
             {path}
             {index < paths.length - 1 && <span className="mx-2">→</span>}
           </span>
@@ -237,42 +237,42 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-600 text-white"
+        return "bg-theme-status-success text-theme-text-primary"
       case "in_progress":
-        return "bg-blue-600 text-white"
+        return "bg-theme-status-info text-theme-text-primary"
       case "diagnosed":
-        return "bg-amber-600 text-white"
+        return "bg-theme-status-warning text-theme-text-primary"
       case "approved":
-        return "bg-purple-600 text-white"
+        return "bg-purple-600 text-theme-text-primary"
       case "intake":
-        return "bg-gray-600 text-white"
+        return "bg-gray-600 text-theme-text-primary"
       case "shipped":
-        return "bg-green-600 text-white"
+        return "bg-theme-status-success text-theme-text-primary"
       default:
-        return "bg-gray-600 text-white"
+        return "bg-gray-600 text-theme-text-primary"
     }
   }
 
   const getPriorityColor = (priority: string) => {
-    return priority === "rush" ? "bg-red-600 text-white" : "bg-gray-600 text-white"
+    return priority === "rush" ? "bg-theme-status-error text-theme-text-primary" : "bg-gray-600 text-theme-text-primary"
   }
 
   const getRepairTypeColor = (type: string) => {
     switch (type) {
       case "production-rework":
-        return "bg-blue-600 text-white"
+        return "bg-theme-status-info text-theme-text-primary"
       case "finishing-rework":
-        return "bg-purple-600 text-white"
+        return "bg-purple-600 text-theme-text-primary"
       case "acoustic-issues":
-        return "bg-pink-600 text-white"
+        return "bg-pink-600 text-theme-text-primary"
       case "wood-damage":
-        return "bg-orange-600 text-white"
+        return "bg-orange-600 text-theme-text-primary"
       case "hardware-issues":
-        return "bg-teal-600 text-white"
+        return "bg-teal-600 text-theme-text-primary"
       case "driver-problems":
-        return "bg-red-600 text-white"
+        return "bg-theme-status-error text-theme-text-primary"
       default:
-        return "bg-gray-600 text-white"
+        return "bg-gray-600 text-theme-text-primary"
     }
   }
 
@@ -295,17 +295,17 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
 
   if (currentView === "repair-work" && workingRepair) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] text-white p-6">
+      <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary p-6">
         {renderBreadcrumb()}
 
         {/* Timer Display */}
         <div className="text-center mb-8">
-          <div className="text-6xl font-bold text-[#d4a574] mb-2">{formatTime(workTime)}</div>
+          <div className="text-6xl font-bold text-theme-text-secondary mb-2">{formatTime(workTime)}</div>
           <div className="flex items-center justify-center gap-4">
             {!isWorking ? (
               <Button
                 onClick={() => setIsWorking(true)}
-                className="bg-green-600 hover:bg-green-700 text-white h-12 px-8"
+                className="bg-theme-status-success hover:bg-green-700 text-theme-text-primary h-12 px-8"
               >
                 <Timer className="h-5 w-5 mr-2" />
                 START REPAIR
@@ -313,7 +313,7 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
             ) : (
               <Button
                 onClick={() => setIsWorking(false)}
-                className="bg-amber-600 hover:bg-amber-700 text-white h-12 px-8"
+                className="bg-theme-status-warning hover:bg-amber-700 text-theme-text-primary h-12 px-8"
               >
                 <Timer className="h-5 w-5 mr-2" />
                 PAUSE WORK
@@ -323,55 +323,55 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
         </div>
 
         {/* Repair Details */}
-        <Card className="bg-[#1a0d08] border-[#8B4513]/30 mb-8 max-w-2xl mx-auto">
+        <Card className="bg-theme-bg-secondary border-theme-border-primary mb-8 max-w-2xl mx-auto">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-[#d4a574] mb-4">{workingRepair.repairNumber}</h2>
+            <h2 className="text-2xl font-bold text-theme-text-secondary mb-4">{workingRepair.repairNumber}</h2>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-400">Customer:</span>
-                <p className="text-white font-medium">{workingRepair.customerName}</p>
+                <span className="text-theme-text-tertiary">Customer:</span>
+                <p className="text-theme-text-primary font-medium">{workingRepair.customerName}</p>
               </div>
               <div>
-                <span className="text-gray-400">Model:</span>
-                <p className="text-white">{workingRepair.model}</p>
+                <span className="text-theme-text-tertiary">Model:</span>
+                <p className="text-theme-text-primary">{workingRepair.model}</p>
               </div>
               <div>
-                <span className="text-gray-400">Wood Type:</span>
-                <p className="text-white">{workingRepair.woodType}</p>
+                <span className="text-theme-text-tertiary">Wood Type:</span>
+                <p className="text-theme-text-primary">{workingRepair.woodType}</p>
               </div>
               <div>
-                <span className="text-gray-400">Repair Type:</span>
-                <p className="text-white">{workingRepair.repairType.replace("-", " ")}</p>
+                <span className="text-theme-text-tertiary">Repair Type:</span>
+                <p className="text-theme-text-primary">{workingRepair.repairType.replace("-", " ")}</p>
               </div>
               <div>
-                <span className="text-gray-400">Complexity:</span>
-                <p className="text-white capitalize">{workingRepair.complexity}</p>
+                <span className="text-theme-text-tertiary">Complexity:</span>
+                <p className="text-theme-text-primary capitalize">{workingRepair.complexity}</p>
               </div>
               <div>
-                <span className="text-gray-400">Location:</span>
-                <p className="text-white">{workingRepair.location}</p>
+                <span className="text-theme-text-tertiary">Location:</span>
+                <p className="text-theme-text-primary">{workingRepair.location}</p>
               </div>
             </div>
 
             {workingRepair.customerNote && (
-              <div className="mt-4 p-3 bg-[#0a0a0a] rounded border border-[#8B4513]/20">
-                <span className="text-gray-400 text-sm">Customer Note:</span>
-                <p className="text-white mt-1">{workingRepair.customerNote}</p>
+              <div className="mt-4 p-3 bg-theme-bg-primary rounded border border-theme-border-secondary">
+                <span className="text-theme-text-tertiary text-sm">Customer Note:</span>
+                <p className="text-theme-text-primary mt-1">{workingRepair.customerNote}</p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Photo Documentation */}
-        <Card className="bg-[#1a0d08] border-[#8B4513]/30 mb-8 max-w-2xl mx-auto">
+        <Card className="bg-theme-bg-secondary border-theme-border-primary mb-8 max-w-2xl mx-auto">
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold text-[#d4a574] mb-4">Photo Documentation</h3>
+            <h3 className="text-xl font-bold text-theme-text-secondary mb-4">Photo Documentation</h3>
             <div className="grid grid-cols-2 gap-4">
-              <Button className="h-16 bg-blue-600 hover:bg-blue-700 text-white">
+              <Button className="h-16 bg-theme-status-info hover:bg-blue-700 text-theme-text-primary">
                 <Camera className="h-6 w-6 mr-2" />
                 BEFORE PHOTOS
               </Button>
-              <Button className="h-16 bg-green-600 hover:bg-green-700 text-white">
+              <Button className="h-16 bg-theme-status-success hover:bg-green-700 text-theme-text-primary">
                 <Camera className="h-6 w-6 mr-2" />
                 AFTER PHOTOS
               </Button>
@@ -382,11 +382,11 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
         {/* Repair Actions */}
         <div className="text-center space-y-4">
           <div className="flex gap-4 justify-center">
-            <Button className="h-16 bg-green-600 hover:bg-green-700 text-white px-8">
+            <Button className="h-16 bg-theme-status-success hover:bg-green-700 text-theme-text-primary px-8">
               <CheckCircle className="h-6 w-6 mr-2" />
               COMPLETE REPAIR
             </Button>
-            <Button className="h-16 bg-amber-600 hover:bg-amber-700 text-white px-8">
+            <Button className="h-16 bg-theme-status-warning hover:bg-amber-700 text-theme-text-primary px-8">
               <Package className="h-6 w-6 mr-2" />
               RETURN TO PRODUCTION
             </Button>
@@ -394,7 +394,7 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
 
           <Button
             onClick={() => setCurrentView("dashboard")}
-            className="bg-gray-600 hover:bg-gray-700 text-white h-12 px-8"
+            className="bg-gray-600 hover:bg-gray-700 text-theme-text-primary h-12 px-8"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Repair Center
@@ -405,65 +405,65 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary p-6">
       {renderBreadcrumb()}
 
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-[#d4a574] mb-2">REPAIR CENTER</h1>
-        <p className="text-xl text-gray-300">Production rework and customer repair management</p>
+        <h1 className="text-4xl font-bold text-theme-text-secondary mb-2">REPAIR CENTER</h1>
+        <p className="text-xl text-theme-text-tertiary">Production rework and customer repair management</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
-        <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+        <Card className="bg-theme-bg-secondary border-theme-border-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-[#d4a574]">Active Repairs</CardTitle>
-            <Wrench className="h-4 w-4 text-[#8B4513]" />
+            <CardTitle className="text-sm font-medium text-theme-text-secondary">Active Repairs</CardTitle>
+            <Wrench className="h-4 w-4 text-theme-brand-secondary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.activeRepairs}</div>
-            <p className="text-xs text-gray-400">In progress + diagnosed</p>
+            <div className="text-2xl font-bold text-theme-text-primary">{stats.activeRepairs}</div>
+            <p className="text-xs text-theme-text-tertiary">In progress + diagnosed</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+        <Card className="bg-theme-bg-secondary border-theme-border-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-[#d4a574]">Pending Approvals</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <CardTitle className="text-sm font-medium text-theme-text-secondary">Pending Approvals</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-theme-status-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.pendingApprovals}</div>
-            <p className="text-xs text-gray-400">Awaiting customer approval</p>
+            <div className="text-2xl font-bold text-theme-text-primary">{stats.pendingApprovals}</div>
+            <p className="text-xs text-theme-text-tertiary">Awaiting customer approval</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+        <Card className="bg-theme-bg-secondary border-theme-border-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-[#d4a574]">Completed This Week</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-sm font-medium text-theme-text-secondary">Completed This Week</CardTitle>
+            <CheckCircle className="h-4 w-4 text-theme-status-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.completedThisWeek}</div>
-            <p className="text-xs text-gray-400">Finished repairs</p>
+            <div className="text-2xl font-bold text-theme-text-primary">{stats.completedThisWeek}</div>
+            <p className="text-xs text-theme-text-tertiary">Finished repairs</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30 mb-8 max-w-4xl mx-auto">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary mb-8 max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Quick Actions</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
             <Button
               onClick={() => setCreateRepairDialogOpen(true)}
-              className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white"
+              className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary"
             >
               <Plus className="mr-2 h-4 w-4" />
               New Repair Order
             </Button>
-            <Button variant="outline" className="border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20">
+            <Button variant="outline" className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
               <Package className="mr-2 h-4 w-4" />
               Return to Production
             </Button>
@@ -474,68 +474,68 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
       {/* Search and Filters */}
       <div className="flex items-center gap-4 mb-6 max-w-4xl mx-auto">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-theme-text-tertiary" />
           <Input
             placeholder="Search repairs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-[#1a0d08] border-[#8B4513]/30 text-white placeholder-gray-400"
+            className="pl-10 bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary placeholder-gray-400"
           />
         </div>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40 bg-[#1a0d08] border-[#8B4513]/30 text-white">
+          <SelectTrigger className="w-40 bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
-            <SelectItem value="all" className="text-white hover:bg-[#8B4513]/20">
+          <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
+            <SelectItem value="all" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               All Status
             </SelectItem>
-            <SelectItem value="intake" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="intake" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Intake
             </SelectItem>
-            <SelectItem value="diagnosed" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="diagnosed" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Diagnosed
             </SelectItem>
-            <SelectItem value="approved" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="approved" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Approved
             </SelectItem>
-            <SelectItem value="in_progress" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="in_progress" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               In Progress
             </SelectItem>
-            <SelectItem value="testing" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="testing" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Testing
             </SelectItem>
-            <SelectItem value="completed" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="completed" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Completed
             </SelectItem>
           </SelectContent>
         </Select>
 
         <Select value={repairTypeFilter} onValueChange={setRepairTypeFilter}>
-          <SelectTrigger className="w-48 bg-[#1a0d08] border-[#8B4513]/30 text-white">
+          <SelectTrigger className="w-48 bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a0d08] border-[#8B4513]/30">
-            <SelectItem value="all" className="text-white hover:bg-[#8B4513]/20">
+          <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
+            <SelectItem value="all" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               All Types
             </SelectItem>
-            <SelectItem value="production-rework" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="production-rework" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Production Rework
             </SelectItem>
-            <SelectItem value="finishing-rework" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="finishing-rework" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Finishing Rework
             </SelectItem>
-            <SelectItem value="acoustic-issues" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="acoustic-issues" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Acoustic Issues
             </SelectItem>
-            <SelectItem value="wood-damage" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="wood-damage" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Wood Damage
             </SelectItem>
-            <SelectItem value="hardware-issues" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="hardware-issues" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Hardware Issues
             </SelectItem>
-            <SelectItem value="driver-problems" className="text-white hover:bg-[#8B4513]/20">
+            <SelectItem value="driver-problems" className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
               Driver Problems
             </SelectItem>
           </SelectContent>
@@ -543,19 +543,19 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
       </div>
 
       {/* Repair Queue */}
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30 max-w-6xl mx-auto">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary max-w-6xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-[#d4a574]">Repair Queue ({filteredRepairs.length} repairs)</CardTitle>
+          <CardTitle className="text-theme-text-secondary">Repair Queue ({filteredRepairs.length} repairs)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {filteredRepairs.map((repair) => (
-              <Card key={repair.id} className="bg-[#0a0a0a] border-[#8B4513]/20">
+              <Card key={repair.id} className="bg-theme-bg-primary border-theme-border-secondary">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-[#d4a574]">{repair.repairNumber}</h3>
+                        <h3 className="text-lg font-bold text-theme-text-secondary">{repair.repairNumber}</h3>
                         <Badge className={getStatusColor(repair.status)}>
                           {repair.status.replace("_", " ").toUpperCase()}
                         </Badge>
@@ -564,40 +564,40 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
                           {repair.repairType.replace("-", " ").toUpperCase()}
                         </Badge>
                         {repair.warrantyStatus === "in-warranty" && (
-                          <Badge className="bg-green-600 text-white">WARRANTY</Badge>
+                          <Badge className="bg-theme-status-success text-theme-text-primary">WARRANTY</Badge>
                         )}
                       </div>
 
                       <div className="grid grid-cols-4 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-400">Customer:</span>
-                          <p className="text-white font-medium">{repair.customerName}</p>
+                          <span className="text-theme-text-tertiary">Customer:</span>
+                          <p className="text-theme-text-primary font-medium">{repair.customerName}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Model:</span>
-                          <p className="text-white">
+                          <span className="text-theme-text-tertiary">Model:</span>
+                          <p className="text-theme-text-primary">
                             {repair.model} - {repair.woodType}
                           </p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Location:</span>
-                          <p className="text-white">{repair.location || "Repair Wall"}</p>
+                          <span className="text-theme-text-tertiary">Location:</span>
+                          <p className="text-theme-text-primary">{repair.location || "Repair Wall"}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Time Spent:</span>
-                          <p className="text-white">{formatTime(repair.timeSpent || 0)}</p>
+                          <span className="text-theme-text-tertiary">Time Spent:</span>
+                          <p className="text-theme-text-primary">{formatTime(repair.timeSpent || 0)}</p>
                         </div>
                       </div>
 
                       {repair.originalOrderNumber && (
-                        <div className="text-sm text-gray-400 mt-2">Original Order: {repair.originalOrderNumber}</div>
+                        <div className="text-sm text-theme-text-tertiary mt-2">Original Order: {repair.originalOrderNumber}</div>
                       )}
                     </div>
 
                     <div className="flex items-center gap-2">
                       <Button
                         onClick={() => handleStartRepair(repair)}
-                        className="bg-green-600 hover:bg-green-700 text-white h-10 px-4"
+                        className="bg-theme-status-success hover:bg-green-700 text-theme-text-primary h-10 px-4"
                       >
                         <Wrench className="h-4 w-4 mr-2" />
                         START REPAIR
@@ -605,7 +605,7 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
 
                       <Button
                         variant="outline"
-                        className="border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20 h-10 px-4"
+                        className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20 h-10 px-4"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         VIEW
@@ -615,7 +615,7 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
                         <Button
                           onClick={() => handleViewCustomerNote(repair)}
                           variant="outline"
-                          className="border-blue-500 text-blue-400 hover:bg-blue-500/20 h-10 px-4"
+                          className="border-theme-status-info text-theme-status-info hover:bg-theme-status-info/20 h-10 px-4"
                         >
                           <MessageSquare className="h-4 w-4 mr-2" />
                           NOTE
@@ -629,7 +629,7 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
 
             {filteredRepairs.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-400 text-lg">No repairs found matching your criteria</p>
+                <p className="text-theme-text-tertiary text-lg">No repairs found matching your criteria</p>
               </div>
             )}
           </div>
@@ -638,19 +638,19 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
 
       {/* Customer Note Dialog */}
       <Dialog open={customerNoteDialogOpen} onOpenChange={setCustomerNoteDialogOpen}>
-        <DialogContent className="bg-[#1a0d08] border-[#8B4513]/30 text-white">
+        <DialogContent className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary">
           <DialogHeader>
-            <DialogTitle className="text-[#d4a574]">Customer Note</DialogTitle>
+            <DialogTitle className="text-theme-text-secondary">Customer Note</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-[#0a0a0a] border border-[#8B4513]/20 rounded-lg p-4">
-              <div className="text-sm text-gray-400 mb-2">Customer's description of the issue:</div>
-              <div className="text-white whitespace-pre-wrap">{selectedCustomerNote}</div>
+            <div className="bg-theme-bg-primary border border-theme-border-secondary rounded-lg p-4">
+              <div className="text-sm text-theme-text-tertiary mb-2">Customer's description of the issue:</div>
+              <div className="text-theme-text-primary whitespace-pre-wrap">{selectedCustomerNote}</div>
             </div>
             <div className="flex justify-end">
               <Button
                 onClick={() => setCustomerNoteDialogOpen(false)}
-                className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white"
+                className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary"
               >
                 Close
               </Button>

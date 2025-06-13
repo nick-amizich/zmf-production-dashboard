@@ -59,24 +59,24 @@ export function TimerControls({ estimatedTime, onStart, onPause, onComplete }: T
   }
 
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary">
       <CardContent className="p-6">
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2 text-[#d4a574]">
+          <div className="flex items-center justify-center gap-2 text-theme-text-secondary">
             <Clock className="h-5 w-5" />
             <span className="text-sm">Estimated: {estimatedTime}</span>
           </div>
 
-          <div className="text-4xl font-bold text-white font-mono">{formatTime(elapsed)}</div>
+          <div className="text-4xl font-bold text-theme-text-primary font-mono">{formatTime(elapsed)}</div>
 
           <div className="flex gap-3 justify-center">
             {!isRunning ? (
-              <Button onClick={handleStart} size="lg" className="bg-green-600 hover:bg-green-700 text-white h-14 px-8">
+              <Button onClick={handleStart} size="lg" className="bg-theme-status-success hover:bg-green-700 text-theme-text-primary h-14 px-8">
                 <Play className="h-6 w-6 mr-2" />
                 Start
               </Button>
             ) : (
-              <Button onClick={handlePause} size="lg" className="bg-amber-600 hover:bg-amber-700 text-white h-14 px-8">
+              <Button onClick={handlePause} size="lg" className="bg-theme-status-warning hover:bg-amber-700 text-theme-text-primary h-14 px-8">
                 <Pause className="h-6 w-6 mr-2" />
                 Pause
               </Button>
@@ -85,7 +85,7 @@ export function TimerControls({ estimatedTime, onStart, onPause, onComplete }: T
             <Button
               onClick={handleComplete}
               size="lg"
-              className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white h-14 px-8"
+              className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary h-14 px-8"
             >
               <Square className="h-6 w-6 mr-2" />
               Complete

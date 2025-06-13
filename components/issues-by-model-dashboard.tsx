@@ -194,16 +194,16 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
   const [viewMode, setViewMode] = useState<"model" | "wood">("model")
 
   const severityColors = {
-    critical: "bg-red-600",
-    major: "bg-amber-600",
-    minor: "bg-blue-600",
+    critical: "bg-theme-status-error",
+    major: "bg-theme-status-warning",
+    minor: "bg-theme-status-info",
   }
 
   const stageColors = {
-    Intake: "bg-blue-600",
-    Sanding: "bg-amber-600",
+    Intake: "bg-theme-status-info",
+    Sanding: "bg-theme-status-warning",
     Finishing: "bg-purple-600",
-    "Sub-Assembly": "bg-green-600",
+    "Sub-Assembly": "bg-theme-status-success",
     "Final Assembly": "bg-orange-600",
     "Acoustic QC": "bg-pink-600",
     Shipping: "bg-gray-600",
@@ -212,19 +212,19 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
   const currentData = viewMode === "model" ? issuesByModel : issuesByWoodType
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#1a0d08] text-white">
-      <header className="border-b border-[#8B4513]/30 bg-[#1a0d08]/50 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary">
+      <header className="border-b border-theme-border-primary bg-theme-bg-secondary/50 backdrop-blur-sm">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <Button onClick={onBack} className="bg-[#8B4513] hover:bg-[#8B4513]/80 text-white">
+            <Button onClick={onBack} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Quality Control
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-[#d4a574]">
+              <h1 className="text-2xl font-bold text-theme-text-secondary">
                 Issues by {viewMode === "model" ? "Model" : "Wood Type"}
               </h1>
-              <p className="text-sm text-gray-400">Quality issues categorized by product specifications</p>
+              <p className="text-sm text-theme-text-tertiary">Quality issues categorized by product specifications</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -233,8 +233,8 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
               onClick={() => setViewMode("model")}
               className={
                 viewMode === "model"
-                  ? "bg-[#8B4513] hover:bg-[#8B4513]/80"
-                  : "border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20"
+                  ? "bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
+                  : "border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20"
               }
             >
               By Model
@@ -244,8 +244,8 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
               onClick={() => setViewMode("wood")}
               className={
                 viewMode === "wood"
-                  ? "bg-[#8B4513] hover:bg-[#8B4513]/80"
-                  : "border-[#8B4513] text-[#d4a574] hover:bg-[#8B4513]/20"
+                  ? "bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
+                  : "border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20"
               }
             >
               By Wood Type
@@ -257,18 +257,18 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
       <div className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {Object.entries(currentData).map(([category, issues]) => (
-            <Card key={category} className="bg-[#1a0d08] border-[#8B4513]/30">
+            <Card key={category} className="bg-theme-bg-secondary border-theme-border-primary">
               <CardHeader>
-                <CardTitle className="text-[#d4a574] flex items-center justify-between">
+                <CardTitle className="text-theme-text-secondary flex items-center justify-between">
                   {category}
-                  <Badge className="bg-[#8B4513] text-white">{issues.length} issues</Badge>
+                  <Badge className="bg-theme-brand-secondary text-theme-text-primary">{issues.length} issues</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {issues.map((issue) => (
                   <Card
                     key={issue.id}
-                    className="bg-[#0a0a0a] border-[#8B4513]/20 cursor-pointer hover:border-[#d4a574]/50 transition-colors"
+                    className="bg-theme-bg-primary border-theme-border-secondary cursor-pointer hover:border-theme-text-secondary/50 transition-colors"
                     onClick={() => setSelectedIssue(issue)}
                   >
                     <CardContent className="p-3">
@@ -276,22 +276,22 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[#d4a574] font-medium text-sm">{issue.id}</span>
-                              <Badge className={`${severityColors[issue.severity]} text-white text-xs`}>
+                              <span className="text-theme-text-secondary font-medium text-sm">{issue.id}</span>
+                              <Badge className={`${severityColors[issue.severity]} text-theme-text-primary text-xs`}>
                                 {issue.severity}
                               </Badge>
                             </div>
-                            <h4 className="text-white font-medium text-sm">{issue.title}</h4>
+                            <h4 className="text-theme-text-primary font-medium text-sm">{issue.title}</h4>
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <Badge className={`${stageColors[issue.stage as keyof typeof stageColors]} text-white`}>
+                          <Badge className={`${stageColors[issue.stage as keyof typeof stageColors]} text-theme-text-primary`}>
                             {issue.stage}
                           </Badge>
-                          <span className="text-gray-400">{issue.reportedDate}</span>
+                          <span className="text-theme-text-tertiary">{issue.reportedDate}</span>
                         </div>
-                        <div className="text-xs text-gray-400">
-                          Reported by: <span className="text-white">{issue.reportedBy}</span>
+                        <div className="text-xs text-theme-text-tertiary">
+                          Reported by: <span className="text-theme-text-primary">{issue.reportedBy}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -305,16 +305,16 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
 
       {/* Issue Detail Modal */}
       {selectedIssue && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="bg-[#1a0d08] border-[#8B4513]/30 max-w-2xl w-full">
+        <div className="fixed inset-0 bg-theme-bg-primary/50 flex items-center justify-center p-4 z-50">
+          <Card className="bg-theme-bg-secondary border-theme-border-primary max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-[#d4a574]">Issue Details</CardTitle>
+                <CardTitle className="text-theme-text-secondary">Issue Details</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedIssue(null)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-theme-text-tertiary hover:text-theme-text-primary"
                 >
                   <XCircle className="h-4 w-4" />
                 </Button>
@@ -323,45 +323,45 @@ export function IssuesByModelDashboard({ onBack }: IssuesByModelDashboardProps) 
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-400">Issue ID</label>
-                  <p className="text-[#d4a574] font-medium">{selectedIssue.id}</p>
+                  <label className="text-sm text-theme-text-tertiary">Issue ID</label>
+                  <p className="text-theme-text-secondary font-medium">{selectedIssue.id}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Severity</label>
-                  <Badge className={`${severityColors[selectedIssue.severity]} text-white ml-2`}>
+                  <label className="text-sm text-theme-text-tertiary">Severity</label>
+                  <Badge className={`${severityColors[selectedIssue.severity]} text-theme-text-primary ml-2`}>
                     {selectedIssue.severity}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Production Stage</label>
-                  <Badge className={`${stageColors[selectedIssue.stage as keyof typeof stageColors]} text-white ml-2`}>
+                  <label className="text-sm text-theme-text-tertiary">Production Stage</label>
+                  <Badge className={`${stageColors[selectedIssue.stage as keyof typeof stageColors]} text-theme-text-primary ml-2`}>
                     {selectedIssue.stage}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Reported Date</label>
-                  <p className="text-white">{selectedIssue.reportedDate}</p>
+                  <label className="text-sm text-theme-text-tertiary">Reported Date</label>
+                  <p className="text-theme-text-primary">{selectedIssue.reportedDate}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Model</label>
-                  <p className="text-white">{selectedIssue.model}</p>
+                  <label className="text-sm text-theme-text-tertiary">Model</label>
+                  <p className="text-theme-text-primary">{selectedIssue.model}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Wood Type</label>
-                  <p className="text-white">{selectedIssue.woodType}</p>
+                  <label className="text-sm text-theme-text-tertiary">Wood Type</label>
+                  <p className="text-theme-text-primary">{selectedIssue.woodType}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Reported By</label>
-                  <p className="text-white">{selectedIssue.reportedBy}</p>
+                  <label className="text-sm text-theme-text-tertiary">Reported By</label>
+                  <p className="text-theme-text-primary">{selectedIssue.reportedBy}</p>
                 </div>
               </div>
               <div>
-                <label className="text-sm text-gray-400">Title</label>
-                <p className="text-white font-medium">{selectedIssue.title}</p>
+                <label className="text-sm text-theme-text-tertiary">Title</label>
+                <p className="text-theme-text-primary font-medium">{selectedIssue.title}</p>
               </div>
               <div>
-                <label className="text-sm text-gray-400">Description</label>
-                <p className="text-white">{selectedIssue.description}</p>
+                <label className="text-sm text-theme-text-tertiary">Description</label>
+                <p className="text-theme-text-primary">{selectedIssue.description}</p>
               </div>
             </CardContent>
           </Card>

@@ -27,18 +27,18 @@ const skillIcons = {
 
 export function WorkerStatusCard({ worker }: WorkerStatusCardProps) {
   const statusColors = {
-    available: "bg-green-600",
-    busy: "bg-amber-600",
+    available: "bg-theme-status-success",
+    busy: "bg-theme-status-warning",
     break: "bg-gray-600",
   }
 
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30 hover:border-[#d4a574]/50 transition-colors">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary hover:border-theme-text-secondary/50 transition-colors">
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={worker.avatar || "/placeholder.svg"} />
-            <AvatarFallback className="bg-[#8B4513] text-[#d4a574]">
+            <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary">
               {worker.name
                 .split(" ")
                 .map((n) => n[0])
@@ -46,20 +46,20 @@ export function WorkerStatusCard({ worker }: WorkerStatusCardProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h4 className="font-medium text-[#d4a574]">{worker.name}</h4>
-            <Badge className={`${statusColors[worker.status]} text-white text-xs`}>{worker.status}</Badge>
+            <h4 className="font-medium text-theme-text-secondary">{worker.name}</h4>
+            <Badge className={`${statusColors[worker.status]} text-theme-text-primary text-xs`}>{worker.status}</Badge>
           </div>
         </div>
 
         <div className="space-y-2 text-sm">
-          <div className="text-gray-300">
-            <span className="text-[#d4a574]">Stage:</span> {worker.stage}
+          <div className="text-theme-text-tertiary">
+            <span className="text-theme-text-secondary">Stage:</span> {worker.stage}
           </div>
-          <div className="text-gray-300">
-            <span className="text-[#d4a574]">Task:</span> {worker.currentTask}
+          <div className="text-theme-text-tertiary">
+            <span className="text-theme-text-secondary">Task:</span> {worker.currentTask}
           </div>
-          <div className="text-gray-300">
-            <span className="text-[#d4a574]">Time:</span> {worker.timeElapsed}
+          <div className="text-theme-text-tertiary">
+            <span className="text-theme-text-secondary">Time:</span> {worker.timeElapsed}
           </div>
         </div>
 
@@ -67,7 +67,7 @@ export function WorkerStatusCard({ worker }: WorkerStatusCardProps) {
           {worker.skills.map((skill) => {
             const Icon = skillIcons[skill as keyof typeof skillIcons] || Clock
             return (
-              <div key={skill} className="p-1 bg-[#8B4513]/20 rounded text-[#d4a574]" title={skill}>
+              <div key={skill} className="p-1 bg-theme-brand-secondary/20 rounded text-theme-text-secondary" title={skill}>
                 <Icon className="h-3 w-3" />
               </div>
             )

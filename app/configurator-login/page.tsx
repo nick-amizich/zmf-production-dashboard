@@ -73,7 +73,7 @@ export default function ConfiguratorLoginPage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <Settings className="h-10 w-10 text-white" />
+            <Settings className="h-10 w-10 text-theme-text-primary" />
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export default function ConfiguratorLoginPage() {
           <CardContent>
             <form onSubmit={handleAuth} className="space-y-4">
               {error && (
-                <Alert className={error.includes('email') ? 'border-blue-500' : 'border-red-500'}>
+                <Alert className={error.includes('email') ? 'border-theme-status-info' : 'border-theme-status-error'}>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -135,13 +135,13 @@ export default function ConfiguratorLoginPage() {
             <div className="mt-4 text-center">
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-theme-status-info hover:underline"
               >
                 {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
               </button>
             </div>
 
-            <div className="mt-6 text-center text-sm text-gray-500">
+            <div className="mt-6 text-center text-sm text-theme-text-tertiary">
               <p>Quick Start:</p>
               <p className="mt-2">1. Sign up with any email</p>
               <p>2. Use a password with 6+ characters</p>

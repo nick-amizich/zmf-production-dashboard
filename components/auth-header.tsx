@@ -23,27 +23,27 @@ export function AuthHeader() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="border-[#8B4513]/50 text-[#d4a574] hover:bg-[#8B4513]/20"
+            className="border-theme-border-primary text-theme-text-secondary hover:bg-theme-brand-secondary/20"
           >
             <User className="mr-2 h-4 w-4" />
             {worker.name}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 bg-[#1a0d08] border-[#8B4513]/30">
-          <DropdownMenuLabel className="text-[#d4a574]">My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-[#8B4513]/30" />
-          <DropdownMenuItem className="text-gray-300">
+        <DropdownMenuContent className="w-56 bg-theme-bg-secondary border-theme-border-primary">
+          <DropdownMenuLabel className="text-theme-text-secondary">My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-theme-brand-secondary/30" />
+          <DropdownMenuItem className="text-theme-text-tertiary">
             <span className="font-medium">Role:</span>
             <span className="ml-2 capitalize">{worker.role}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="text-gray-300">
+          <DropdownMenuItem className="text-theme-text-tertiary">
             <span className="font-medium">Email:</span>
             <span className="ml-2">{worker.email}</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-[#8B4513]/30" />
+          <DropdownMenuSeparator className="bg-theme-brand-secondary/30" />
           <DropdownMenuItem
             onClick={signOut}
-            className="text-red-400 hover:text-red-300 hover:bg-red-900/20 cursor-pointer"
+            className="text-theme-status-error hover:text-red-300 hover:bg-red-900/20 cursor-pointer"
           >
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out

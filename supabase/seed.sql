@@ -1,18 +1,5 @@
--- Create demo users
-INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at)
-VALUES
-  ('11111111-1111-1111-1111-111111111111', 'manager@zmf.com', crypt('password123', gen_salt('bf')), NOW(), NOW(), NOW()),
-  ('22222222-2222-2222-2222-222222222222', 'worker@zmf.com', crypt('password123', gen_salt('bf')), NOW(), NOW(), NOW()),
-  ('33333333-3333-3333-3333-333333333333', 'tony@zmf.com', crypt('password123', gen_salt('bf')), NOW(), NOW(), NOW()),
-  ('44444444-4444-4444-4444-444444444444', 'jake@zmf.com', crypt('password123', gen_salt('bf')), NOW(), NOW(), NOW());
-
--- Create corresponding worker records
-INSERT INTO workers (auth_user_id, name, email, role, specializations)
-VALUES
-  ('11111111-1111-1111-1111-111111111111', 'Production Manager', 'manager@zmf.com', 'manager', '{}'),
-  ('22222222-2222-2222-2222-222222222222', 'Test Worker', 'worker@zmf.com', 'worker', ARRAY['Intake', 'Sanding']::production_stage[]),
-  ('33333333-3333-3333-3333-333333333333', 'Tony Martinez', 'tony@zmf.com', 'worker', ARRAY['Intake', 'Sanding']::production_stage[]),
-  ('44444444-4444-4444-4444-444444444444', 'Jake Thompson', 'jake@zmf.com', 'worker', ARRAY['Sanding', 'Final Assembly']::production_stage[]);
+-- Note: Demo users will be created via scripts/create-demo-users.js
+-- This is because direct insertion into auth.users doesn't work in local development
 
 -- Create some sample customers
 INSERT INTO customers (name, email, phone)

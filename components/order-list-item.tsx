@@ -34,22 +34,22 @@ interface OrderListItemProps {
 export function OrderListItem({ order, onViewDetails }: OrderListItemProps) {
   const statusColors = {
     pending: "bg-gray-600",
-    "in-production": "bg-blue-600",
-    "quality-hold": "bg-amber-600",
-    completed: "bg-green-600",
+    "in-production": "bg-theme-status-info",
+    "quality-hold": "bg-theme-status-warning",
+    completed: "bg-theme-status-success",
     shipped: "bg-purple-600",
   }
 
   const priorityColors = {
-    normal: "border-[#8B4513]/30",
-    high: "border-amber-500/50",
-    urgent: "border-red-500/50",
+    normal: "border-theme-border-primary",
+    high: "border-theme-status-warning/50",
+    urgent: "border-theme-status-error/50",
   }
 
   const qualityColors = {
-    good: "text-green-400",
-    warning: "text-amber-400",
-    critical: "text-red-400",
+    good: "text-theme-status-success",
+    warning: "text-theme-status-warning",
+    critical: "text-theme-status-error",
   }
 
   const getStageProgress = (stage: string) => {
@@ -68,32 +68,32 @@ export function OrderListItem({ order, onViewDetails }: OrderListItemProps) {
   }
 
   return (
-    <Card className={`bg-[#1a0d08] ${priorityColors[order.priority]} hover:border-[#d4a574]/50 transition-colors`}>
+    <Card className={`bg-theme-bg-secondary ${priorityColors[order.priority]} hover:border-theme-text-secondary/50 transition-colors`}>
       <CardContent className="p-4">
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div>
-                <h3 className="font-semibold text-[#d4a574]">{order.orderNumber}</h3>
-                <p className="text-sm text-gray-300 flex items-center gap-1">
+                <h3 className="font-semibold text-theme-text-secondary">{order.orderNumber}</h3>
+                <p className="text-sm text-theme-text-tertiary flex items-center gap-1">
                   <User className="h-3 w-3" />
                   {order.customerName}
                 </p>
               </div>
               {order.priority !== "normal" && (
-                <Badge className={`${order.priority === "urgent" ? "bg-red-600" : "bg-amber-600"} text-white`}>
+                <Badge className={`${order.priority === "urgent" ? "bg-theme-status-error" : "bg-theme-status-warning"} text-theme-text-primary`}>
                   {order.priority}
                 </Badge>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Badge className={`${statusColors[order.status]} text-white`}>{order.status.replace("-", " ")}</Badge>
+              <Badge className={`${statusColors[order.status]} text-theme-text-primary`}>{order.status.replace("-", " ")}</Badge>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onViewDetails(order.id)}
-                className="text-[#d4a574] hover:text-[#d4a574]/80"
+                className="text-theme-text-secondary hover:text-theme-text-secondary/80"
               >
                 <Eye className="h-4 w-4" />
               </Button>
@@ -103,26 +103,26 @@ export function OrderListItem({ order, onViewDetails }: OrderListItemProps) {
           {/* Product Details */}
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-gray-400">Model:</span>
-              <p className="text-white font-medium">{order.model}</p>
+              <span className="text-theme-text-tertiary">Model:</span>
+              <p className="text-theme-text-primary font-medium">{order.model}</p>
             </div>
             <div>
-              <span className="text-gray-400">Wood:</span>
-              <p className="text-white">{order.woodType}</p>
+              <span className="text-theme-text-tertiary">Wood:</span>
+              <p className="text-theme-text-primary">{order.woodType}</p>
             </div>
             <div>
-              <span className="text-gray-400">Stage:</span>
-              <p className="text-[#d4a574]">{order.currentStage}</p>
+              <span className="text-theme-text-tertiary">Stage:</span>
+              <p className="text-theme-text-secondary">{order.currentStage}</p>
             </div>
           </div>
 
           {/* Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Production Progress</span>
-              <span className="text-[#d4a574]">{order.progress}%</span>
+              <span className="text-theme-text-tertiary">Production Progress</span>
+              <span className="text-theme-text-secondary">{order.progress}%</span>
             </div>
-            <Progress value={order.progress} className="h-2 bg-[#8B4513]/20" />
+            <Progress value={order.progress} className="h-2 bg-theme-brand-secondary/20" />
           </div>
 
           {/* Additional Info */}
@@ -131,27 +131,27 @@ export function OrderListItem({ order, onViewDetails }: OrderListItemProps) {
               {order.assignedWorker && (
                 <div className="flex items-center gap-1">
                   <Avatar className="h-4 w-4">
-                    <AvatarFallback className="bg-[#8B4513] text-[#d4a574] text-xs">
+                    <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary text-xs">
                       {order.assignedWorker
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-gray-300">{order.assignedWorker}</span>
+                  <span className="text-theme-text-tertiary">{order.assignedWorker}</span>
                 </div>
               )}
               {order.batchId && (
                 <div className="flex items-center gap-1">
-                  <Package className="h-3 w-3 text-gray-400" />
-                  <span className="text-gray-300">{order.batchId}</span>
+                  <Package className="h-3 w-3 text-theme-text-tertiary" />
+                  <span className="text-theme-text-tertiary">{order.batchId}</span>
                 </div>
               )}
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3 text-gray-400" />
-                <span className="text-gray-300">Due: {order.dueDate}</span>
+                <Clock className="h-3 w-3 text-theme-text-tertiary" />
+                <span className="text-theme-text-tertiary">Due: {order.dueDate}</span>
               </div>
               <div className={`flex items-center gap-1 ${qualityColors[order.qualityStatus]}`}>
                 {order.qualityStatus === "good" && <CheckCircle className="h-3 w-3" />}

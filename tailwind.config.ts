@@ -11,6 +11,37 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
+  			// Theme colors using CSS variables
+  			theme: {
+  				bg: {
+  					primary: 'var(--color-bg-primary)',
+  					secondary: 'var(--color-bg-secondary)',
+  					tertiary: 'var(--color-bg-tertiary)',
+  				},
+  				border: {
+  					primary: 'var(--color-border-primary)',
+  					secondary: 'var(--color-border-secondary)',
+  					active: 'var(--color-border-active)',
+  				},
+  				text: {
+  					primary: 'var(--color-text-primary)',
+  					secondary: 'var(--color-text-secondary)',
+  					tertiary: 'var(--color-text-tertiary)',
+  					inverse: 'var(--color-text-inverse)',
+  				},
+  				brand: {
+  					primary: 'var(--color-brand-primary)',
+  					secondary: 'var(--color-brand-secondary)',
+  					accent: 'var(--color-brand-accent)',
+  					hover: 'var(--color-brand-hover)',
+  				},
+  				status: {
+  					success: 'var(--color-status-success)',
+  					warning: 'var(--color-status-warning)',
+  					error: 'var(--color-status-error)',
+  					info: 'var(--color-status-info)',
+  				},
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

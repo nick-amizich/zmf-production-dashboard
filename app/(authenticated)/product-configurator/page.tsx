@@ -8,9 +8,11 @@ import { Plus, Save, Download, Upload, Trash2 } from "lucide-react"
 import ModelManager from "@/components/product-configurator/model-manager"
 import ConfigurationPreview from "@/components/product-configurator/configuration-preview"
 import SyncToDatabase from "@/components/product-configurator/sync-to-database"
+import { ShopifyMapping } from "@/components/product-configurator/shopify-mapping"
 import { ProductModel, ConfiguratorData } from "@/types/product-configurator"
 import { useToast } from "@/components/ui/use-toast"
 
+import { logger } from '@/lib/logger'
 const STORAGE_KEY = 'zmf-product-configurator'
 
 export default function ProductConfiguratorPage() {
@@ -39,7 +41,7 @@ export default function ProductConfiguratorPage() {
           description: "Your saved configuration has been loaded.",
         })
       } catch (error) {
-        console.error('Failed to load saved data:', error)
+        logger.error('Failed to load saved data:', error)
       }
     }
   }, [])
@@ -163,9 +165,10 @@ export default function ProductConfiguratorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <Tabs defaultValue="models" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="models">Model Management</TabsTrigger>
               <TabsTrigger value="preview">Configuration Preview</TabsTrigger>
+              <TabsTrigger value="mapping">Shopify Mapping</TabsTrigger>
             </TabsList>
             
             <TabsContent value="models">
@@ -202,6 +205,10 @@ export default function ProductConfiguratorPage() {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+            
+            <TabsContent value="mapping">
+              <ShopifyMapping />
             </TabsContent>
           </Tabs>
         </div>

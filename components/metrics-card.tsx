@@ -12,20 +12,20 @@ interface MetricsCardProps {
 
 export function MetricsCard({ title, value, subtitle, icon: Icon, trend, trendValue }: MetricsCardProps) {
   const trendColors = {
-    up: "text-green-400",
-    down: "text-red-400",
-    neutral: "text-gray-400",
+    up: "text-theme-status-success",
+    down: "text-theme-status-error",
+    neutral: "text-theme-text-tertiary",
   }
 
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-[#d4a574]">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-[#8B4513]" />
+        <CardTitle className="text-sm font-medium text-theme-text-secondary">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-theme-brand-secondary" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-white">{value}</div>
-        {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
+        <div className="text-2xl font-bold text-theme-text-primary">{value}</div>
+        {subtitle && <p className="text-xs text-theme-text-tertiary mt-1">{subtitle}</p>}
         {trend && trendValue && (
           <p className={`text-xs mt-1 ${trendColors[trend]}`}>
             {trend === "up" ? "↗" : trend === "down" ? "↘" : "→"} {trendValue}

@@ -41,22 +41,22 @@ export function QualityChecklist({
 
   return (
     <div className="space-y-4">
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardHeader>
-          <CardTitle className="text-[#d4a574] text-xl">Quality Checklist - {stage}</CardTitle>
+          <CardTitle className="text-theme-text-secondary text-xl">Quality Checklist - {stage}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {items.map((item) => (
-            <Card key={item.id} className="bg-[#0a0a0a] border-[#8B4513]/20">
+            <Card key={item.id} className="bg-theme-bg-primary border-theme-border-secondary">
               <CardContent className="p-4">
                 <div className="space-y-3">
-                  <p className="text-white text-lg">{item.description}</p>
+                  <p className="text-theme-text-primary text-lg">{item.description}</p>
 
                   <div className="flex gap-3">
                     <Button
                       onClick={() => onItemUpdate(item.id, "pass")}
                       className={`flex-1 h-12 ${
-                        item.status === "pass" ? "bg-green-600 hover:bg-green-700" : "bg-gray-600 hover:bg-gray-700"
+                        item.status === "pass" ? "bg-theme-status-success hover:bg-green-700" : "bg-gray-600 hover:bg-gray-700"
                       }`}
                     >
                       <CheckCircle className="h-5 w-5 mr-2" />
@@ -66,7 +66,7 @@ export function QualityChecklist({
                     <Button
                       onClick={() => onItemUpdate(item.id, "fail")}
                       className={`flex-1 h-12 ${
-                        item.status === "fail" ? "bg-red-600 hover:bg-red-700" : "bg-gray-600 hover:bg-gray-700"
+                        item.status === "fail" ? "bg-theme-status-error hover:bg-red-700" : "bg-gray-600 hover:bg-gray-700"
                       }`}
                     >
                       <XCircle className="h-5 w-5 mr-2" />
@@ -78,7 +78,7 @@ export function QualityChecklist({
                     <Button
                       onClick={() => onPhotoCapture(item.id)}
                       className={`w-full h-12 ${
-                        item.photoTaken ? "bg-[#8B4513] hover:bg-[#8B4513]/80" : "bg-blue-600 hover:bg-blue-700"
+                        item.photoTaken ? "bg-theme-brand-secondary hover:bg-theme-brand-secondary/80" : "bg-theme-status-info hover:bg-blue-700"
                       }`}
                     >
                       {item.photoTaken ? (
@@ -96,7 +96,7 @@ export function QualityChecklist({
                   )}
 
                   {item.status !== "pending" && (
-                    <Badge className={`${item.status === "pass" ? "bg-green-600" : "bg-red-600"} text-white`}>
+                    <Badge className={`${item.status === "pass" ? "bg-theme-status-success" : "bg-theme-status-error"} text-theme-text-primary`}>
                       {item.status === "pass" ? "PASSED" : "FAILED"}
                     </Badge>
                   )}
@@ -107,19 +107,19 @@ export function QualityChecklist({
         </CardContent>
       </Card>
 
-      <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+      <Card className="bg-theme-bg-secondary border-theme-border-primary">
         <CardContent className="p-4">
           <Textarea
             placeholder="Add notes about this stage..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="bg-[#0a0a0a] border-[#8B4513]/30 text-white placeholder-gray-400 min-h-[100px] text-lg"
+            className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary placeholder-gray-400 min-h-[100px] text-lg"
           />
         </CardContent>
       </Card>
 
       <div className="flex gap-3">
-        <Button onClick={onReportIssue} className="flex-1 h-14 bg-amber-600 hover:bg-amber-700 text-white">
+        <Button onClick={onReportIssue} className="flex-1 h-14 bg-theme-status-warning hover:bg-amber-700 text-theme-text-primary">
           <AlertTriangle className="h-6 w-6 mr-2" />
           Report Issue
         </Button>
@@ -128,8 +128,8 @@ export function QualityChecklist({
           onClick={onComplete}
           disabled={!allItemsCompleted}
           className={`flex-1 h-14 ${
-            hasFailures ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
-          } text-white disabled:opacity-50`}
+            hasFailures ? "bg-theme-status-error hover:bg-red-700" : "bg-theme-status-success hover:bg-green-700"
+          } text-theme-text-primary disabled:opacity-50`}
         >
           {hasFailures ? "Send to Rework" : "Complete Stage"}
         </Button>

@@ -79,10 +79,10 @@ interface IssuesByStageChartProps {
 
 export function IssuesByStageChart({ onStageClick }: IssuesByStageChartProps) {
   return (
-    <Card className="bg-[#1a0d08] border-[#8B4513]/30">
+    <Card className="bg-theme-bg-secondary border-theme-border-primary">
       <CardHeader>
-        <CardTitle className="text-[#d4a574]">Issues by Production Stage</CardTitle>
-        <p className="text-sm text-gray-400">Click on any stage to view detailed issue breakdown</p>
+        <CardTitle className="text-theme-text-secondary">Issues by Production Stage</CardTitle>
+        <p className="text-sm text-theme-text-tertiary">Click on any stage to view detailed issue breakdown</p>
       </CardHeader>
       <CardContent>
         <ChartContainer
@@ -137,18 +137,18 @@ export function IssuesByStageChart({ onStageClick }: IssuesByStageChartProps) {
               variant="ghost"
               size="sm"
               onClick={() => onStageClick(stage.stage)}
-              className="text-[#d4a574] hover:text-[#d4a574]/80 hover:bg-[#8B4513]/20 flex flex-col items-center p-2 h-auto"
+              className="text-theme-text-secondary hover:text-theme-text-secondary/80 hover:bg-theme-brand-secondary/20 flex flex-col items-center p-2 h-auto"
             >
               <div className="text-xs font-medium">{stage.stage}</div>
-              <div className="text-xs text-gray-400">{stage.count} issues</div>
+              <div className="text-xs text-theme-text-tertiary">{stage.count} issues</div>
               <div className="flex gap-1 mt-1">
                 {stage.critical > 0 && (
-                  <div className="w-2 h-2 bg-red-500 rounded-full" title={`${stage.critical} critical`} />
+                  <div className="w-2 h-2 bg-theme-status-error rounded-full" title={`${stage.critical} critical`} />
                 )}
                 {stage.major > 0 && (
-                  <div className="w-2 h-2 bg-amber-500 rounded-full" title={`${stage.major} major`} />
+                  <div className="w-2 h-2 bg-theme-status-warning rounded-full" title={`${stage.major} major`} />
                 )}
-                {stage.minor > 0 && <div className="w-2 h-2 bg-blue-500 rounded-full" title={`${stage.minor} minor`} />}
+                {stage.minor > 0 && <div className="w-2 h-2 bg-theme-status-info rounded-full" title={`${stage.minor} minor`} />}
               </div>
             </Button>
           ))}
