@@ -43,6 +43,24 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
+    // If user is authenticated, check for active worker record
+    if (user) {
+      const { data: worker, error: workerError } = await supabase
+        .from('workers')
+        .select('id, is_active')
+        .eq('auth_user_id', user.id)
+        .single()
+
+      // If no worker record or inactive, treat as unauthenticated
+      if (workerError || !worker || !worker.is_active) {
+        // Don't redirect from login page to avoid loops
+        if (request.nextUrl.pathname !== '/login') {
+          const response = NextResponse.redirect(new URL('/login', request.url))
+          return response
+        }
+      }
+    }
+
   // Protected routes that require authentication
   const protectedPaths = [
     '/dashboard',
@@ -69,9 +87,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // If authenticated and trying to access login page, redirect to dashboard
+  // If authenticated with active worker and trying to access login page, redirect to dashboard
+  // Note: We only redirect if they have a valid worker record to avoid loops
   if (user && request.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const { data: worker } = await supabase
+      .from('workers')
+      .select('id, is_active')
+      .eq('auth_user_id', user.id)
+      .single()
+    
+    if (worker && worker.is_active) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   return supabaseResponse
