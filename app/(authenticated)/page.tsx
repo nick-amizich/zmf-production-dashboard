@@ -1,47 +1,25 @@
-"use client"
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+export default async function AuthenticatedPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-export default function AuthenticatedPage() {
-  const router = useRouter()
+  if (!user) {
+    redirect('/login')
+  }
 
-  useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+  // Get worker data
+  const { data: worker } = await supabase
+    .from('workers')
+    .select('*')
+    .eq('auth_user_id', user.id)
+    .single()
 
-      if (!user) {
-        router.push('/login')
-        return
-      }
+  if (!worker || !worker.is_active) {
+    redirect('/login')
+  }
 
-      // Get worker data
-      const { data: worker } = await supabase
-        .from('workers')
-        .select('*')
-        .eq('auth_user_id', user.id)
-        .single()
-
-      if (!worker || !worker.is_active) {
-        router.push('/login')
-        return
-      }
-
-      // Redirect to the main dashboard instead of rendering here
-      router.push('/dashboard')
-    }
-
-    checkAuthAndRedirect()
-  }, [router])
-
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-        <p className="mt-4 text-theme-text-tertiary">Authenticating...</p>
-      </div>
-    </div>
-  )
+  // Redirect to the main dashboard
+  redirect('/dashboard')
 }
