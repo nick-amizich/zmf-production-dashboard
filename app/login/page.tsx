@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -135,11 +136,19 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 text-center text-sm text-theme-text-tertiary">
-              <p>Demo Accounts:</p>
-              <p className="mt-2">Admin: admin@zmf.com</p>
-              <p>Worker: sarah@zmf.com</p>
-              <p>Worker: mike@zmf.com</p>
-              <p className="mt-2 text-xs">Password: password123</p>
+              <p className="mb-4">
+                Don't have an account?{' '}
+                <Link href="/signup" className="text-theme-brand-secondary hover:underline">
+                  Sign up
+                </Link>
+              </p>
+              <div className="pt-4 border-t border-theme-border-primary">
+                <p>Demo Accounts:</p>
+                <p className="mt-2">Admin: admin@zmf.com</p>
+                <p>Worker: sarah@zmf.com</p>
+                <p>Worker: mike@zmf.com</p>
+                <p className="mt-2 text-xs">Password: password123</p>
+              </div>
             </div>
           </CardContent>
         </Card>
