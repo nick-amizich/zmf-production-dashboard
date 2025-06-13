@@ -19,12 +19,15 @@ export default async function WorkerManagementPage() {
     
   if (!worker || worker.role !== 'manager') redirect('/dashboard')
   
-  // Get all workers
+  // Get all workers (both active and pending)
   const { data: workers } = await supabase
     .from('workers')
     .select('*')
-    .eq('is_active', true)
     .order('name')
+
+  // Separate active and pending workers
+  const activeWorkers = workers?.filter(w => w.is_active) || []
+  const pendingWorkers = workers?.filter(w => !w.is_active) || []
   
   // Get performance data
   const performanceRepo = new WorkerPerformanceRepository(supabase)
@@ -49,7 +52,8 @@ export default async function WorkerManagementPage() {
   
   return (
     <WorkerManagementDashboard
-      workers={workers || []}
+      workers={activeWorkers}
+      pendingWorkers={pendingWorkers}
       leaderboard={leaderboard}
       availability={availability || []}
       activeAssignments={assignments || []}

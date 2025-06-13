@@ -23,6 +23,7 @@ import { WorkerDetailModal } from './worker-detail-modal'
 
 interface WorkerManagementDashboardProps {
   workers: any[]
+  pendingWorkers?: any[]
   leaderboard: any[]
   availability: any[]
   activeAssignments: any[]
@@ -30,6 +31,7 @@ interface WorkerManagementDashboardProps {
 
 export function WorkerManagementDashboard({
   workers,
+  pendingWorkers = [],
   leaderboard,
   availability,
   activeAssignments
@@ -133,6 +135,14 @@ export function WorkerManagementDashboard({
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="availability">Availability</TabsTrigger>
             <TabsTrigger value="directory">Directory</TabsTrigger>
+            {pendingWorkers.length > 0 && (
+              <TabsTrigger value="pending" className="relative">
+                Pending Approvals
+                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
+                  {pendingWorkers.length}
+                </Badge>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -241,6 +251,64 @@ export function WorkerManagementDashboard({
                       </div>
                     )
                   })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pending" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Worker Approvals</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Review and approve new worker registrations
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pendingWorkers.map((worker) => (
+                    <div key={worker.id} className="flex items-center justify-between p-4 bg-zinc-900 rounded-lg">
+                      <div>
+                        <p className="font-medium">{worker.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline">{worker.role}</Badge>
+                          <span className="text-sm text-muted-foreground">{worker.email}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Registered: {new Date(worker.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(`/api/admin/workers/${worker.id}/approve`, {
+                                method: 'POST'
+                              })
+                              if (response.ok) {
+                                // Refresh the page to update the lists
+                                window.location.reload()
+                              }
+                            } catch (error) {
+                              console.error('Failed to approve worker:', error)
+                            }
+                          }}
+                        >
+                          Approve
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingWorkers.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No pending approvals
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

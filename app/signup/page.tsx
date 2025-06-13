@@ -42,47 +42,28 @@ export default function SignUpPage() {
     }
 
     try {
-      // Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          }
-        }
+      // Call our server-side signup API
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          name: fullName,
+        }),
       })
 
-      if (authError) {
-        setError(authError.message)
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || 'Signup failed')
         return
       }
 
-      if (authData.user) {
-        // Create worker record with pending approval status
-        const { error: workerError } = await supabase
-          .from('workers')
-          .insert({
-            auth_user_id: authData.user.id,
-            email: email,
-            name: fullName,
-            role: 'worker', // Default role
-            is_active: true
-            // approval_status defaults to 'pending' in the database
-            // requested_at defaults to NOW() in the database
-          })
-
-        if (workerError) {
-          console.error('Worker creation error:', workerError)
-          // If worker creation fails, we should clean up the auth user
-          // But for now, we'll just show an error
-          setError('Account created but worker profile failed. Please contact an administrator.')
-          return
-        }
-
-        setSuccess(true)
-        // Don't redirect since user can't login until approved
-      }
+      setSuccess(true)
+      // Don't redirect since user can't login until approved
     } catch (err) {
       console.error('Signup error:', err)
       setError('An unexpected error occurred')
@@ -111,8 +92,8 @@ export default function SignUpPage() {
             {success ? (
               <Alert className="bg-green-900/20 border-green-900/50 text-green-400">
                 <AlertDescription>
-                  Account created successfully! Your registration is pending approval by an administrator. 
-                  You will be notified once your account has been approved.
+                  Account created successfully! Your registration is pending approval by a manager. 
+                  You will be notified once your account has been approved and can then log in.
                 </AlertDescription>
               </Alert>
             ) : (
