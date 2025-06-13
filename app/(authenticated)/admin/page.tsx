@@ -25,7 +25,8 @@ export default async function AdminPage() {
     { count: totalWorkers },
     { count: totalOrders },
     { count: activeOrders },
-    { data: recentActivity }
+    { data: recentActivity },
+    { count: pendingApprovals }
   ] = await Promise.all([
     supabase.from('workers').select('*', { count: 'exact', head: true }),
     supabase.from('orders').select('*', { count: 'exact', head: true }),
@@ -34,13 +35,16 @@ export default async function AdminPage() {
     supabase.from('audit_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(10)
+      .limit(10),
+    supabase.from('workers').select('*', { count: 'exact', head: true })
+      .eq('approval_status', 'pending')
   ])
   
   const systemStats = {
     totalWorkers: totalWorkers || 0,
     totalOrders: totalOrders || 0,
     activeOrders: activeOrders || 0,
+    pendingApprovals: pendingApprovals || 0,
     systemHealth: 'operational' as const
   }
   

@@ -663,6 +663,11 @@ export type Database = {
             | Database["public"]["Enums"]["production_stage"][]
             | null
           updated_at: string | null
+          approval_status: Database["public"]["Enums"]["approval_status"] | null
+          approved_by: string | null
+          approved_at: string | null
+          rejection_reason: string | null
+          requested_at: string | null
         }
         Insert: {
           auth_user_id?: string | null
@@ -676,6 +681,11 @@ export type Database = {
             | Database["public"]["Enums"]["production_stage"][]
             | null
           updated_at?: string | null
+          approval_status?: Database["public"]["Enums"]["approval_status"] | null
+          approved_by?: string | null
+          approved_at?: string | null
+          rejection_reason?: string | null
+          requested_at?: string | null
         }
         Update: {
           auth_user_id?: string | null
@@ -689,20 +699,73 @@ export type Database = {
             | Database["public"]["Enums"]["production_stage"][]
             | null
           updated_at?: string | null
+          approval_status?: Database["public"]["Enums"]["approval_status"] | null
+          approved_by?: string | null
+          approved_at?: string | null
+          rejection_reason?: string | null
+          requested_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workers_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      pending_worker_approvals: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          requested_at: string | null
+          hourly_rate: number | null
+          specializations: Database["public"]["Enums"]["production_stage"][] | null
+          email_confirmed_at: string | null
+          last_sign_in_at: string | null
+        }
+      }
     }
     Functions: {
       get_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["worker_role"]
       }
+      is_worker_approved: {
+        Args: {
+          worker_id: string
+        }
+        Returns: boolean
+      }
+      get_current_worker_approval_status: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["approval_status"]
+      }
+      is_current_user_approved: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      approve_worker: {
+        Args: {
+          worker_id: string
+          approver_notes?: string
+        }
+        Returns: void
+      }
+      reject_worker: {
+        Args: {
+          worker_id: string
+          reason: string
+        }
+        Returns: void
+      }
     }
     Enums: {
+      approval_status: "pending" | "approved" | "rejected"
       batch_priority: "standard" | "rush" | "expedite"
       model_complexity: "medium" | "high" | "very_high"
       order_status:

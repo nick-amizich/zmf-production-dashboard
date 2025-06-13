@@ -32,6 +32,7 @@ interface AdminDashboardProps {
     totalWorkers: number
     totalOrders: number
     activeOrders: number
+    pendingApprovals: number
     systemHealth: 'operational' | 'degraded' | 'down'
   }
   recentActivity: any[]
@@ -92,7 +93,7 @@ export function AdminDashboard({ stats, recentActivity }: AdminDashboardProps) {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -137,6 +138,18 @@ export function AdminDashboard({ stats, recentActivity }: AdminDashboardProps) {
                       <p className="text-3xl font-bold">2.4 GB</p>
                     </div>
                     <Database className="h-8 w-8 text-yellow-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className={stats.pendingApprovals > 0 ? "border-theme-status-error" : ""}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pending Approvals</p>
+                      <p className="text-3xl font-bold">{stats.pendingApprovals}</p>
+                    </div>
+                    <Shield className={`h-8 w-8 ${stats.pendingApprovals > 0 ? 'text-theme-status-error' : 'text-gray-500'}`} />
                   </div>
                 </CardContent>
               </Card>
@@ -197,6 +210,17 @@ export function AdminDashboard({ stats, recentActivity }: AdminDashboardProps) {
                     <Button variant="outline" className="w-full justify-start">
                       <UserPlus className="h-4 w-4 mr-2" />
                       Add New User
+                    </Button>
+                  </Link>
+                  <Link href="/admin/worker-approvals">
+                    <Button variant="outline" className="w-full justify-start relative">
+                      <Shield className="h-4 w-4 mr-2" />
+                      Worker Approvals
+                      {stats.pendingApprovals > 0 && (
+                        <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-theme-status-error text-white">
+                          {stats.pendingApprovals}
+                        </Badge>
+                      )}
                     </Button>
                   </Link>
                 </CardContent>

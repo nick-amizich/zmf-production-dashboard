@@ -59,7 +59,7 @@ export default function SignUpPage() {
       }
 
       if (authData.user) {
-        // Create worker record
+        // Create worker record with pending approval status
         const { error: workerError } = await supabase
           .from('workers')
           .insert({
@@ -68,11 +68,8 @@ export default function SignUpPage() {
             name: fullName,
             role: 'worker', // Default role
             is_active: true,
-            hourly_rate: 25.00, // Default rate
-            efficiency_rating: 1.0,
-            quality_rating: 1.0,
-            availability_status: 'available',
-            assigned_workstation_id: null
+            approval_status: 'pending', // New workers need approval
+            requested_at: new Date().toISOString()
           })
 
         if (workerError) {
@@ -84,11 +81,7 @@ export default function SignUpPage() {
         }
 
         setSuccess(true)
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
+        // Don't redirect since user can't login until approved
       }
     } catch (err) {
       console.error('Signup error:', err)
@@ -118,7 +111,8 @@ export default function SignUpPage() {
             {success ? (
               <Alert className="bg-green-900/20 border-green-900/50 text-green-400">
                 <AlertDescription>
-                  Account created successfully! Redirecting to login...
+                  Account created successfully! Your registration is pending approval by an administrator. 
+                  You will be notified once your account has been approved.
                 </AlertDescription>
               </Alert>
             ) : (
