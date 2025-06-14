@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,21 +19,20 @@ import {
   Home,
   GripVertical,
   Clock,
+  Loader2,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useCalendarAssignments } from "@/hooks/use-calendar-assignments"
 import { STAGE_COLORS } from "@/types/calendar-assignments"
-
-interface Batch {
-  id: string
-  batchNumber: string
-  model: string
-  quantity: number
-  stage: string
-  estimatedHours: number
-  priority: "normal" | "high" | "urgent"
-}
+import { ProductionCalendarAPI } from '@/lib/api/production-calendar-api'
+import { 
+  type CalendarBatch,
+  type CalendarWorker,
+  type CalendarAssignment
+} from '@/lib/services/production-calendar-service'
+import { logger } from '@/lib/logger'
+import { toast } from 'sonner'
+import { useMultiRealtime } from '@/hooks/use-realtime'
 
 interface CalendarDay {
   date: Date
@@ -55,6 +54,12 @@ export default function ProductionCalendar({ onBack }: ProductionCalendarProps) 
     return new Date(today.setDate(today.getDate() + diff))
   })
 
+  // State for data
+  const [isLoading, setIsLoading] = useState(true)
+  const [batches, setBatches] = useState<CalendarBatch[]>([])
+  const [workers, setWorkers] = useState<CalendarWorker[]>([])
+  const [assignments, setAssignments] = useState<CalendarAssignment[]>([])
+
   // State for popup
   const [isAssignmentOpen, setIsAssignmentOpen] = useState(false)
   const [selectedCell, setSelectedCell] = useState<{ workerId: string; date: string } | null>(null)
@@ -67,649 +72,416 @@ export default function ProductionCalendar({ onBack }: ProductionCalendarProps) 
 
   // Horizontal scroll handling
   const calendarRef = useRef<HTMLDivElement>(null)
-
-  const { assignments, workers, moveAssignment, getAssignmentsForCell } = useCalendarAssignments()
-
   const [draggedAssignment, setDraggedAssignment] = useState<any>(null)
-  const [batches] = useState<Batch[]>([
-    {
-      id: "b1",
-      batchNumber: "230901-A",
-      model: "OM-42",
-      quantity: 12,
-      stage: "Intake",
-      estimatedHours: 8,
-      priority: "high",
-    },
-    {
-      id: "b2",
-      batchNumber: "230901-B",
-      model: "D-28",
-      quantity: 8,
-      stage: "Sanding",
-      estimatedHours: 12,
-      priority: "urgent",
-    },
-    {
-      id: "b3",
-      batchNumber: "230901-C",
-      model: "000-18",
-      quantity: 15,
-      stage: "Finishing",
-      estimatedHours: 16,
-      priority: "normal",
-    },
-    {
-      id: "b4",
-      batchNumber: "230901-D",
-      model: "OM-28",
-      quantity: 10,
-      stage: "Sub-Assembly",
-      estimatedHours: 10,
-      priority: "normal",
-    },
-    {
-      id: "b5",
-      batchNumber: "230901-E",
-      model: "D-45",
-      quantity: 5,
-      stage: "Final Assembly",
-      estimatedHours: 20,
-      priority: "high",
-    },
-    {
-      id: "b6",
-      batchNumber: "230901-F",
-      model: "00-17",
-      quantity: 20,
-      stage: "Acoustic QC",
-      estimatedHours: 4,
-      priority: "normal",
-    },
-    {
-      id: "b7",
-      batchNumber: "230901-G",
-      model: "D-18",
-      quantity: 18,
-      stage: "Shipping",
-      estimatedHours: 2,
-      priority: "normal",
-    },
-    {
-      id: "b8",
-      batchNumber: "230902-A",
-      model: "OM-42",
-      quantity: 10,
-      stage: "Intake",
-      estimatedHours: 8,
-      priority: "normal",
-    },
-    {
-      id: "b9",
-      batchNumber: "230902-B",
-      model: "D-28",
-      quantity: 12,
-      stage: "Sanding",
-      estimatedHours: 12,
-      priority: "high",
-    },
-    {
-      id: "b10",
-      batchNumber: "230902-C",
-      model: "000-18",
-      quantity: 8,
-      stage: "Finishing",
-      estimatedHours: 16,
-      priority: "urgent",
-    },
-    {
-      id: "b11",
-      batchNumber: "230902-D",
-      model: "OM-28",
-      quantity: 15,
-      stage: "Sub-Assembly",
-      estimatedHours: 10,
-      priority: "normal",
-    },
-    {
-      id: "b12",
-      batchNumber: "230902-E",
-      model: "D-45",
-      quantity: 20,
-      stage: "Final Assembly",
-      estimatedHours: 20,
-      priority: "normal",
-    },
-  ])
 
-  // Generate calendar days
-  const calendarDays: CalendarDay[] = []
-  for (let i = 0; i < 14; i++) {
-    const date = new Date(startDate)
-    date.setDate(startDate.getDate() + i)
-    const isWeekend = date.getDay() === 0 || date.getDay() === 6
-    const isToday = new Date().toDateString() === date.toDateString()
-    calendarDays.push({
-      date,
-      isWeekend,
-      isHoliday: false,
-      isToday,
-    })
-  }
+  // Load calendar data
+  useEffect(() => {
+    loadCalendarData()
+  }, [startDate])
 
-  // Format date as YYYY-MM-DD for comparison
-  const formatDateKey = (date: Date) => {
-    return date.toISOString().split("T")[0]
-  }
+  const loadCalendarData = async () => {
+    try {
+      setIsLoading(true)
+      const endDate = new Date(startDate)
+      endDate.setDate(endDate.getDate() + 13) // 2 weeks view
 
-  // Handle cell click to open assignment popup
-  const handleCellClick = (workerId: string, date: CalendarDay) => {
-    setSelectedCell({ workerId, date: formatDateKey(date.date) })
-    setIsAssignmentOpen(true)
-  }
-
-  // Handle assignment creation
-  const handleCreateAssignment = () => {
-    if (!selectedCell || !selectedBatch) return
-
-    setIsAssignmentOpen(false)
-    setSelectedCell(null)
-    setSelectedBatch(null)
-    setAssignmentHours(4)
-  }
-
-  // Handle horizontal scrolling with buttons
-  const scrollCalendar = (direction: "left" | "right") => {
-    if (calendarRef.current) {
-      const scrollAmount = direction === "left" ? -600 : 600
-      calendarRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+      const data = await ProductionCalendarAPI.getCalendarData(startDate, endDate)
+      
+      setBatches(data.batches)
+      setWorkers(data.workers)
+      setAssignments(data.assignments)
+      setIsLoading(false)
+    } catch (error) {
+      logger.error('Failed to load calendar data', error)
+      toast.error('Failed to load calendar data')
+      setIsLoading(false)
     }
   }
 
-  // Navigate calendar weeks
-  const navigateWeeks = (direction: "prev" | "next") => {
+  // Subscribe to real-time updates
+  useMultiRealtime({
+    subscriptions: [
+      { table: 'batches' },
+      { table: 'stage_assignments' },
+      { table: 'employees' }
+    ],
+    onChange: (table, payload) => {
+      logger.debug(`Calendar real-time update from ${table}`, payload)
+      // Reload calendar data when changes occur
+      loadCalendarData()
+    }
+  })
+
+  // Generate calendar days
+  const generateCalendarDays = (): CalendarDay[] => {
+    const days: CalendarDay[] = []
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(startDate)
+      date.setDate(startDate.getDate() + i)
+      days.push({
+        date,
+        isWeekend: date.getDay() === 0 || date.getDay() === 6,
+        isHoliday: false, // Could integrate with holiday API
+        isToday: date.toDateString() === today.toDateString(),
+      })
+    }
+    
+    return days
+  }
+
+  const calendarDays = generateCalendarDays()
+
+  // Navigation functions
+  const goToPrevWeek = () => {
     const newDate = new Date(startDate)
-    newDate.setDate(startDate.getDate() + (direction === "prev" ? -7 : 7))
+    newDate.setDate(newDate.getDate() - 7)
     setStartDate(newDate)
   }
 
-  // Get worker by ID
-  const getWorker = (workerId: string) => {
-    return workers.find((worker) => worker.id === workerId)
+  const goToNextWeek = () => {
+    const newDate = new Date(startDate)
+    newDate.setDate(newDate.getDate() + 7)
+    setStartDate(newDate)
   }
 
-  // Get batch by ID
-  const getBatch = (batchId: string) => {
-    return batches.find((batch) => batch.id === batchId)
+  const goToToday = () => {
+    const today = new Date()
+    const dayOfWeek = today.getDay()
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    setStartDate(new Date(today.setDate(today.getDate() + diff)))
   }
 
-  // Get available hours for a worker on a specific date
-  const getAvailableHours = (workerId: string, date: string) => {
-    const worker = getWorker(workerId)
-    if (!worker) return 0
-
-    const dailyCapacity = worker.weeklyCapacity / 5 // Assuming 5-day work week
-    const assignedHours = assignments
-      .filter((a) => a.workerId === workerId && a.date === date)
-      .reduce((total, a) => total + a.hours, 0)
-
-    return Math.max(0, dailyCapacity - assignedHours)
+  // Get assignments for a specific cell
+  const getAssignmentsForCell = (workerId: string, date: string) => {
+    return assignments.filter(
+      a => a.workerId === workerId && a.date === date
+    )
   }
 
-  // Render skill level stars
-  const renderSkillLevel = (level: number) => {
-    return Array(level)
-      .fill(0)
-      .map((_, i) => <Star key={i} className="h-4 w-4 text-theme-text-secondary fill-theme-text-secondary" />)
+  // Assignment management
+  const handleCellClick = (workerId: string, date: string) => {
+    setSelectedCell({ workerId, date })
+    setIsAssignmentOpen(true)
   }
 
-  // Format date for display
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })
-  }
+  const handleAssignBatch = async () => {
+    if (!selectedCell || !selectedBatch) return
 
-  // Get stage color for visual indicators
-  const getStageColor = (stage: string) => {
-    const stageColors = {
-      Intake: "bg-theme-status-info",
-      Sanding: "bg-yellow-600",
-      Finishing: "bg-purple-600",
-      "Sub-Assembly": "bg-theme-status-success",
-      "Final Assembly": "bg-orange-600",
-      "Acoustic QC": "bg-theme-status-error",
-      Shipping: "bg-gray-600",
+    try {
+      const batch = batches.find(b => b.id === selectedBatch)
+      if (!batch) return
+
+      await ProductionCalendarAPI.createAssignment({
+        workerId: selectedCell.workerId,
+        batchId: selectedBatch,
+        date: selectedCell.date,
+        stage: batch.stage,
+        hours: assignmentHours
+      })
+
+      toast.success('Assignment created successfully')
+      setIsAssignmentOpen(false)
+      loadCalendarData()
+    } catch (error) {
+      logger.error('Failed to create assignment', error)
+      toast.error('Failed to create assignment')
     }
-    return stageColors[stage as keyof typeof stageColors] || "bg-gray-600"
   }
 
-  // Handle model click to show batch selection popup
-  const handleModelClick = (model: string) => {
-    setSelectedModel(model)
-    setIsModelPopupOpen(true)
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, assignment: CalendarAssignment) => {
+    setDraggedAssignment(assignment)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = async (e: React.DragEvent, workerId: string, date: string) => {
+    e.preventDefault()
+    
+    if (!draggedAssignment) return
+
+    try {
+      await ProductionCalendarAPI.updateAssignment(draggedAssignment.id, {
+        workerId,
+        date
+      })
+
+      toast.success('Assignment moved successfully')
+      loadCalendarData()
+    } catch (error) {
+      logger.error('Failed to move assignment', error)
+      toast.error('Failed to move assignment')
+    } finally {
+      setDraggedAssignment(null)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-theme-text-secondary" />
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary">
       {/* Header */}
-      <header className="border-b border-theme-border-primary bg-theme-bg-secondary/50 backdrop-blur-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Calendar className="h-8 w-8 text-theme-text-secondary" />
-            <div>
-              <h1 className="text-2xl font-bold text-theme-text-secondary">Production Workflow Calendar</h1>
-              <p className="text-sm text-theme-text-tertiary">Two-week scheduling and workload management</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button onClick={onBack} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
+      <header className="border-b border-theme-border-primary bg-theme-bg-secondary/50 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="text-theme-text-secondary hover:bg-theme-brand-secondary/20"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
-            <Button variant="outline" className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-theme-border-active text-theme-text-secondary"
-                onClick={() => navigateWeeks("prev")}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-theme-text-secondary font-medium">
-                {formatDate(startDate)} - {formatDate(calendarDays[calendarDays.length - 1].date)}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-theme-border-active text-theme-text-secondary"
-                onClick={() => navigateWeeks("next")}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="h-6 border-r border-theme-border-primary" />
-
-            <div className="text-sm">
-              <span className="text-theme-text-secondary">12 Active Batches</span>
-              <span className="mx-2 text-theme-text-tertiary">|</span>
-              <span className="text-theme-text-secondary">8 Workers Available</span>
-              <span className="mx-2 text-theme-text-tertiary">|</span>
-              <span className="text-theme-text-secondary">94% Capacity</span>
+            <div className="flex items-center gap-3">
+              <Calendar className="h-8 w-8 text-theme-text-secondary" />
+              <div>
+                <h1 className="text-2xl font-bold text-theme-text-secondary">Production Calendar</h1>
+                <p className="text-sm text-theme-text-tertiary">Schedule and manage production assignments</p>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Select>
-              <SelectTrigger className="w-[180px] bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary">
-                <SelectValue placeholder="All Workers" />
-              </SelectTrigger>
-              <SelectContent className="bg-theme-bg-secondary border-theme-border-primary">
-                <SelectItem value="all" className="text-theme-text-primary">
-                  All Workers
-                </SelectItem>
-                <SelectItem value="available" className="text-theme-text-primary">
-                  Available Only
-                </SelectItem>
-                <SelectItem value="expert" className="text-theme-text-primary">
-                  Expert Level
-                </SelectItem>
-                <SelectItem value="experienced" className="text-theme-text-primary">
-                  Experienced Level
-                </SelectItem>
-                <SelectItem value="learning" className="text-theme-text-primary">
-                  Learning Level
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
-
-            <Button variant="outline" className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadCalendarData}
+              className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20"
+            >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-
-            <Button className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary">
-              <Save className="h-4 w-4 mr-2" />
-              Save Schedule
+            <Button
+              size="sm"
+              className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary"
+              onClick={() => setIsModelPopupOpen(true)}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filter by Model
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Calendar Grid */}
-      <div className="p-6">
-        <div className="flex">
-          {/* Worker Column (Y-axis) */}
-          <div className="min-w-[220px] mr-4">
-            <div className="h-10 mb-2 flex items-center justify-center">
-              <Badge className="bg-theme-brand-secondary">{workers.length} Workers</Badge>
-            </div>
-
-            <div className="space-y-2">
-              {workers.map((worker) => (
-                <Card
-                  key={worker.id}
-                  className={`bg-theme-bg-secondary border-theme-border-primary ${!worker.available ? "opacity-60" : ""}`}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <img
-                          src={worker.photo || "/placeholder.svg"}
-                          alt={worker.name}
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                        <div
-                          className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-theme-bg-secondary ${
-                            worker.available
-                              ? worker.scheduledHours >= worker.weeklyCapacity
-                                ? "bg-theme-status-error"
-                                : worker.scheduledHours >= worker.weeklyCapacity * 0.8
-                                  ? "bg-yellow-500"
-                                  : "bg-theme-status-success"
-                              : "bg-gray-500"
-                          }`}
-                        />
-                      </div>
-                      <div>
-                        <div className="font-medium text-theme-text-secondary">{worker.name}</div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-theme-text-tertiary">{worker.primarySkill}</span>
-                          <div className="flex">{renderSkillLevel(worker.skillLevel)}</div>
-                        </div>
-                        <div className="text-xs text-theme-text-tertiary mt-1">
-                          {worker.scheduledHours}/{worker.weeklyCapacity}h scheduled
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+      {/* Calendar Navigation */}
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPrevWeek}
+              className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToToday}
+              className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Today
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToNextWeek}
+              className="border-theme-border-active text-theme-text-secondary hover:bg-theme-brand-secondary/20"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
 
-          {/* Calendar Grid (X-axis and cells) */}
-          <div className="flex-1 overflow-hidden">
-            <div className="flex items-center mb-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-theme-border-active text-theme-text-secondary mr-2"
-                onClick={() => scrollCalendar("left")}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
+          <div className="text-theme-text-secondary font-medium">
+            {startDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+          </div>
+        </div>
+      </div>
 
-              <div className="flex-1 overflow-hidden">
-                <div className="flex">
-                  {calendarDays.map((day, index) => (
-                    <div
-                      key={index}
-                      className={`min-w-[120px] h-10 flex items-center justify-center px-2 text-sm font-medium ${
-                        day.isWeekend ? "text-theme-text-tertiary" : day.isToday ? "text-theme-text-secondary" : "text-theme-text-primary"
-                      } ${day.isToday ? "border-b-2 border-theme-text-secondary" : ""}`}
-                    >
-                      {formatDate(day.date)}
-                    </div>
-                  ))}
+      {/* Calendar Grid */}
+      <div className="p-6 overflow-x-auto" ref={calendarRef}>
+        <div className="min-w-[1400px]">
+          {/* Date Headers */}
+          <div className="grid grid-cols-15 gap-2 mb-4">
+            <div className="col-span-1" /> {/* Empty cell for worker column */}
+            {calendarDays.map((day, index) => (
+              <div
+                key={index}
+                className={`text-center p-2 rounded ${
+                  day.isToday
+                    ? "bg-theme-brand-secondary/20 border border-theme-brand-secondary"
+                    : day.isWeekend
+                    ? "bg-theme-bg-secondary/50"
+                    : ""
+                }`}
+              >
+                <div className="text-xs text-theme-text-tertiary">
+                  {day.date.toLocaleDateString("en-US", { weekday: "short" })}
+                </div>
+                <div className={`text-lg font-semibold ${
+                  day.isToday ? "text-theme-brand-secondary" : "text-theme-text-secondary"
+                }`}>
+                  {day.date.getDate()}
                 </div>
               </div>
+            ))}
+          </div>
 
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-theme-border-active text-theme-text-secondary ml-2"
-                onClick={() => scrollCalendar("right")}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+          {/* Worker Rows */}
+          {workers.map((worker) => (
+            <div key={worker.id} className="grid grid-cols-15 gap-2 mb-2">
+              {/* Worker Info */}
+              <div className="col-span-1 p-3 bg-theme-bg-secondary rounded border border-theme-border-primary">
+                <div className="font-medium text-theme-text-secondary">{worker.name}</div>
+                <div className="text-xs text-theme-text-tertiary">{worker.skills.join(", ")}</div>
+                <Badge
+                  variant="outline"
+                  className={`mt-1 text-xs ${
+                    worker.status === "active"
+                      ? "border-theme-status-success text-theme-status-success"
+                      : worker.status === "break"
+                      ? "border-theme-status-warning text-theme-status-warning"
+                      : "border-gray-500 text-gray-500"
+                  }`}
+                >
+                  {worker.status}
+                </Badge>
+              </div>
 
-            {/* Calendar Grid Cells */}
-            <div className="overflow-x-auto" ref={calendarRef}>
-              <div className="flex flex-col space-y-2">
-                {workers.map((worker) => (
-                  <div key={worker.id} className="flex min-w-max">
-                    {calendarDays.map((day, dayIndex) => {
-                      const cellAssignments = getAssignmentsForCell(worker.id, day.date)
+              {/* Calendar Cells */}
+              {calendarDays.map((day, dayIndex) => {
+                const dateStr = day.date.toISOString().split('T')[0]
+                const cellAssignments = getAssignmentsForCell(worker.id, dateStr)
+
+                return (
+                  <div
+                    key={dayIndex}
+                    className={`min-h-[80px] p-2 rounded border ${
+                      day.isWeekend
+                        ? "bg-gray-50/5 border-theme-border-primary/50"
+                        : "bg-theme-bg-secondary/30 border-theme-border-primary hover:border-theme-brand-secondary/50"
+                    } cursor-pointer transition-colors`}
+                    onClick={() => !day.isWeekend && handleCellClick(worker.id, dateStr)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, worker.id, dateStr)}
+                  >
+                    {cellAssignments.map((assignment) => {
+                      const batch = batches.find(b => b.id === assignment.batchId)
+                      if (!batch) return null
 
                       return (
                         <div
-                          key={dayIndex}
-                          className={`min-w-[120px] h-[80px] border border-theme-border-secondary bg-theme-bg-secondary ${
-                            day.isWeekend ? "opacity-60" : ""
-                          } ${day.isToday ? "border-theme-text-secondary/50" : ""} p-1 overflow-hidden cursor-pointer hover:border-theme-text-secondary/70 transition-colors`}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={() => {
-                            if (draggedAssignment) {
-                              moveAssignment(draggedAssignment.id, worker.id, day.date.toISOString().split("T")[0])
-                              setDraggedAssignment(null)
-                            }
-                          }}
+                          key={assignment.id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, assignment)}
+                          className={`mb-1 p-1 rounded text-xs cursor-move ${
+                            STAGE_COLORS[batch.stage as keyof typeof STAGE_COLORS] || 'bg-gray-500'
+                          } text-white`}
                         >
-                          {cellAssignments.length > 0 ? (
-                            <div className="h-full flex flex-col">
-                              <div className="text-xs text-theme-text-tertiary mb-1">
-                                {cellAssignments.reduce((sum, a) => sum + a.hours, 0)}h
-                              </div>
-                              <div className="flex-1 overflow-y-auto space-y-1">
-                                {cellAssignments.map((assignment) => (
-                                  <div
-                                    key={assignment.id}
-                                    draggable
-                                    onDragStart={() => setDraggedAssignment(assignment)}
-                                    className={`text-xs p-1 rounded cursor-move hover:opacity-80 transition-opacity ${
-                                      STAGE_COLORS[assignment.stage as keyof typeof STAGE_COLORS]
-                                    } text-theme-text-primary`}
-                                  >
-                                    <div className="flex items-center gap-1">
-                                      <GripVertical className="h-2 w-2" />
-                                      <div>
-                                        <div className="font-medium truncate">{assignment.stage}</div>
-                                        <div className="flex items-center gap-1">
-                                          <Clock className="h-2 w-2" />
-                                          <span>{assignment.hours}h</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="h-full flex items-center justify-center text-theme-text-tertiary text-xs">
-                              {day.isWeekend ? "Weekend" : "Available"}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1">
+                            <GripVertical className="h-3 w-3 opacity-50" />
+                            <span className="font-medium">{batch.batchNumber}</span>
+                          </div>
+                          <div className="text-xs opacity-90">{batch.model}</div>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{assignment.hours}h</span>
+                          </div>
                         </div>
                       )
                     })}
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* Assignment Dialog */}
       <Dialog open={isAssignmentOpen} onOpenChange={setIsAssignmentOpen}>
-        <DialogContent className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary max-w-2xl">
+        <DialogContent className="bg-theme-bg-primary border-theme-border-primary">
           <DialogHeader>
-            <DialogTitle className="text-theme-text-secondary">
-              {selectedCell && (
-                <>
-                  Assign Work to {getWorker(selectedCell.workerId)?.name} -{" "}
-                  {new Date(selectedCell.date).toLocaleDateString()}
-                </>
-              )}
-            </DialogTitle>
+            <DialogTitle className="text-theme-text-secondary">Assign Batch</DialogTitle>
           </DialogHeader>
-
-          {selectedCell && (
-            <div className="space-y-6">
-              <div className="bg-theme-bg-primary p-3 rounded border border-theme-border-secondary">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm text-theme-text-tertiary">Worker Assignment:</div>
-                  <Badge className="bg-theme-status-success">
-                    {getAvailableHours(selectedCell.workerId, selectedCell.date)} hours available
-                  </Badge>
-                </div>
-                <div className="text-theme-text-secondary font-medium">
-                  {getWorker(selectedCell.workerId)?.name} - {new Date(selectedCell.date).toLocaleDateString()}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm text-theme-text-tertiary mb-2 block">Hours to Assign</label>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-theme-border-primary text-theme-text-primary"
-                    onClick={() => setAssignmentHours(Math.max(1, assignmentHours - 1))}
-                  >
-                    -
-                  </Button>
-                  <div className="bg-theme-bg-primary border border-theme-border-primary rounded px-4 py-2 min-w-[60px] text-center">
-                    {assignmentHours}h
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-theme-border-primary text-theme-text-primary"
-                    onClick={() => setAssignmentHours(Math.min(8, assignmentHours + 1))}
-                  >
-                    +
-                  </Button>
-                  <div className="text-sm text-theme-text-tertiary ml-2">
-                    {selectedCell && `(${getAvailableHours(selectedCell.workerId, selectedCell.date)} hours available)`}
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAssignmentOpen(false)}
-                  className="border-theme-border-primary text-theme-text-primary hover:bg-theme-brand-secondary/20"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleCreateAssignment}
-                  disabled={!selectedBatch}
-                  className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Assign Work
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Model Batch Selection Dialog */}
-      <Dialog open={isModelPopupOpen} onOpenChange={setIsModelPopupOpen}>
-        <DialogContent className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary max-w-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-theme-text-secondary text-xl">Select Batch - {selectedModel}</DialogTitle>
-            <p className="text-theme-text-tertiary">Choose a specific batch to assign</p>
-          </DialogHeader>
-
-          {selectedModel && (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {batches
-                .filter((batch) => batch.model === selectedModel)
-                .sort((a, b) => {
-                  // Sort by priority first, then by batch number
-                  const priorityOrder = { urgent: 3, high: 2, normal: 1 }
-                  if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-                    return priorityOrder[b.priority] - priorityOrder[a.priority]
-                  }
-                  return b.batchNumber.localeCompare(a.batchNumber)
-                })
-                .map((batch) => (
-                  <div
-                    key={batch.id}
-                    className={`p-4 rounded border cursor-pointer transition-colors ${
-                      selectedBatch === batch.id
-                        ? "bg-theme-brand-secondary/30 border-theme-text-secondary"
-                        : "bg-theme-bg-primary border-theme-border-secondary hover:border-theme-border-active"
-                    }`}
-                    onClick={() => {
-                      setSelectedBatch(batch.id)
-                      setIsModelPopupOpen(false)
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <Package className="h-5 w-5 text-theme-text-secondary" />
-                        <div>
-                          <div className="font-medium text-theme-text-secondary">{batch.batchNumber}</div>
-                          <div className="text-sm text-theme-text-tertiary">{batch.quantity} units</div>
-                        </div>
-                      </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm text-theme-text-secondary">Select Batch</label>
+              <Select value={selectedBatch || ""} onValueChange={setSelectedBatch}>
+                <SelectTrigger className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary">
+                  <SelectValue placeholder="Choose a batch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {batches.map((batch) => (
+                    <SelectItem key={batch.id} value={batch.id}>
                       <div className="flex items-center gap-2">
-                        <Badge className={`${getStageColor(batch.stage)} text-theme-text-primary border-none`}>
-                          Ready for {batch.stage}
-                        </Badge>
-                        <Badge
-                          className={`${
-                            batch.priority === "urgent"
-                              ? "bg-theme-status-error"
-                              : batch.priority === "high"
-                                ? "bg-theme-status-warning"
-                                : "bg-theme-status-info"
-                          }`}
-                        >
-                          {batch.priority.toUpperCase()}
-                        </Badge>
+                        <span>{batch.batchNumber}</span>
+                        <span className="text-xs text-theme-text-tertiary">
+                          {batch.model} ({batch.quantity} units)
+                        </span>
+                        {batch.priority !== 'normal' && (
+                          <Badge
+                            variant={batch.priority === 'urgent' ? 'destructive' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {batch.priority}
+                          </Badge>
+                        )}
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <div className="text-theme-text-tertiary">Current Stage</div>
-                        <div className="text-theme-text-primary">{batch.stage}</div>
-                      </div>
-                      <div>
-                        <div className="text-theme-text-tertiary">Estimated Hours</div>
-                        <div className="text-theme-text-primary">{batch.estimatedHours}h</div>
-                      </div>
-                      <div>
-                        <div className="text-theme-text-tertiary">Status</div>
-                        <div className="text-theme-status-success">Ready to Assign</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
+
+            <div>
+              <label className="text-sm text-theme-text-secondary">Hours</label>
+              <Select value={assignmentHours.toString()} onValueChange={(v) => setAssignmentHours(Number(v))}>
+                <SelectTrigger className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2, 4, 6, 8].map((hours) => (
+                    <SelectItem key={hours} value={hours.toString()}>
+                      {hours} hours
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsModelPopupOpen(false)}
-              className="border-theme-border-primary text-theme-text-primary hover:bg-theme-brand-secondary/20"
+              onClick={() => setIsAssignmentOpen(false)}
+              className="border-theme-border-active text-theme-text-secondary"
             >
-              <X className="h-4 w-4 mr-2" />
               Cancel
+            </Button>
+            <Button
+              onClick={handleAssignBatch}
+              disabled={!selectedBatch}
+              className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary"
+            >
+              Assign
             </Button>
           </DialogFooter>
         </DialogContent>

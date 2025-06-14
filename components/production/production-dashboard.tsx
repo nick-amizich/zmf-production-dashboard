@@ -1,163 +1,131 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MetricsCard } from "./components/metrics-card"
-import { WorkerStatusCard } from "./components/worker-status-card"
-import { OrderCard } from "./components/order-card"
-import { QualityChart } from "./components/quality-chart"
-import { Headphones, AlertTriangle, CheckCircle, Users, Search, Filter, Plus, Settings } from "lucide-react"
+import { MetricsCard } from "@/components/metrics-card"
+import { WorkerStatusCard } from "@/components/worker-status-card"
+import { OrderCard } from "@/components/order-card"
+import { QualityChart } from "@/components/quality-chart"
+import { Headphones, AlertTriangle, CheckCircle, Users, Search, Filter, Plus, Settings, Loader2 } from "lucide-react"
 import { ThemeSwitcher } from "@/components/theme-switcher"
-
+import { ProductionDashboardAPI } from '@/lib/api/production-dashboard-api'
+import { 
+  type WorkerStatus, 
+  type OrderStatus, 
+  type ProductionMetrics,
+  type QualityIssue,
+  type StageBottleneck
+} from '@/lib/services/production-dashboard-service'
 import { logger } from '@/lib/logger'
-// Sample data
-const workers = [
-  {
-    id: "1",
-    name: "Tony Martinez",
-    currentTask: "Cup verification",
-    stage: "Intake",
-    status: "busy" as const,
-    skills: ["Intake", "Sanding"],
-    timeElapsed: "1h 23m",
-  },
-  {
-    id: "2",
-    name: "Jake Thompson",
-    currentTask: "Surface preparation",
-    stage: "Sanding",
-    status: "busy" as const,
-    skills: ["Sanding", "Assembly"],
-    timeElapsed: "2h 15m",
-  },
-  {
-    id: "3",
-    name: "Kevin Chen",
-    currentTask: "Stain application",
-    stage: "Finishing",
-    status: "busy" as const,
-    skills: ["Finishing"],
-    timeElapsed: "45m",
-  },
-  {
-    id: "4",
-    name: "Matt Wilson",
-    currentTask: "Available",
-    stage: "Acoustic QC",
-    status: "available" as const,
-    skills: ["QC", "Assembly"],
-    timeElapsed: "0m",
-  },
-  {
-    id: "5",
-    name: "Laura Davis",
-    currentTask: "Packaging prep",
-    stage: "Shipping",
-    status: "busy" as const,
-    skills: ["Shipping", "QC"],
-    timeElapsed: "30m",
-  },
-  {
-    id: "6",
-    name: "Sam Rodriguez",
-    currentTask: "Break",
-    stage: "Final Assembly",
-    status: "break" as const,
-    skills: ["Assembly", "Sanding"],
-    timeElapsed: "15m",
-  },
-]
-
-const orders = [
-  {
-    id: "1",
-    orderNumber: "ZMF-2024-0156",
-    customerName: "John Smith",
-    model: "Verite Closed",
-    woodType: "Sapele",
-    currentStage: "Sanding",
-    progress: 35,
-    assignedWorker: "Jake Thompson",
-    timeElapsed: "2h 15m",
-    qualityStatus: "good" as const,
-    dueDate: "2024-01-15",
-  },
-  {
-    id: "2",
-    orderNumber: "ZMF-2024-0157",
-    customerName: "Sarah Johnson",
-    model: "Caldera Closed",
-    woodType: "Cocobolo",
-    currentStage: "Finishing",
-    progress: 60,
-    assignedWorker: "Kevin Chen",
-    timeElapsed: "45m",
-    qualityStatus: "warning" as const,
-    dueDate: "2024-01-18",
-  },
-  {
-    id: "3",
-    orderNumber: "ZMF-2024-0158",
-    customerName: "Mike Chen",
-    model: "Auteur",
-    woodType: "Cherry",
-    currentStage: "Sub-Assembly",
-    progress: 75,
-    assignedWorker: "Sam Rodriguez",
-    timeElapsed: "3h 20m",
-    qualityStatus: "good" as const,
-    dueDate: "2024-01-12",
-  },
-  {
-    id: "4",
-    orderNumber: "ZMF-2024-0159",
-    customerName: "Emily Davis",
-    model: "Aeolus",
-    woodType: "Ash",
-    currentStage: "Intake",
-    progress: 15,
-    assignedWorker: "Tony Martinez",
-    timeElapsed: "1h 23m",
-    qualityStatus: "good" as const,
-    dueDate: "2024-01-20",
-  },
-  {
-    id: "5",
-    orderNumber: "ZMF-2024-0160",
-    customerName: "David Wilson",
-    model: "Atticus",
-    woodType: "Walnut",
-    currentStage: "Final Assembly",
-    progress: 85,
-    assignedWorker: "Jake Thompson",
-    timeElapsed: "4h 10m",
-    qualityStatus: "critical" as const,
-    dueDate: "2024-01-14",
-  },
-  {
-    id: "6",
-    orderNumber: "ZMF-2024-0161",
-    customerName: "Lisa Anderson",
-    model: "Eikon",
-    woodType: "Maple",
-    currentStage: "Acoustic QC",
-    progress: 90,
-    assignedWorker: "Matt Wilson",
-    timeElapsed: "30m",
-    qualityStatus: "good" as const,
-    dueDate: "2024-01-16",
-  },
-]
+import { useRouter } from 'next/navigation'
+import { useMultiRealtime } from '@/hooks/use-realtime'
 
 export default function ProductionDashboard() {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [workers, setWorkers] = useState<WorkerStatus[]>([])
+  const [orders, setOrders] = useState<OrderStatus[]>([])
+  const [metrics, setMetrics] = useState<ProductionMetrics>({
+    activeBuilds: 0,
+    atRiskOrders: 0,
+    completedThisWeek: 0,
+    staffUtilization: 0,
+    activeBuildsTrend: 0,
+    atRiskTrend: 0,
+    completedTrend: 0
+  })
+  const [qualityIssues, setQualityIssues] = useState<QualityIssue[]>([])
+  const [bottlenecks, setBottlenecks] = useState<StageBottleneck[]>([])
 
-  // Add console log to verify component is rendering
-  logger.debug("ProductionDashboard component rendering")
+  useEffect(() => {
+    loadDashboardData()
+    // Refresh data every 30 seconds
+    const interval = setInterval(loadDashboardData, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Subscribe to real-time updates
+  useMultiRealtime({
+    subscriptions: [
+      { table: 'batches' },
+      { table: 'orders' },
+      { table: 'stage_assignments' },
+      { table: 'employees' },
+      { table: 'issues' },
+      { table: 'quality_checks' }
+    ],
+    onChange: (table, payload) => {
+      logger.debug(`Real-time update from ${table}`, payload)
+      
+      // For most changes, we'll just reload the data
+      // In a production app, you might want to update specific items
+      switch (table) {
+        case 'batches':
+        case 'orders':
+          // Reload orders when batches or orders change
+          ProductionDashboardAPI.getOrderStatuses()
+            .then(setOrders)
+            .catch(error => logger.error('Failed to reload orders', error))
+          
+          // Also update metrics
+          ProductionDashboardAPI.getProductionMetrics()
+            .then(setMetrics)
+            .catch(error => logger.error('Failed to reload metrics', error))
+          break
+          
+        case 'stage_assignments':
+        case 'employees':
+          // Reload workers when assignments or employee status changes
+          ProductionDashboardAPI.getWorkerStatuses()
+            .then(setWorkers)
+            .catch(error => logger.error('Failed to reload workers', error))
+          break
+          
+        case 'issues':
+          // Reload quality issues
+          ProductionDashboardAPI.getQualityIssues()
+            .then(setQualityIssues)
+            .catch(error => logger.error('Failed to reload quality issues', error))
+          break
+          
+        case 'quality_checks':
+          // Reload bottlenecks which might be affected by quality checks
+          ProductionDashboardAPI.getStageBottlenecks()
+            .then(setBottlenecks)
+            .catch(error => logger.error('Failed to reload bottlenecks', error))
+          break
+      }
+    }
+  })
+
+  const loadDashboardData = async () => {
+    try {
+      logger.debug("Loading production dashboard data")
+      
+      // Load all data in parallel
+      const [workersData, ordersData, metricsData, issuesData, bottlenecksData] = await Promise.all([
+        ProductionDashboardAPI.getWorkerStatuses(),
+        ProductionDashboardAPI.getOrderStatuses(),
+        ProductionDashboardAPI.getProductionMetrics(),
+        ProductionDashboardAPI.getQualityIssues(),
+        ProductionDashboardAPI.getStageBottlenecks()
+      ])
+
+      setWorkers(workersData)
+      setOrders(ordersData)
+      setMetrics(metricsData)
+      setQualityIssues(issuesData)
+      setBottlenecks(bottlenecksData)
+      setIsLoading(false)
+    } catch (error) {
+      logger.error('Failed to load dashboard data', error)
+      setIsLoading(false)
+    }
+  }
 
   const filteredOrders = orders.filter(
     (order) =>
@@ -208,35 +176,35 @@ export default function ProductionDashboard() {
         <div className="grid grid-cols-4 gap-4">
           <MetricsCard
             title="Active Builds"
-            value={12}
+            value={metrics.activeBuilds}
             subtitle="In production"
             icon={Headphones}
-            trend="up"
-            trendValue="+2 from yesterday"
+            trend={metrics.activeBuildsTrend > 0 ? "up" : metrics.activeBuildsTrend < 0 ? "down" : "neutral"}
+            trendValue={`${metrics.activeBuildsTrend > 0 ? '+' : ''}${metrics.activeBuildsTrend} from yesterday`}
           />
           <MetricsCard
             title="At-Risk Orders"
-            value={3}
+            value={metrics.atRiskOrders}
             subtitle="Behind schedule"
             icon={AlertTriangle}
-            trend="down"
-            trendValue="-1 from yesterday"
+            trend={metrics.atRiskTrend > 0 ? "up" : metrics.atRiskTrend < 0 ? "down" : "neutral"}
+            trendValue={`${metrics.atRiskTrend > 0 ? '+' : ''}${metrics.atRiskTrend} from yesterday`}
           />
           <MetricsCard
             title="Completed This Week"
-            value={45}
+            value={metrics.completedThisWeek}
             subtitle="Shipped orders"
             icon={CheckCircle}
-            trend="up"
-            trendValue="+12% vs last week"
+            trend={metrics.completedTrend > 0 ? "up" : metrics.completedTrend < 0 ? "down" : "neutral"}
+            trendValue={`${metrics.completedTrend > 0 ? '+' : ''}${metrics.completedTrend}% vs last week`}
           />
           <MetricsCard
             title="Staff Utilization"
-            value="87%"
+            value={`${metrics.staffUtilization}%`}
             subtitle="Average across all workers"
             icon={Users}
             trend="neutral"
-            trendValue="Stable"
+            trendValue={metrics.staffUtilization > 80 ? "Optimal" : "Below target"}
           />
         </div>
       </div>
@@ -275,7 +243,11 @@ export default function ProductionDashboard() {
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
-              <Button size="sm" className="bg-theme-brand-secondary hover:bg-theme-brand-hover text-theme-text-primary">
+              <Button 
+                size="sm" 
+                className="bg-theme-brand-secondary hover:bg-theme-brand-hover text-theme-text-primary"
+                onClick={() => router.push('/orders/new')}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 New Order
               </Button>
@@ -301,18 +273,24 @@ export default function ProductionDashboard() {
                 <CardTitle className="text-theme-text-secondary text-sm">Recent Issues</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-theme-status-warning rounded-full" />
-                  <span className="text-theme-text-tertiary">Stain coverage uneven - ZMF-157</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-theme-status-error rounded-full" />
-                  <span className="text-theme-text-tertiary">Driver seating issue - ZMF-160</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-theme-status-success rounded-full" />
-                  <span className="text-theme-text-tertiary">Wood grain matched - ZMF-159</span>
-                </div>
+                {qualityIssues.length > 0 ? (
+                  qualityIssues.map((issue) => (
+                    <div key={issue.id} className="flex items-center gap-2 text-sm">
+                      <div className={`w-2 h-2 rounded-full ${
+                        issue.severity === 'error' ? 'bg-theme-status-error' :
+                        issue.severity === 'warning' ? 'bg-theme-status-warning' :
+                        'bg-theme-status-success'
+                      }`} />
+                      <span className="text-theme-text-tertiary">
+                        {issue.description} - {issue.orderId}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-theme-text-tertiary">
+                    No recent issues reported
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -321,18 +299,24 @@ export default function ProductionDashboard() {
                 <CardTitle className="text-theme-text-secondary text-sm">Stage Bottlenecks</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-theme-text-tertiary">Finishing</span>
-                  <Badge variant="outline" className="border-theme-status-warning text-theme-status-warning">
-                    2.3h avg
-                  </Badge>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-theme-text-tertiary">Acoustic QC</span>
-                  <Badge variant="outline" className="border-theme-status-error text-theme-status-error">
-                    3.1h avg
-                  </Badge>
-                </div>
+                {bottlenecks.length > 0 ? (
+                  bottlenecks.slice(0, 3).map((bottleneck) => (
+                    <div key={bottleneck.stage} className="flex justify-between text-sm">
+                      <span className="text-theme-text-tertiary">{bottleneck.stage}</span>
+                      <Badge variant="outline" className={`
+                        ${bottleneck.status === 'critical' ? 'border-theme-status-error text-theme-status-error' :
+                          bottleneck.status === 'warning' ? 'border-theme-status-warning text-theme-status-warning' :
+                          'border-theme-status-success text-theme-status-success'}
+                      `}>
+                        {bottleneck.averageTime.toFixed(1)}h avg
+                      </Badge>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-theme-text-tertiary">
+                    No bottlenecks detected
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

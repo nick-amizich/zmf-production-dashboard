@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Package, Clock, AlertCircle } from 'lucide-react'
+import { Plus, Package, Clock, AlertCircle, LayoutDashboard } from 'lucide-react'
 import { CreateBatchModal } from '@/components/production/create-batch-modal'
 import { Database } from '@/types/database.types'
+import Link from 'next/link'
 
 type Worker = Database['public']['Tables']['workers']['Row']
 type Order = Database['public']['Tables']['orders']['Row'] & {
@@ -48,14 +49,28 @@ export function ProductionHeader({ worker, pendingOrders }: ProductionHeaderProp
               )}
             </div>
             
-            {isManager && pendingOrders.length > 0 && (
-              <Button
-                onClick={() => setShowCreateBatch(true)}
-                className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Batch
-              </Button>
+            {isManager && (
+              <>
+                <Link href="/production/dashboard">
+                  <Button
+                    variant="outline"
+                    className="border-theme-border-primary text-theme-text-secondary hover:bg-theme-brand-secondary/20"
+                  >
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+                
+                {pendingOrders.length > 0 && (
+                  <Button
+                    onClick={() => setShowCreateBatch(true)}
+                    className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Batch
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>

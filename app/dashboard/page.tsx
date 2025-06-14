@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import FrontScreen from '@/components/screens/front-screen'
-
+import { MainDashboard } from '@/components/dashboard/main-dashboard'
 import { logger } from '@/lib/logger'
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   
@@ -13,21 +13,24 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Always validate employee - matching field names with property access
-  const { data: employee, error } = await supabase
+  // Get worker record (all users are in workers table)
+  const { data: worker } = await supabase
     .from('workers')
     .select('id, role, is_active, name, email')
     .eq('auth_user_id', user.id)
     .single()
 
-  if (error || !employee) {
-    logger.error('Employee lookup error:', error)
+  if (!worker?.is_active) {
+    logger.error('No active worker found for user:', user.id)
     redirect('/login')
   }
 
-  if (!employee.is_active) {
-    redirect('/login')
+  // Redirect based on role
+  if (worker.role === 'worker') {
+    // Regular workers go to their specific dashboard
+    redirect('/worker/dashboard')
+  } else {
+    // Managers and admins see the main dashboard
+    return <MainDashboard userRole="employee" userData={worker} />
   }
-
-  return <FrontScreen />
 } 

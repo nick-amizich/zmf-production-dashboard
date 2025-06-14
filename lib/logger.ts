@@ -248,5 +248,23 @@ export function logAuthError(
   logger.error(`Auth Error: ${operation}`, error, context, 'Auth')
 }
 
+// Business event logging
+export function logBusiness(
+  message: string,
+  context: string,
+  data?: LogContext
+) {
+  logger.info(message, data, context)
+}
+
+// Generic error logging
+export function logError(
+  error: Error | unknown,
+  context: string,
+  data?: LogContext
+) {
+  logger.error(`Error in ${context}`, error, data, context)
+}
+
 // Export for testing
 export { Logger }

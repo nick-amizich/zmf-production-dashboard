@@ -39,13 +39,13 @@ export function WorkerDashboard({ data }: WorkerDashboardProps) {
   return (
     <div className="min-h-screen bg-theme-bg-primary">
       {/* Header */}
-      <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4">
+      <header className="bg-card border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-theme-text-primary">
               Welcome back, {worker.name}!
             </h1>
-            <p className="text-zinc-400 mt-1">
+            <p className="text-muted-foreground mt-1">
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -61,7 +61,7 @@ export function WorkerDashboard({ data }: WorkerDashboardProps) {
             </Badge>
             {performance.rank > 0 && (
               <div className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-yellow-500" />
+                <Trophy className="h-5 w-5 text-theme-status-warning" />
                 <span className="text-theme-text-primary font-medium">
                   Rank #{performance.rank} of {performance.totalWorkers}
                 </span>

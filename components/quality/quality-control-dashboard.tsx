@@ -216,7 +216,7 @@ export default function QualityControlDashboard({ onBack }: QualityControlDashbo
                           <span className="text-xs text-theme-text-tertiary">({stage.target}% target)</span>
                         </div>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${isAboveTarget ? "bg-theme-status-success" : "bg-theme-status-warning"}`}
                           style={{ width: `${Math.min(stage.passRate, 100)}%` }}

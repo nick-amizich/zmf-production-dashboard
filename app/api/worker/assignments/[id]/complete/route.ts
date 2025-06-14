@@ -28,13 +28,14 @@ export async function POST(
     }
     
     const body = await request.json()
-    const { notes } = body
+    const { notes, qualityStatus = 'good', timeSpentMinutes } = body
     
     const workerService = new WorkerService(supabase)
     const assignment = await workerService.completeAssignment(
       params.id,
       worker.id,
-      notes
+      qualityStatus as 'good' | 'warning' | 'critical' | 'hold',
+      timeSpentMinutes
     )
     
     // Create a notification for the completion

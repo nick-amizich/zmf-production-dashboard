@@ -1,6 +1,7 @@
 'use client'
 
-import { AuthHeader } from '@/components/auth-header'
+import { MainNav } from '@/components/navigation/main-nav'
+import { RoleSwitcher } from '@/components/debug/role-switcher'
 
 export function AuthenticatedLayout({
   children,
@@ -8,9 +9,12 @@ export function AuthenticatedLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="relative">
-      <AuthHeader />
-      {children}
+    <div className="min-h-screen bg-background">
+      <MainNav />
+      <main className="flex-1">
+        {children}
+      </main>
+      <RoleSwitcher />
     </div>
   )
 } 

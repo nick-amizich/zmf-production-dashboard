@@ -93,6 +93,52 @@ export function Component() {
 - Use generated types throughout the application
 - Maintain strict TypeScript mode
 
+## Theme System & Color Usage
+
+### CRITICAL: Always Use Theme Classes
+The app supports multiple themes. NEVER use hardcoded colors. Always use theme-aware classes:
+
+#### Background Colors
+- ❌ `bg-white` → ✅ `bg-background` or `bg-card`
+- ❌ `bg-gray-50` → ✅ `bg-muted`
+- ❌ `bg-gray-100` → ✅ `bg-accent`
+- ❌ `bg-zinc-900` → ✅ `bg-card`
+- ❌ `bg-gray-700` → ✅ `bg-muted`
+
+#### Text Colors
+- ❌ `text-white` → ✅ `text-primary-foreground` or `text-card-foreground`
+- ❌ `text-black` → ✅ `text-foreground`
+- ❌ `text-gray-600` → ✅ `text-muted-foreground`
+- ❌ `text-zinc-400` → ✅ `text-muted-foreground`
+
+#### Border Colors
+- ❌ `border-gray-200` → ✅ `border-border`
+- ❌ `border-zinc-800` → ✅ `border-border`
+
+#### Status Colors (Theme-specific)
+- ❌ `bg-green-500` → ✅ `bg-theme-status-success`
+- ❌ `bg-yellow-500` → ✅ `bg-theme-status-warning`
+- ❌ `bg-red-500` → ✅ `bg-theme-status-error`
+- ❌ `bg-blue-500` → ✅ `bg-theme-status-info`
+
+#### Brand Colors
+- Primary: `bg-theme-brand-primary`, `text-theme-brand-primary`
+- Secondary: `bg-theme-brand-secondary`, `text-theme-brand-secondary`
+
+#### Theme-aware Opacity
+- Use `/10`, `/20`, `/50` modifiers: `bg-theme-status-success/10`
+- Hover states: `hover:bg-accent` or `hover:bg-theme-brand-secondary/20`
+
+### Available Themes
+1. ZMF Luxury (default) - Premium dark theme
+2. Modern Dark - Clean dark theme
+3. Professional Light - Light business theme
+4. Midnight Blue - Deep blue theme
+5. Forest Green - Nature-inspired theme
+
+### Theme Switcher Location
+The theme switcher is in the top-right corner (AuthHeader component) on all authenticated pages.
+
 
 
 
@@ -689,4 +735,61 @@ src/
 │   └── logger/     # Logging utilities
 └── features/       # Feature modules
 Remember: When in doubt, ASK. Check /manager/logs for debugging. Always run npm run build before committing.
+
+## Development Testing Strategy
+
+### Single Account Testing Approach
+During initial development, use a single account with elevated permissions to test both worker and manager features:
+
+1. **Create Debug Pages**: Use the `(debug)` folder for testing features
+   - Example: `/debug/test-worker-assignment`
+   - These pages can simulate both worker and manager actions
+   - Not included in production navigation
+
+2. **Temporary Permission Elevation**: For testing, give your dev account both worker and manager access:
+   ```sql
+   -- In Supabase SQL editor (DEVELOPMENT ONLY)
+   -- This allows testing both roles without switching accounts
+   -- Nick's dev account: auth_user_id = 39e4d084-8d85-467f-ae72-468ea72865be
+   UPDATE employees 
+   SET role = 'admin' 
+   WHERE auth_user_id = '39e4d084-8d85-467f-ae72-468ea72865be';
+   
+   -- Also ensure you exist in workers table
+   INSERT INTO workers (id, auth_user_id, name, email, role, is_active)
+   VALUES (
+     '9a802cd4-a617-4e91-a71e-6532a61acec1',
+     '39e4d084-8d85-467f-ae72-468ea72865be', 
+     'Nick Admin', 
+     'nick@jdslabs.com',
+     'manager', 
+     true
+   )
+   ON CONFLICT (auth_user_id) 
+   DO UPDATE SET 
+     is_active = true,
+     name = 'Nick Admin',
+     email = 'nick@jdslabs.com';
+   ```
+
+3. **Debug Page Pattern**: Create test pages that can perform actions for any user:
+   ```typescript
+   // Example: /app/(debug)/debug/feature-test/page.tsx
+   export default async function TestPage() {
+     // Can create assignments for any worker
+     // Can approve/reject as manager
+     // Can simulate worker completion
+   }
+   ```
+
+4. **Testing Checklist**:
+   - Manager creates batch → Worker sees assignment
+   - Worker completes stage → Manager sees update
+   - Quality status flows → Reports reflect changes
+   - Notifications delivered → Both roles see them
+
+5. **Before Production**: 
+   - Remove debug pages from deployment
+   - Revert account permissions to normal
+   - Test with separate worker/manager accounts
 

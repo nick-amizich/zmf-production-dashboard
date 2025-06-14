@@ -13,7 +13,7 @@ interface OrderCardProps {
     woodType: string
     currentStage: string
     progress: number
-    assignedWorker: string
+    assignedWorker: string | null
     timeElapsed: string
     qualityStatus: "good" | "warning" | "critical"
     dueDate: string
@@ -28,13 +28,22 @@ export function OrderCard({ order }: OrderCardProps) {
   }
 
   const stageColors = {
-    Intake: "bg-theme-status-info",
-    Sanding: "bg-orange-600",
-    Finishing: "bg-purple-600",
-    "Sub-Assembly": "bg-teal-600",
-    "Final Assembly": "bg-indigo-600",
-    "Acoustic QC": "bg-pink-600",
-    Shipping: "bg-theme-status-success",
+    pending: "bg-gray-600",
+    cups: "bg-theme-status-info",
+    sanding: "bg-orange-600",
+    finishing: "bg-purple-600",
+    sub_assembly: "bg-teal-600",
+    final_assembly: "bg-indigo-600",
+    quality_control: "bg-pink-600",
+    packaging: "bg-theme-status-success",
+    complete: "bg-theme-status-success",
+  }
+
+  const formatStageName = (stage: string): string => {
+    return stage
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
   }
 
   return (
@@ -74,7 +83,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 <Badge
                   className={`${stageColors[order.currentStage as keyof typeof stageColors] || "bg-gray-600"} text-theme-text-primary`}
                 >
-                  {order.currentStage}
+                  {formatStageName(order.currentStage)}
                 </Badge>
                 <span className="text-xs text-theme-text-tertiary">{order.progress}% complete</span>
               </div>
@@ -83,15 +92,21 @@ export function OrderCard({ order }: OrderCardProps) {
 
             <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
               <div className="flex items-center gap-1">
-                <Avatar className="h-5 w-5">
-                  <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary text-xs">
-                    {order.assignedWorker
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                {order.assignedWorker}
+                {order.assignedWorker ? (
+                  <>
+                    <Avatar className="h-5 w-5">
+                      <AvatarFallback className="bg-theme-brand-secondary text-theme-text-secondary text-xs">
+                        {order.assignedWorker
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    {order.assignedWorker}
+                  </>
+                ) : (
+                  <span className="text-theme-text-tertiary">Unassigned</span>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />

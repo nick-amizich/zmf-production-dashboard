@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { LogOut, User } from 'lucide-react'
+import { ThemeSwitcher } from '@/components/theme-switcher'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +19,8 @@ export function AuthHeader() {
   if (!worker) return null
 
   return (
-    <div className="absolute top-4 right-4 z-50">
+    <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+      <ThemeSwitcher />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

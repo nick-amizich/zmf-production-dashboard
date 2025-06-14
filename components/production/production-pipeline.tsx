@@ -1,12 +1,14 @@
 'use client'
 
 import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { StageColumn } from './stage-column'
 import { BatchCard } from './batch-card'
 import { Database } from '@/types/database.types'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useMultiRealtime } from '@/hooks/use-realtime'
+import { logger } from '@/lib/logger'
 
 type ProductionStage = Database['public']['Enums']['production_stage']
 type Batch = Database['public']['Tables']['batches']['Row'] & {
@@ -31,13 +33,58 @@ const STAGE_ORDER: ProductionStage[] = [
 ]
 
 export function ProductionPipeline({ 
-  pipeline, 
+  pipeline: initialPipeline, 
   userRole,
   userId 
 }: ProductionPipelineProps) {
+  const [pipeline, setPipeline] = useState(initialPipeline)
   const [activeBatch, setActiveBatch] = useState<Batch | null>(null)
   const router = useRouter()
   const isManager = userRole === 'manager' || userRole === 'admin'
+
+  // Subscribe to real-time updates for batches
+  useMultiRealtime({
+    subscriptions: [
+      { table: 'batches' },
+      { table: 'batch_orders' },
+      { table: 'stage_assignments' }
+    ],
+    onChange: (table, payload) => {
+      logger.debug(`Production pipeline real-time update from ${table}`, payload)
+      
+      // For now, we'll trigger a full page refresh to get updated data
+      // In a production app, you'd update the specific batch in the pipeline
+      if (table === 'batches' && payload.eventType === 'UPDATE') {
+        const updatedBatch = payload.new as Batch
+        
+        setPipeline(prev => {
+          const newPipeline = { ...prev }
+          
+          // Remove batch from all stages
+          STAGE_ORDER.forEach(stage => {
+            newPipeline[stage] = newPipeline[stage].filter(
+              b => b.id !== updatedBatch.id
+            )
+          })
+          
+          // Add batch to its new stage
+          if (updatedBatch.current_stage && newPipeline[updatedBatch.current_stage]) {
+            newPipeline[updatedBatch.current_stage] = [
+              ...newPipeline[updatedBatch.current_stage],
+              updatedBatch
+            ]
+          }
+          
+          return newPipeline
+        })
+      }
+      
+      // Refresh page data for other changes
+      if (table === 'batch_orders' || table === 'stage_assignments') {
+        router.refresh()
+      }
+    }
+  })
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
@@ -96,7 +143,13 @@ export function ProductionPipeline({
             key={stage}
             stage={stage}
             batches={pipeline[stage]}
-            onBatchSelect={setActiveBatch}
+            onBatchSelect={(batch) => {
+              if (isManager) {
+                router.push(`/production/batches/${batch.id}`)
+              } else {
+                setActiveBatch(batch)
+              }
+            }}
             canDrop={isManager}
           />
         ))}

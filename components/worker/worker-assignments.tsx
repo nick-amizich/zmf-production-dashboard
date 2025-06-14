@@ -6,12 +6,19 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 import { 
   CheckCircle, 
   Clock, 
   Package, 
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  Wrench,
+  Paintbrush,
+  Layers,
+  Volume2,
+  Truck
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from '@/hooks/use-toast'
@@ -25,6 +32,7 @@ interface WorkerAssignmentsProps {
 export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsProps) {
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null)
   const [completionNotes, setCompletionNotes] = useState('')
+  const [qualityStatus, setQualityStatus] = useState<'good' | 'warning' | 'critical' | 'hold'>('good')
   const [isCompleting, setIsCompleting] = useState(false)
 
   const handleComplete = async () => {
@@ -35,7 +43,10 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
       const response = await fetch(`/api/worker/assignments/${selectedAssignment.id}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: completionNotes }),
+        body: JSON.stringify({ 
+          notes: completionNotes,
+          qualityStatus 
+        }),
       })
 
       if (response.ok) {
@@ -45,6 +56,7 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
         })
         setSelectedAssignment(null)
         setCompletionNotes('')
+        setQualityStatus('good')
         // Refresh the page to update assignments
         window.location.reload()
       }
@@ -69,8 +81,23 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
   }
 
   const getStageIcon = (stage: string) => {
-    // You could have different icons per stage
-    return <Package className="h-4 w-4" />
+    switch (stage) {
+      case 'Intake':
+        return <Package className="h-4 w-4" />
+      case 'Sanding':
+        return <Wrench className="h-4 w-4" />
+      case 'Finishing':
+        return <Paintbrush className="h-4 w-4" />
+      case 'Sub-Assembly':
+      case 'Final Assembly':
+        return <Layers className="h-4 w-4" />
+      case 'Acoustic QC':
+        return <Volume2 className="h-4 w-4" />
+      case 'Shipping':
+        return <Truck className="h-4 w-4" />
+      default:
+        return <Package className="h-4 w-4" />
+    }
   }
 
   if (assignments.length === 0) {
@@ -107,7 +134,7 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      Assigned {formatDistanceToNow(new Date(assignment.assigned_at), { addSuffix: true })}
+                      Started {formatDistanceToNow(new Date(assignment.started_at), { addSuffix: true })}
                     </div>
                   </div>
                   <Badge variant={getPriorityColor(batch?.priority || 'normal')}>
@@ -175,6 +202,40 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
             </div>
             
             <div>
+              <label className="text-sm font-medium">Quality Status</label>
+              <RadioGroup 
+                value={qualityStatus} 
+                onValueChange={(value) => setQualityStatus(value as any)}
+                className="mt-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="good" id="good" />
+                  <Label htmlFor="good" className="cursor-pointer">
+                    Good - No issues found
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="warning" id="warning" />
+                  <Label htmlFor="warning" className="cursor-pointer">
+                    Warning - Minor issues, but acceptable
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="critical" id="critical" />
+                  <Label htmlFor="critical" className="cursor-pointer">
+                    Critical - Major issues need attention
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="hold" id="hold" />
+                  <Label htmlFor="hold" className="cursor-pointer">
+                    Hold - Cannot proceed, needs manager review
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+            
+            <div>
               <label className="text-sm font-medium">Completion Notes (Optional)</label>
               <Textarea
                 value={completionNotes}
@@ -191,6 +252,7 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
                 onClick={() => {
                   setSelectedAssignment(null)
                   setCompletionNotes('')
+                  setQualityStatus('good')
                 }}
               >
                 Cancel

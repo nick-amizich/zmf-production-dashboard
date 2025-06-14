@@ -33,54 +33,23 @@ import {
 } from "lucide-react"
 import TimingSettingsModal from "@/components/timing-settings-modal"
 import Link from "next/link"
+import { ProductionManagerAPI } from '@/lib/api/production-manager-api'
+import { 
+  type ManagerDashboardMetrics,
+  type ProductionStageData
+} from '@/lib/services/production-manager-service'
+import { logger } from '@/lib/logger'
+import { useMultiRealtime } from '@/hooks/use-realtime'
 
-interface ProductionStage {
-  id: string
-  name: string
-  icon: any
-  activeOrders: number
-  capacity: number
-  averageTime: string
-  bottleneck: boolean
-  workers: Array<{
-    name: string
-    status: "working" | "available" | "break"
-    currentOrder?: string
-    timeElapsed?: string
-  }>
-  alerts: Array<{
-    type: "warning" | "error" | "info"
-    message: string
-    orderId?: string
-  }>
-}
-
-interface DashboardMetrics {
-  activeOrders: {
-    count: number
-    status: "good" | "warning" | "critical"
-    breakdown: { onTrack: number; delayed: number; critical: number }
-  }
-  dailyProgress: {
-    completed: number
-    target: number
-    percentage: number
-  }
-  qualityStatus: {
-    rate: number
-    trend: "up" | "down" | "stable"
-    change: number
-  }
-  workerStatus: {
-    active: number
-    total: number
-    breakdown: { working: number; available: number; break: number; offline: number }
-  }
-  upcomingDeadlines: {
-    tomorrow: number
-    thisWeek: number
-    urgency: "low" | "medium" | "high"
-  }
+// Map stage IDs to icons
+const stageIcons: Record<string, any> = {
+  cups: Package,
+  sanding: Activity,
+  finishing: BarChart3,
+  sub_assembly: Settings,
+  final_assembly: Headphones,
+  quality_control: CheckCircle,
+  packaging: Package
 }
 
 export default function ProductionManagerDashboard() {
@@ -89,12 +58,12 @@ export default function ProductionManagerDashboard() {
   const [alertCount, setAlertCount] = useState(7)
   const [emergencyMode, setEmergencyMode] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
-  const [selectedStage, setSelectedStage] = useState<ProductionStage | null>(null)
+  const [selectedStage, setSelectedStage] = useState<ProductionStageData | null>(null)
   const [showStageDetails, setShowStageDetails] = useState(false)
   const [showMessageModal, setShowMessageModal] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Mock data - in real implementation, this would come from API
-  const [metrics, setMetrics] = useState<DashboardMetrics>({
+  const [metrics, setMetrics] = useState<ManagerDashboardMetrics>({
     activeOrders: {
       count: 24,
       status: "warning",
@@ -122,7 +91,7 @@ export default function ProductionManagerDashboard() {
     },
   })
 
-  const [productionStages, setProductionStages] = useState<ProductionStage[]>([
+  const [productionStages, setProductionStages] = useState<ProductionStageData[]>([
     {
       id: "intake",
       name: "Intake",
@@ -224,6 +193,103 @@ export default function ProductionManagerDashboard() {
     },
   ])
 
+  // Load data on component mount
+  useEffect(() => {
+    loadDashboardData()
+    const interval = setInterval(loadDashboardData, 30000) // Refresh every 30 seconds
+    return () => clearInterval(interval)
+  }, [])
+
+  const loadDashboardData = async () => {
+    try {
+      logger.debug("Loading manager dashboard data")
+      
+      const [metricsData, stagesData] = await Promise.all([
+        ProductionManagerAPI.getDashboardMetrics(),
+        ProductionManagerAPI.getProductionStages()
+      ])
+
+      // Add icons to stages
+      const stagesWithIcons = stagesData.map(stage => ({
+        ...stage,
+        icon: stageIcons[stage.id] || Package
+      }))
+
+      setMetrics(metricsData)
+      setProductionStages(stagesWithIcons)
+      setLastUpdate(new Date())
+      setIsLoading(false)
+      
+      // Update alert count based on stage alerts
+      const totalAlerts = stagesData.reduce((count, stage) => 
+        count + stage.alerts.length, 0
+      )
+      setAlertCount(totalAlerts)
+    } catch (error) {
+      logger.error('Failed to load manager dashboard data', error)
+      setIsLoading(false)
+    }
+  }
+
+  // Subscribe to real-time updates
+  useMultiRealtime({
+    subscriptions: [
+      { table: 'batches' },
+      { table: 'orders' },
+      { table: 'stage_assignments' },
+      { table: 'employees' },
+      { table: 'issues' },
+      { table: 'production_metrics' },
+      { table: 'system_logs', filter: 'level=in.(error,warn)' }
+    ],
+    onChange: (table, payload) => {
+      logger.debug(`Manager dashboard real-time update from ${table}`, payload)
+      
+      // For critical updates, refresh immediately
+      switch (table) {
+        case 'batches':
+        case 'orders':
+        case 'production_metrics':
+          // Reload metrics when production data changes
+          ProductionManagerAPI.getDashboardMetrics()
+            .then(setMetrics)
+            .catch(error => logger.error('Failed to reload manager metrics', error))
+          break
+          
+        case 'stage_assignments':
+        case 'employees':
+        case 'issues':
+          // Reload stages data when assignments, workers, or issues change
+          ProductionManagerAPI.getProductionStages()
+            .then(stagesData => {
+              const stagesWithIcons = stagesData.map(stage => ({
+                ...stage,
+                icon: stageIcons[stage.id] || Package
+              }))
+              setProductionStages(stagesWithIcons)
+              
+              // Update alert count
+              const totalAlerts = stagesData.reduce((count, stage) => 
+                count + stage.alerts.length, 0
+              )
+              setAlertCount(totalAlerts)
+            })
+            .catch(error => logger.error('Failed to reload stages', error))
+          break
+          
+        case 'system_logs':
+          // Increment alert count for new errors/warnings
+          if (payload.eventType === 'INSERT') {
+            setAlertCount(prev => prev + 1)
+          }
+          break
+      }
+      
+      // Update last update time
+      setLastUpdate(new Date())
+    }
+  })
+
   // Update current time every second
   useEffect(() => {
     const timer = setInterval(() => {
@@ -232,31 +298,21 @@ export default function ProductionManagerDashboard() {
     return () => clearInterval(timer)
   }, [])
 
-  // Simulate real-time data updates every 30 seconds
-  useEffect(() => {
-    const dataTimer = setInterval(() => {
-      setLastUpdate(new Date())
-      // In real implementation, this would fetch fresh data from API
-    }, 30000)
-    return () => clearInterval(dataTimer)
-  }, [])
-
   const handleEmergencyStop = () => {
     setEmergencyMode(!emergencyMode)
     // In real implementation, this would trigger emergency protocols
   }
 
-  const handleRefreshData = () => {
-    setLastUpdate(new Date())
-    // In real implementation, this would force refresh all data
+  const handleRefreshData = async () => {
+    await loadDashboardData()
   }
 
-  const handleViewStage = (stage: ProductionStage) => {
+  const handleViewStage = (stage: ProductionStageData) => {
     setSelectedStage(stage)
     setShowStageDetails(true)
   }
 
-  const handleMessageStage = (stage: ProductionStage) => {
+  const handleMessageStage = (stage: ProductionStageData) => {
     setSelectedStage(stage)
     setShowMessageModal(true)
   }
@@ -285,6 +341,14 @@ export default function ProductionManagerDashboard() {
       default:
         return "bg-gray-600"
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary flex items-center justify-center">
+        <div className="text-theme-text-secondary text-xl">Loading Manager Dashboard...</div>
+      </div>
+    )
   }
 
   return (

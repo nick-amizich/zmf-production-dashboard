@@ -63,7 +63,7 @@ export class WorkerService {
    */
   async getActiveAssignments(workerId: string): Promise<any[]> {
     const { data, error } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .select(`
         *,
         batch:batches(
@@ -77,9 +77,9 @@ export class WorkerService {
           )
         )
       `)
-      .eq('worker_id', workerId)
+      .eq('assigned_worker_id', workerId)
       .is('completed_at', null)
-      .order('assigned_at', { ascending: false })
+      .order('started_at', { ascending: false })
 
     if (error) throw error
     return data || []
@@ -91,24 +91,32 @@ export class WorkerService {
   async completeAssignment(
     assignmentId: string,
     workerId: string,
-    notes?: string
+    qualityStatus: 'good' | 'warning' | 'critical' | 'hold' = 'good',
+    timeSpentMinutes?: number
   ) {
     // Verify assignment belongs to worker
     const { data: assignment } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .select('*')
       .eq('id', assignmentId)
-      .eq('worker_id', workerId)
+      .eq('assigned_worker_id', workerId)
       .single()
 
     if (!assignment) throw new Error('Assignment not found')
 
+    // Calculate time spent if not provided
+    const actualTimeSpent = timeSpentMinutes || 
+      (assignment.started_at ? 
+        Math.floor((Date.now() - new Date(assignment.started_at).getTime()) / 60000) : 
+        0)
+
     // Mark as completed
     const { data, error } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .update({
         completed_at: new Date().toISOString(),
-        notes,
+        quality_status: qualityStatus,
+        time_spent_minutes: actualTimeSpent,
       })
       .eq('id', assignmentId)
       .select()
@@ -170,45 +178,22 @@ export class WorkerService {
    */
   private async checkBatchStageCompletion(batchId: string, stage: ProductionStage) {
     const { data: assignments } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .select('*')
       .eq('batch_id', batchId)
       .eq('stage', stage)
       .is('completed_at', null)
 
     if (!assignments || assignments.length === 0) {
-      // All assignments complete, update batch stage
-      const stageOrder = [
-        'Intake',
-        'Sanding',
-        'Finishing',
-        'Sub-Assembly',
-        'Final Assembly',
-        'Acoustic QC',
-        'Shipping'
-      ] as ProductionStage[]
-
-      const currentIndex = stageOrder.indexOf(stage)
-      if (currentIndex < stageOrder.length - 1) {
-        const nextStage = stageOrder[currentIndex + 1]
-        
-        await this.supabase
-          .from('batches')
-          .update({
-            current_stage: nextStage,
-            stage_updated_at: new Date().toISOString(),
-          })
-          .eq('id', batchId)
-      } else {
-        // Mark batch as complete
-        await this.supabase
-          .from('batches')
-          .update({
-            is_complete: true,
-            completed_at: new Date().toISOString(),
-          })
-          .eq('id', batchId)
-      }
+      // All assignments complete, notify manager
+      // Note: Actual stage transition should be handled by manager
+      await this.createNotification(
+        batchId, // This should be manager ID in production
+        'stage_complete',
+        'Stage Complete',
+        `All workers have completed the ${stage} stage for batch ${batchId}`,
+        { batchId, stage }
+      )
     }
   }
 
@@ -376,9 +361,9 @@ export class WorkerService {
       if (!availability || availability.is_available) {
         // Check current assignments
         const { count } = await this.supabase
-          .from('batch_assignments')
+          .from('stage_assignments')
           .select('*', { count: 'exact', head: true })
-          .eq('worker_id', worker.id)
+          .eq('assigned_worker_id', worker.id)
           .is('completed_at', null)
 
         // Add worker if they have capacity (less than 3 active assignments)
@@ -416,5 +401,91 @@ export class WorkerService {
       })
 
     if (error) throw error
+  }
+
+  /**
+   * Assign a worker to a batch stage
+   */
+  async assignWorkerToStage(
+    batchId: string,
+    workerId: string,
+    stage: ProductionStage
+  ) {
+    // Check if assignment already exists
+    const { data: existing } = await this.supabase
+      .from('stage_assignments')
+      .select('*')
+      .eq('batch_id', batchId)
+      .eq('stage', stage)
+      .eq('assigned_worker_id', workerId)
+      .single()
+
+    if (existing && !existing.completed_at) {
+      throw new Error('Worker already assigned to this stage')
+    }
+
+    // Create new assignment
+    const { data, error } = await this.supabase
+      .from('stage_assignments')
+      .insert({
+        batch_id: batchId,
+        assigned_worker_id: workerId,
+        stage,
+        started_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // Notify worker
+    await this.createNotification(
+      workerId,
+      'new_assignment',
+      'New Assignment',
+      `You have been assigned to the ${stage} stage of a batch`,
+      { batchId, stage }
+    )
+
+    return data
+  }
+
+  /**
+   * Get batch details with current stage assignments
+   */
+  async getBatchWithAssignments(batchId: string) {
+    const { data: batch, error: batchError } = await this.supabase
+      .from('batches')
+      .select(`
+        *,
+        batch_orders(
+          order:orders(
+            *,
+            customer:customers(*),
+            model:headphone_models(*)
+          )
+        )
+      `)
+      .eq('id', batchId)
+      .single()
+
+    if (batchError) throw batchError
+
+    // Get all stage assignments for this batch
+    const { data: assignments, error: assignError } = await this.supabase
+      .from('stage_assignments')
+      .select(`
+        *,
+        worker:workers(*)
+      `)
+      .eq('batch_id', batchId)
+      .order('stage')
+
+    if (assignError) throw assignError
+
+    return {
+      ...batch,
+      stageAssignments: assignments || []
+    }
   }
 }
