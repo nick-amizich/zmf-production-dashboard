@@ -46,7 +46,13 @@ const STAGES: ProductionStage[] = [
 ]
 
 export function ChecklistManager({ models, templates: initialTemplates, userId }: ChecklistManagerProps) {
-  const [templates, setTemplates] = useState(initialTemplates)
+  // Ensure all templates have a defined is_active value
+  const normalizedTemplates = initialTemplates.map(t => ({
+    ...t,
+    is_active: t.is_active ?? true // Default to true if null/undefined
+  }))
+  
+  const [templates, setTemplates] = useState(normalizedTemplates)
   const [selectedModel, setSelectedModel] = useState<string>('default')
   const [selectedStage, setSelectedStage] = useState<ProductionStage>('Intake')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -71,24 +77,51 @@ export function ChecklistManager({ models, templates: initialTemplates, userId }
 
   const handleCreate = async () => {
     try {
+      // Validate required fields
+      if (!formData.category.trim() || !formData.item.trim()) {
+        toast.error('Category and Item are required fields')
+        return
+      }
+
+      const insertData = {
+        model_id: selectedModel === 'default' ? null : selectedModel,
+        stage: selectedStage,
+        category: formData.category.trim(),
+        item: formData.item.trim(),
+        description: formData.description.trim() || null,
+        is_required: formData.is_required,
+        sort_order: formData.sort_order,
+        created_by: userId
+      }
+
+      console.log('Creating checklist item:', insertData)
+
       const { data, error } = await supabase
         .from('quality_checklist_templates')
-        .insert({
-          model_id: selectedModel === 'default' ? null : selectedModel,
-          stage: selectedStage,
-          category: formData.category,
-          item: formData.item,
-          description: formData.description,
-          is_required: formData.is_required,
-          sort_order: formData.sort_order,
-          created_by: userId
-        })
+        .insert(insertData)
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        
+        // Check for specific errors
+        if (error.code === '23505') {
+          toast.error('This checklist item already exists for this model/stage/category combination')
+        } else if (error.code === '42501') {
+          toast.error('You do not have permission to create checklist items')
+        } else {
+          toast.error(`Failed to create checklist item: ${error.message}`)
+        }
+        return
+      }
 
-      setTemplates([...templates, data])
+      // Ensure the new item has is_active defined
+      const newItem = {
+        ...data,
+        is_active: data.is_active ?? true
+      }
+      setTemplates([...templates, newItem])
       setFormData({
         category: '',
         item: '',
@@ -109,23 +142,45 @@ export function ChecklistManager({ models, templates: initialTemplates, userId }
     if (!template) return
 
     try {
+      // Validate required fields
+      if (!formData.category.trim() || !formData.item.trim()) {
+        toast.error('Category and Item are required fields')
+        return
+      }
+
+      const updateData = {
+        category: formData.category.trim(),
+        item: formData.item.trim(),
+        description: formData.description.trim() || null,
+        is_required: formData.is_required,
+        sort_order: formData.sort_order,
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('Updating checklist item:', { id, ...updateData })
+
       const { error } = await supabase
         .from('quality_checklist_templates')
-        .update({
-          category: formData.category,
-          item: formData.item,
-          description: formData.description,
-          is_required: formData.is_required,
-          sort_order: formData.sort_order,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', id)
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        
+        // Check for specific errors
+        if (error.code === '23505') {
+          toast.error('This checklist item already exists for this model/stage/category combination')
+        } else if (error.code === '42501') {
+          toast.error('You do not have permission to update checklist items')
+        } else {
+          toast.error(`Failed to update checklist item: ${error.message}`)
+        }
+        return
+      }
 
       setTemplates(templates.map(t => 
         t.id === id 
-          ? { ...t, ...formData, updated_at: new Date().toISOString() }
+          ? { ...t, ...updateData }
           : t
       ))
       setEditingId(null)
@@ -157,15 +212,33 @@ export function ChecklistManager({ models, templates: initialTemplates, userId }
 
   const handleToggleActive = async (id: string, isActive: boolean) => {
     try {
-      const { error } = await supabase
+      console.log(`Toggling active status for item ${id} to ${isActive}`)
+      
+      const { data, error } = await supabase
         .from('quality_checklist_templates')
-        .update({ is_active: isActive })
+        .update({ 
+          is_active: isActive,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', id)
+        .select()
+        .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        
+        if (error.code === '42501') {
+          toast.error('You do not have permission to update checklist items')
+        } else {
+          toast.error(`Failed to update checklist item: ${error.message}`)
+        }
+        return
+      }
+
+      console.log('Update response:', data)
 
       setTemplates(templates.map(t => 
-        t.id === id ? { ...t, is_active: isActive } : t
+        t.id === id ? { ...t, is_active: isActive, updated_at: new Date().toISOString() } : t
       ))
       toast.success(`Checklist item ${isActive ? 'activated' : 'deactivated'}`)
     } catch (error) {
@@ -510,7 +583,7 @@ export function ChecklistManager({ models, templates: initialTemplates, userId }
                         <ChevronDown className="h-3 w-3" />
                       </Button>
                       <Switch
-                        checked={template.is_active || false}
+                        checked={template.is_active !== false}
                         onCheckedChange={(checked) => handleToggleActive(template.id, checked)}
                       />
                       <Button
