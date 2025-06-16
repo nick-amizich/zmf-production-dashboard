@@ -4,9 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check authentication
@@ -42,7 +43,7 @@ export async function PATCH(
         specializations,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -57,7 +58,7 @@ export async function PATCH(
       user_name: adminWorker.name,
       action_type: 'update',
       entity_type: 'worker',
-      entity_id: params.id,
+      entity_id: id,
       description: `Updated user ${name}`,
       metadata: { changes: body }
     })
@@ -72,9 +73,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check authentication
@@ -98,7 +100,7 @@ export async function DELETE(
     const { data: workerToDelete } = await supabase
       .from('workers')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (!workerToDelete) {
@@ -114,7 +116,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('workers')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       logger.error('Error deleting worker:', error)
@@ -127,7 +129,7 @@ export async function DELETE(
       user_name: adminWorker.name,
       action_type: 'delete',
       entity_type: 'worker',
-      entity_id: params.id,
+      entity_id: id,
       description: `Deleted user ${workerToDelete.name}`,
       metadata: { deleted_user: workerToDelete }
     })

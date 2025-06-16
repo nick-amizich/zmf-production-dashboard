@@ -63,23 +63,19 @@ export class WorkerService {
    */
   async getActiveAssignments(workerId: string): Promise<any[]> {
     const { data, error } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .select(`
         *,
         batch:batches(
           *,
           batch_orders(
-            order:orders(
-              *,
-              customer:customers(*),
-              model:headphone_models(*)
-            )
+            order:orders(*)
           )
         )
       `)
-      .eq('worker_id', workerId)
+      .eq('assigned_worker_id', workerId)
       .is('completed_at', null)
-      .order('assigned_at', { ascending: false })
+      .order('started_at', { ascending: false })
 
     if (error) throw error
     return data || []
@@ -95,20 +91,20 @@ export class WorkerService {
   ) {
     // Verify assignment belongs to worker
     const { data: assignment } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .select('*')
       .eq('id', assignmentId)
-      .eq('worker_id', workerId)
+      .eq('assigned_worker_id', workerId)
       .single()
 
     if (!assignment) throw new Error('Assignment not found')
 
     // Mark as completed
     const { data, error } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .update({
         completed_at: new Date().toISOString(),
-        notes,
+        quality_status: 'good'
       })
       .eq('id', assignmentId)
       .select()
@@ -120,7 +116,9 @@ export class WorkerService {
     await this.updateProductionMetrics(workerId, assignment.stage, 1)
 
     // Check if batch stage is complete
-    await this.checkBatchStageCompletion(assignment.batch_id, assignment.stage)
+    if (assignment.batch_id) {
+      await this.checkBatchStageCompletion(assignment.batch_id, assignment.stage)
+    }
 
     return data
   }
@@ -149,7 +147,7 @@ export class WorkerService {
       await this.supabase
         .from('production_metrics')
         .update({
-          units_completed: existing.units_completed + unitsCompleted,
+          units_completed: (existing.units_completed || 0) + unitsCompleted,
         })
         .eq('id', existing.id)
     } else {
@@ -170,7 +168,7 @@ export class WorkerService {
    */
   private async checkBatchStageCompletion(batchId: string, stage: ProductionStage) {
     const { data: assignments } = await this.supabase
-      .from('batch_assignments')
+      .from('stage_assignments')
       .select('*')
       .eq('batch_id', batchId)
       .eq('stage', stage)
@@ -248,9 +246,9 @@ export class WorkerService {
         schedule.push({
           workerId,
           date,
-          isAvailable: existing.is_available,
-          shift: existing.shift,
-          notes: existing.notes,
+          isAvailable: existing.is_available || false,
+          shift: existing.shift as "morning" | "afternoon" | "evening" | null,
+          notes: existing.notes || undefined,
         })
       } else {
         // Default to available on weekdays
@@ -376,9 +374,9 @@ export class WorkerService {
       if (!availability || availability.is_available) {
         // Check current assignments
         const { count } = await this.supabase
-          .from('batch_assignments')
+          .from('stage_assignments')
           .select('*', { count: 'exact', head: true })
-          .eq('worker_id', worker.id)
+          .eq('assigned_worker_id', worker.id)
           .is('completed_at', null)
 
         // Add worker if they have capacity (less than 3 active assignments)

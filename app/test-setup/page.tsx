@@ -201,7 +201,7 @@ export default function TestSetup() {
           {tests.length === 0 && !isRunning && (
             <Alert>
               <AlertDescription>
-                Click "Run Tests" to verify your Supabase setup is working correctly.
+                Click &quot;Run Tests&quot; to verify your Supabase setup is working correctly.
               </AlertDescription>
             </Alert>
           )}

@@ -42,7 +42,7 @@ export default async function WorkerManagementPage() {
   
   // Get active assignments
   const { data: assignments } = await supabase
-    .from('batch_assignments')
+    .from('stage_assignments')
     .select(`
       *,
       worker:workers(*),

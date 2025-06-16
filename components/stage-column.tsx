@@ -50,7 +50,7 @@ export function StageColumn({ stage, batches, onDrop, onDragOver, onDragStart }:
               <CardTitle className="text-theme-text-secondary text-lg">{stage.name}</CardTitle>
               <p className="text-sm text-theme-text-tertiary">{stage.description}</p>
             </div>
-            {stage.bottleneck && <AlertTriangle className="h-5 w-5 text-theme-status-warning" title="Bottleneck detected" />}
+            {stage.bottleneck && <AlertTriangle className="h-5 w-5 text-theme-status-warning" />}
           </div>
 
           <div className="flex items-center gap-4 text-xs">

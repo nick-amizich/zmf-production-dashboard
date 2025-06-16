@@ -109,7 +109,12 @@ export default function BatchOrderAssignment({ onBack }: BatchOrderAssignmentPro
   const getTotalDaysAssigned = (worker: Worker) => {
     if (!worker.stageAssignments) return 0
     const total = Object.values(worker.stageAssignments).reduce((sum, days) => sum + days, 0)
-    return total % 1 === 0 ? total : total.toFixed(1)
+    return total
+  }
+  
+  const formatTotalDaysAssigned = (worker: Worker) => {
+    const total = getTotalDaysAssigned(worker)
+    return total % 1 === 0 ? total.toString() : total.toFixed(1)
   }
 
   // Render skill level stars
@@ -205,7 +210,7 @@ export default function BatchOrderAssignment({ onBack }: BatchOrderAssignmentPro
                                 : "bg-yellow-600"
                           }`}
                         >
-                          {getTotalDaysAssigned(worker)}/5 days
+                          {formatTotalDaysAssigned(worker)}/5 days
                         </Badge>
                       </div>
                     </div>

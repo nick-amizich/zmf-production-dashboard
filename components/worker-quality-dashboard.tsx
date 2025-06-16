@@ -218,9 +218,9 @@ export function WorkerQualityDashboard({ onBack }: WorkerQualityDashboardProps) 
                       <div>
                         <h3 className="text-lg font-semibold text-theme-text-primary">{worker.name}</h3>
                         <div className="flex items-center gap-2">
-                          {worker.recognition && <Award className="h-4 w-4 text-theme-text-secondary" title="Top Performer" />}
+                          {worker.recognition && <Award className="h-4 w-4 text-theme-text-secondary" />}
                           {worker.trainingNeeded && (
-                            <AlertTriangle className="h-4 w-4 text-theme-status-warning" title="Training Needed" />
+                            <AlertTriangle className="h-4 w-4 text-theme-status-warning" />
                           )}
                         </div>
                       </div>

@@ -27,7 +27,7 @@ export function ActiveIssues({ issues, userRole, userId }: ActiveIssuesProps) {
 
   const canResolve = (issue: any) => {
     return userRole === 'manager' || 
-           userRole === 'quality_control' || 
+           userRole === 'admin' || 
            issue.assigned_to === userId
   }
 
@@ -55,7 +55,7 @@ export function ActiveIssues({ issues, userRole, userId }: ActiveIssuesProps) {
   const getSeverityColor = (severity: QualityStatus) => {
     switch (severity) {
       case 'critical': return 'destructive'
-      case 'hold': return 'warning'
+      case 'hold': return 'destructive'
       case 'warning': return 'secondary'
       default: return 'default'
     }

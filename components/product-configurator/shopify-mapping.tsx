@@ -148,7 +148,7 @@ export function ShopifyMapping() {
                 <div>
                   <h3 className="font-semibold text-lg">{config.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge variant={config.is_active ? 'success' : 'secondary'}>
+                    <Badge variant={config.is_active ? 'default' : 'secondary'}>
                       {config.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                     {config.shopify_product_id && (

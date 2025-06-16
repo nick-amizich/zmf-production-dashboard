@@ -32,8 +32,8 @@ export function RecentChecks({ checks, userRole }: RecentChecksProps) {
 
   const getStatusColor = (status: QualityStatus) => {
     switch (status) {
-      case 'good': return 'success'
-      case 'warning': return 'warning'
+      case 'good': return 'default'
+      case 'warning': return 'secondary'
       case 'hold': return 'secondary'
       case 'critical': return 'destructive'
       default: return 'default'

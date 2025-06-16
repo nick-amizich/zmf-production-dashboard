@@ -66,7 +66,7 @@ export default function WorkerManagementBoard({ onBack }: WorkerManagementBoardP
   const [searchFilter, setSearchFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [skillFilter, setSkillFilter] = useState("all")
-  const autoSaveTimer = useRef<NodeJS.Timeout>()
+  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null)
 
   // Available skills database
   const availableSkills: Skill[] = [
@@ -1034,10 +1034,10 @@ export default function WorkerManagementBoard({ onBack }: WorkerManagementBoardP
                   <div className="bg-theme-bg-primary p-4 rounded-lg border border-theme-border-secondary">
                     <h4 className="text-sm font-medium text-theme-text-secondary mb-2">How to use:</h4>
                     <ul className="text-xs text-theme-text-tertiary space-y-1">
-                      <li>• Drag skills from "Available Skills" to assign them</li>
+                      <li>• Drag skills from &quot;Available Skills&quot; to assign them</li>
                       <li>• Drag between Primary, Secondary, and Backup to reorganize</li>
                       <li>• Click the × button to remove a skill entirely</li>
-                      <li>• Primary skills are the worker's main expertise</li>
+                      <li>• Primary skills are the worker&apos;s main expertise</li>
                       <li>• Secondary skills are competent backup abilities</li>
                       <li>• Backup skills are emergency coverage capabilities</li>
                     </ul>

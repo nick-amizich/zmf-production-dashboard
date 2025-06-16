@@ -236,7 +236,7 @@ export function UserManagement({ workers: initialWorkers }: UserManagementProps)
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={worker.active ? 'success' : 'secondary'}>
+                      <Badge variant={worker.active ? 'default' : 'secondary'}>
                         {worker.active ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>

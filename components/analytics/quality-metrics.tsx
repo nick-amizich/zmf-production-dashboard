@@ -266,7 +266,7 @@ export function QualityMetrics({ data, compact = false }: QualityMetricsProps) {
                     <span className="text-sm text-muted-foreground">
                       {worker.checks} checks
                     </span>
-                    <Badge variant={worker.passRate >= 95 ? 'success' : 'secondary'}>
+                    <Badge variant={worker.passRate >= 95 ? 'default' : 'secondary'}>
                       {worker.passRate.toFixed(1)}%
                     </Badge>
                   </div>

@@ -135,16 +135,17 @@ export class OrderRepository extends BaseRepository<Order> {
     const updatedOrder = await this.update(id, { status })
 
     // Log status change if we have a user ID
-    if (userId && currentOrder) {
-      await this.supabase
-        .from('order_status_history')
-        .insert({
-          order_id: id,
-          old_status: currentOrder.status,
-          new_status: status,
-          changed_by: userId,
-        })
-    }
+    // TODO: Implement order status history tracking when table is created
+    // if (userId && currentOrder) {
+    //   await this.supabase
+    //     .from('order_status_history')
+    //     .insert({
+    //       order_id: id,
+    //       old_status: currentOrder.status,
+    //       new_status: status,
+    //       changed_by: userId,
+    //     })
+    // }
 
     return updatedOrder
   }

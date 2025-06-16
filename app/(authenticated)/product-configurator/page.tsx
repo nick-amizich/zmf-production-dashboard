@@ -287,7 +287,7 @@ export default function ProductConfiguratorPage() {
               <div>
                 <h4 className="font-semibold mb-1">Line Item Properties</h4>
                 <p className="text-sm text-muted-foreground">
-                  Use for unlimited custom options that don't affect inventory
+                  Use for unlimited custom options that don&apos;t affect inventory
                 </p>
               </div>
               <div>

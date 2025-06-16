@@ -191,7 +191,7 @@ export default function StageProgressContent({
         <CardHeader>
           <CardTitle className="text-xl text-theme-text-secondary flex items-center gap-2">
             <Target className="h-6 w-6" />
-            Today's Targets vs Actual
+            Today&apos;s Targets vs Actual
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -98,7 +98,7 @@ export function ReportsHub() {
     from: startOfMonth(new Date()),
     to: endOfMonth(new Date())
   })
-  const [format, setFormat] = useState<'pdf' | 'csv' | 'excel'>('pdf')
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'csv' | 'excel'>('pdf')
   const [isGenerating, setIsGenerating] = useState(false)
   const [category, setCategory] = useState<string>('all')
 
@@ -125,7 +125,7 @@ export function ReportsHub() {
           reportType: selectedReport,
           startDate: format(dateRange.from, 'yyyy-MM-dd'),
           endDate: format(dateRange.to, 'yyyy-MM-dd'),
-          format,
+          format: exportFormat,
         }),
       })
 
@@ -273,7 +273,14 @@ export function ReportsHub() {
                         mode="range"
                         defaultMonth={dateRange?.from}
                         selected={dateRange}
-                        onSelect={setDateRange}
+                        onSelect={(range) => {
+                          if (range) {
+                            setDateRange({
+                              from: range.from,
+                              to: range.to
+                            })
+                          }
+                        }}
                         numberOfMonths={2}
                       />
                     </PopoverContent>
@@ -330,7 +337,7 @@ export function ReportsHub() {
                 {/* Format Selection */}
                 <div>
                   <label className="text-sm font-medium">Export Format</label>
-                  <Select value={format} onValueChange={(v: any) => setFormat(v)}>
+                  <Select value={exportFormat} onValueChange={(v: any) => setExportFormat(v)}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>

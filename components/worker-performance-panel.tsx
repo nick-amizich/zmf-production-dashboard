@@ -125,9 +125,9 @@ export function WorkerPerformancePanel() {
                       <div>
                         <h4 className="text-theme-text-primary font-medium">{worker.name}</h4>
                         <div className="flex items-center gap-2">
-                          {worker.recognition && <Award className="h-4 w-4 text-theme-text-secondary" title="Top Performer" />}
+                          {worker.recognition && <Award className="h-4 w-4 text-theme-text-secondary" />}
                           {worker.trainingNeeded && (
-                            <AlertTriangle className="h-4 w-4 text-theme-status-warning" title="Training Needed" />
+                            <AlertTriangle className="h-4 w-4 text-theme-status-warning" />
                           )}
                         </div>
                       </div>

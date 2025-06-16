@@ -644,7 +644,7 @@ export default function RepairCenter({ onBack }: RepairCenterProps) {
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-theme-bg-primary border border-theme-border-secondary rounded-lg p-4">
-              <div className="text-sm text-theme-text-tertiary mb-2">Customer's description of the issue:</div>
+              <div className="text-sm text-theme-text-tertiary mb-2">Customer&apos;s description of the issue:</div>
               <div className="text-theme-text-primary whitespace-pre-wrap">{selectedCustomerNote}</div>
             </div>
             <div className="flex justify-end">

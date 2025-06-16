@@ -247,14 +247,15 @@ export class QualityService {
 
     if (existing) {
       // Update existing metric
+      const unitsCompleted = existing.units_completed || 0
       const passRate = status === 'good' 
-        ? ((existing.quality_pass_rate || 0) * existing.units_completed + 100) / (existing.units_completed + 1)
-        : ((existing.quality_pass_rate || 0) * existing.units_completed) / (existing.units_completed + 1)
+        ? ((existing.quality_pass_rate || 0) * unitsCompleted + 100) / (unitsCompleted + 1)
+        : ((existing.quality_pass_rate || 0) * unitsCompleted) / (unitsCompleted + 1)
 
       await this.supabase
         .from('production_metrics')
         .update({
-          units_completed: existing.units_completed + 1,
+          units_completed: unitsCompleted + 1,
           quality_pass_rate: passRate,
         })
         .eq('id', existing.id)

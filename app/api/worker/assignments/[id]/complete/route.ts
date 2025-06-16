@@ -5,9 +5,10 @@ import { WorkerService } from '@/lib/services/worker-service'
 import { logger } from '@/lib/logger'
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check auth
@@ -32,7 +33,7 @@ export async function POST(
     
     const workerService = new WorkerService(supabase)
     const assignment = await workerService.completeAssignment(
-      params.id,
+      id,
       worker.id,
       notes
     )
@@ -43,7 +44,7 @@ export async function POST(
       'achievement',
       'Task Completed!',
       'Great job completing your assignment.',
-      { assignmentId: params.id }
+      { assignmentId: id }
     )
     
     return NextResponse.json(assignment)

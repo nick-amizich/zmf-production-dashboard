@@ -315,7 +315,10 @@ export function ChecklistManager({ models, templates: initialTemplates, userId }
 
       const insertedTemplates = newTemplates
         .filter(result => !result.error)
-        .map(result => result.data!)
+        .map(result => ({
+          ...result.data!,
+          is_active: result.data!.is_active ?? true // Ensure is_active is never null
+        }))
 
       setTemplates([...templates, ...insertedTemplates])
       toast.success(`Copied ${insertedTemplates.length} items from default checklist`)

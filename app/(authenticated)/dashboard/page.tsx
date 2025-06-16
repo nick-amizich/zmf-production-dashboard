@@ -1,19 +1,16 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import FrontScreen from '@/components/screens/front-screen'
+import { DashboardClient } from './client-page'
 
-import { logger } from '@/lib/logger'
 export default async function DashboardPage() {
   const supabase = await createClient()
   
-  // Get the current user - NEVER use getSession() server-side
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     redirect('/login')
   }
 
-  // Always validate employee - matching field names with property access
   const { data: employee, error } = await supabase
     .from('workers')
     .select('id, role, is_active, name, email')
@@ -21,7 +18,6 @@ export default async function DashboardPage() {
     .single()
 
   if (error || !employee) {
-    logger.error('Employee lookup error:', error)
     redirect('/login')
   }
 
@@ -29,5 +25,8 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  return <FrontScreen />
-} 
+  return <DashboardClient employee={{
+    ...employee,
+    is_active: employee.is_active ?? false
+  }} />
+}

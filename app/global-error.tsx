@@ -34,7 +34,7 @@ export default function GlobalError({
                 Critical Error
               </h1>
               <p className="text-gray-600">
-                A critical error occurred and the application couldn't recover.
+                A critical error occurred and the application couldn&apos;t recover.
               </p>
               {error.digest && (
                 <p className="text-sm text-gray-500">

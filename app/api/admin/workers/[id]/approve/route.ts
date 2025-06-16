@@ -5,10 +5,10 @@ import { Database } from '@/types/database.types'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const workerId = params.id
+    const { id: workerId } = await params
 
     // Check authentication using regular client
     const supabase = await createServerClient()

@@ -24,12 +24,13 @@ export default async function SettingsPage() {
   // Get system stats for admin dashboard
   const stats = {
     totalWorkers: 0,
+    totalOrders: 0,
     activeOrders: 0,
-    systemUptime: '99.9%',
-    dataStorage: '2.1 GB'
+    pendingApprovals: 0,
+    systemHealth: 'operational' as const
   }
 
-  const recentActivity = []
+  const recentActivity: any[] = []
 
   return <AdminDashboard stats={stats} recentActivity={recentActivity} />
 }

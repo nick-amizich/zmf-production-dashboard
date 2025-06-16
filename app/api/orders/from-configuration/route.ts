@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/error-handler'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
+import { Database } from '@/types/database.types'
 
 // Validation schema
 const createOrderSchema = z.object({
@@ -40,7 +41,7 @@ export const POST = protectRoute(
     } catch (error) {
       if (error instanceof z.ZodError) {
         const issues = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
-        throw ApiErrors.BadRequest(`Validation failed: ${issues}`)
+        throw ApiErrors.ValidationFailed(issues)
       }
       throw error
     }
@@ -87,24 +88,33 @@ export const POST = protectRoute(
       'canary': 'Maple' // Map canary to maple as it's not in the enum
     }
 
-    const mappedWoodType = woodTypeMap[validatedData.configuration.woodType] || 'Sapele'
+    const mappedWoodType = (woodTypeMap[validatedData.configuration.woodType] || 'Sapele') as Database['public']['Enums']['wood_type']
+
+    // Map priority values
+    const priorityMap: Record<string, Database['public']['Enums']['batch_priority']> = {
+      'low': 'standard',
+      'standard': 'standard',
+      'high': 'rush',
+      'urgent': 'expedite'
+    }
+    const mappedPriority = priorityMap[validatedData.priority] || 'standard'
 
     // Create the order
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .insert({
+      .insert([{
         order_number: validatedData.orderNumber,
         customer_id: validatedData.customerId,
         model_id: validatedData.modelId,
         wood_type: mappedWoodType,
         customizations: validatedData.configuration,
         notes: validatedData.notes,
-        priority: validatedData.priority,
+        priority: mappedPriority,
         shopify_order_id: validatedData.shopifyOrderId,
         status: 'pending',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      })
+      }])
       .select()
       .single()
 

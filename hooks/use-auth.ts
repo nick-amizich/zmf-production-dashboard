@@ -28,7 +28,7 @@ export function useAuth() {
   const router = useRouter()
   const supabase = createClient()
   const initializingRef = useRef(false)
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Memoized function to fetch worker profile
   const fetchWorkerProfile = useCallback(async (userId: string) => {

@@ -218,7 +218,7 @@ export function useCalendarAssignments() {
   const generateAssignmentsFromWorkers = useCallback(
     (startDate: Date) => {
       const newAssignments: CalendarAssignment[] = []
-      const weekDays = []
+      const weekDays: Date[] = []
 
       // Generate 5 weekdays
       for (let i = 0; i < 5; i++) {

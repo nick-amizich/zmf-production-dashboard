@@ -98,7 +98,7 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
   const handleChecklistChange = (itemId: string, checked: boolean | null) => {
     setChecklist(prev => 
       prev.map(item => 
-        item.id === itemId ? { ...item, checked } : item
+        item.id === itemId ? { ...item, checked: checked ?? undefined } : item
       )
     )
   }
@@ -177,7 +177,7 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium">Quality Checklist</h3>
-            <Badge variant={overallStatus === 'good' ? 'success' : 'warning'}>
+            <Badge variant={overallStatus === 'good' ? 'default' : 'destructive'}>
               Status: {overallStatus.toUpperCase()}
             </Badge>
           </div>

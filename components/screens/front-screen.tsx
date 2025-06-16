@@ -16,7 +16,7 @@ const ProductionManagerDashboard = dynamic(() => import("@/components/production
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
 
-const MobileWorkerInterface = dynamic(() => import("@/components/worker/mobile-worker-interface"), {
+const MobileWorkerInterface = dynamic(() => import("@/components/worker/mobile-worker-interface").then(mod => mod.MobileWorkerInterface as any), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>
 })
@@ -142,7 +142,7 @@ export default function FrontScreen() {
             Home
           </Button>
         </div>
-        <BatchManagement onBack={handleBackToProductionMenu} />
+        <BatchManagement />
       </div>
     )
   }
@@ -448,7 +448,7 @@ export default function FrontScreen() {
         </main>
 
         {/* Debug Navigation */}
-        <DebugNavigation currentView={currentView} onViewChange={setCurrentView} />
+        <DebugNavigation currentView={currentView} onViewChange={(view) => setCurrentView(view as ViewMode)} />
       </div>
     )
   }
@@ -591,7 +591,7 @@ export default function FrontScreen() {
             <h3 className="text-xl font-semibold text-theme-text-secondary mb-3">About ZMF Production System</h3>
             <p className="text-theme-text-tertiary leading-relaxed">
               This quality-first production management system manages the complete workflow from raw materials to
-              shipping across 7 production stages. Built specifically for ZMF's premium wooden headphone manufacturing
+              shipping across 7 production stages. Built specifically for ZMF&apos;s premium wooden headphone manufacturing
               process with comprehensive quality control at each stage.
             </p>
             <div className="mt-4 flex items-center justify-center gap-6 text-sm text-theme-text-tertiary">
@@ -606,7 +606,7 @@ export default function FrontScreen() {
       </main>
 
       {/* Debug Navigation */}
-      <DebugNavigation currentView={currentView} onViewChange={setCurrentView} />
+      <DebugNavigation currentView={currentView} onViewChange={(view) => setCurrentView(view as ViewMode)} />
     </div>
   )
 }

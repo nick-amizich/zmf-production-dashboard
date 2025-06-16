@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { QualityService } from '@/lib/services/quality-service'
-
+import { Database } from '@/types/database.types'
 import { logger } from '@/lib/logger'
 export async function POST(request: Request) {
   try {
@@ -77,7 +77,7 @@ export async function GET(request: Request) {
     
     if (batchId) query = query.eq('batch_id', batchId)
     if (orderId) query = query.eq('order_id', orderId)
-    if (stage) query = query.eq('stage', stage)
+    if (stage) query = query.eq('stage', stage as Database['public']['Enums']['production_stage'])
     
     const { data, error } = await query
     

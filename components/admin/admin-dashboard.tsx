@@ -280,7 +280,7 @@ export function AdminDashboard({ stats, recentActivity }: AdminDashboardProps) {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Manage user accounts, roles, and permissions. Click "Manage Users" to view and edit all users.
+                  Manage user accounts, roles, and permissions. Click &quot;Manage Users&quot; to view and edit all users.
                 </p>
               </CardContent>
             </Card>

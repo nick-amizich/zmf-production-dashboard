@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/error-handler'
 import { z } from 'zod'
 import { protectRoute } from '@/lib/auth/protect-route'
+import { Database } from '@/types/database.types'
 
 // Validation schemas
 const reportIssueSchema = z.object({
@@ -123,7 +124,15 @@ export const GET = protectRoute(
     }
     
     if (params.severity) {
-      query = query.eq('severity', params.severity)
+      // Map frontend severity values to database enum values
+      const severityMap: Record<string, Database['public']['Enums']['quality_status']> = {
+        'low': 'good',
+        'medium': 'warning',
+        'high': 'critical',
+        'critical': 'critical'
+      }
+      const mappedSeverity = severityMap[params.severity] || 'warning'
+      query = query.eq('severity', mappedSeverity)
     }
     
     // Apply pagination

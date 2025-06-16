@@ -16,11 +16,11 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const { productId } = params
+    const { productId } = await params
     
     // Get the Shopify domain from headers (for logging/validation)
     const shopifyDomain = request.headers.get('X-Shopify-Domain')

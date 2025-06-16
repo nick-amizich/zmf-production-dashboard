@@ -117,6 +117,10 @@ export class ProductionService {
       'Final Assembly', 'Acoustic QC', 'Shipping'
     ]
     
+    if (!batch.current_stage) {
+      throw new Error('Batch has no current stage')
+    }
+    
     const currentIndex = stages.indexOf(batch.current_stage)
     const newIndex = stages.indexOf(toStage)
     
@@ -188,7 +192,9 @@ export class ProductionService {
     }
 
     activeBatches.forEach(batch => {
-      pipeline[batch.current_stage].push(batch)
+      if (batch.current_stage) {
+        pipeline[batch.current_stage].push(batch)
+      }
     })
 
     return pipeline

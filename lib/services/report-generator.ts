@@ -34,14 +34,16 @@ export class ReportGenerator {
     const completionRate = totalOrders > 0 ? (completedOrders / totalOrders) * 100 : 0
     
     const ordersByStatus = orders?.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1
+      if (order.status) {
+        acc[order.status] = (acc[order.status] || 0) + 1
+      }
       return acc
     }, {} as Record<string, number>) || {}
 
     const avgProductionTime = stageAssignments
-      ?.filter(sa => sa.completed_at)
+      ?.filter(sa => sa.completed_at && sa.started_at)
       .reduce((acc, sa) => {
-        const duration = new Date(sa.completed_at!).getTime() - new Date(sa.started_at).getTime()
+        const duration = new Date(sa.completed_at!).getTime() - new Date(sa.started_at!).getTime()
         return acc + duration
       }, 0) || 0
 
@@ -50,7 +52,7 @@ export class ReportGenerator {
         acc[sa.stage] = { count: 0, totalTime: 0, avgTime: 0 }
       }
       acc[sa.stage].count++
-      if (sa.completed_at) {
+      if (sa.completed_at && sa.started_at) {
         const duration = new Date(sa.completed_at).getTime() - new Date(sa.started_at).getTime()
         acc[sa.stage].totalTime += duration
       }
@@ -104,7 +106,7 @@ export class ReportGenerator {
 
     // Calculate metrics
     const totalChecks = qualityChecks?.length || 0
-    const passedChecks = qualityChecks?.filter(qc => qc.passed).length || 0
+    const passedChecks = qualityChecks?.filter(qc => qc.overall_status === 'good').length || 0
     const passRate = totalChecks > 0 ? (passedChecks / totalChecks) * 100 : 0
 
     const issuesByCategory = issues?.reduce((acc, issue) => {
@@ -122,7 +124,7 @@ export class ReportGenerator {
         acc[check.stage] = { total: 0, passed: 0, rate: 0 }
       }
       acc[check.stage].total++
-      if (check.passed) acc[check.stage].passed++
+      if (check.overall_status === 'good') acc[check.stage].passed++
       return acc
     }, {} as Record<string, any>) || {}
 
@@ -165,7 +167,7 @@ export class ReportGenerator {
           order:orders(order_number)
         ),
         quality_checks:quality_checks(*),
-        performance_metrics:worker_performance(*)
+        production_metrics(*)
       `)
       .eq('stage_assignments.completed_at', 'not.null')
       .gte('stage_assignments.started_at', startDate.toISOString())
@@ -175,7 +177,7 @@ export class ReportGenerator {
     const workerMetrics = workers?.map(worker => {
       const assignments = worker.stage_assignments || []
       const qualityChecks = worker.quality_checks || []
-      const metrics = worker.performance_metrics || []
+      const metrics = worker.production_metrics || []
 
       const totalAssignments = assignments.length
       const completedAssignments = assignments.filter((a: any) => a.completed_at).length
@@ -187,7 +189,7 @@ export class ReportGenerator {
         }, 0) / (completedAssignments || 1) / 1000 / 60 // minutes
 
       const totalQualityChecks = qualityChecks.length
-      const passedChecks = qualityChecks.filter((qc: any) => qc.passed).length
+      const passedChecks = qualityChecks.filter((qc: any) => qc.overall_status === 'good').length
       const qualityScore = totalQualityChecks > 0 ? (passedChecks / totalQualityChecks) * 100 : 100
 
       const latestMetrics = metrics.sort((a: any, b: any) => 
@@ -207,8 +209,8 @@ export class ReportGenerator {
           completionRate: totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 0,
           avgCompletionTime,
           qualityScore,
-          efficiency: latestMetrics.efficiency || 0,
-          units: latestMetrics.units || 0
+          efficiency: latestMetrics.quality_pass_rate || 0,
+          units: latestMetrics.units_completed || 0
         }
       }
     }) || []
@@ -244,39 +246,38 @@ export class ReportGenerator {
       .gte('created_at', startDate.toISOString())
       .lte('created_at', endDate.toISOString())
 
-    // Calculate revenue metrics
-    const totalRevenue = orders?.reduce((acc, order) => acc + (order.price || 0), 0) || 0
-    const completedRevenue = orders
-      ?.filter(o => o.status === 'shipped')
-      .reduce((acc, order) => acc + (order.price || 0), 0) || 0
+    // Calculate revenue metrics (placeholder - no price data in orders)
+    const totalRevenue = 0
+    const completedRevenue = 0
     
-    const revenueByModel = orders?.reduce((acc, order) => {
-      acc[order.model] = (acc[order.model] || 0) + (order.price || 0)
-      return acc
-    }, {} as Record<string, number>) || {}
+    const revenueByModel = {} as Record<string, number>
 
     const revenueByMonth = orders?.reduce((acc, order) => {
-      const month = format(new Date(order.created_at), 'yyyy-MM')
-      if (!acc[month]) {
-        acc[month] = { revenue: 0, orders: 0 }
+      if (order.created_at) {
+        const month = format(new Date(order.created_at), 'yyyy-MM')
+        if (!acc[month]) {
+          acc[month] = { revenue: 0, orders: 0 }
+        }
+        acc[month].revenue += 0 // Placeholder - no price data
+        acc[month].orders++
       }
-      acc[month].revenue += order.price || 0
-      acc[month].orders++
       return acc
     }, {} as Record<string, any>) || {}
 
     const avgOrderValue = totalRevenue / (orders?.length || 1)
 
     const customerMetrics = orders?.reduce((acc, order) => {
-      if (!acc[order.customer_email]) {
-        acc[order.customer_email] = {
-          customer: order.customer_name,
-          orders: 0,
-          revenue: 0
+      if (order.customer_id) {
+        if (!acc[order.customer_id]) {
+          acc[order.customer_id] = {
+            customerId: order.customer_id,
+            orders: 0,
+            revenue: 0
+          }
         }
+        acc[order.customer_id].orders++
+        acc[order.customer_id].revenue += 0 // Placeholder - no price data
       }
-      acc[order.customer_email].orders++
-      acc[order.customer_email].revenue += order.price || 0
       return acc
     }, {} as Record<string, any>) || {}
 
@@ -315,19 +316,21 @@ export class ReportGenerator {
 
     // Calculate inventory metrics based on orders
     const modelUsage = orders?.reduce((acc, order) => {
-      if (!acc[order.model]) {
-        acc[order.model] = {
-          model: order.model,
-          totalOrders: 0,
-          pendingOrders: 0,
-          completedOrders: 0
+      if (order.model_id) {
+        if (!acc[order.model_id]) {
+          acc[order.model_id] = {
+            modelId: order.model_id,
+            totalOrders: 0,
+            pendingOrders: 0,
+            completedOrders: 0
+          }
         }
-      }
-      acc[order.model].totalOrders++
-      if (order.status === 'shipped') {
-        acc[order.model].completedOrders++
-      } else {
-        acc[order.model].pendingOrders++
+        acc[order.model_id].totalOrders++
+        if (order.status === 'shipped') {
+          acc[order.model_id].completedOrders++
+        } else {
+          acc[order.model_id].pendingOrders++
+        }
       }
       return acc
     }, {} as Record<string, any>) || {}
@@ -366,27 +369,27 @@ export class ReportGenerator {
 
     // Group by customer
     const customerOrders = orders?.reduce((acc, order) => {
-      if (!acc[order.customer_email]) {
-        acc[order.customer_email] = {
-          customer: {
-            name: order.customer_name,
-            email: order.customer_email
-          },
-          orders: [],
-          summary: {
-            totalOrders: 0,
-            totalRevenue: 0,
-            avgOrderValue: 0,
-            models: new Set()
+      if (order.customer_id) {
+        if (!acc[order.customer_id]) {
+          acc[order.customer_id] = {
+            customerId: order.customer_id,
+            orders: [],
+            summary: {
+              totalOrders: 0,
+              totalRevenue: 0,
+              avgOrderValue: 0,
+              models: new Set()
+            }
           }
         }
+        
+        acc[order.customer_id].orders.push(order)
+        acc[order.customer_id].summary.totalOrders++
+        acc[order.customer_id].summary.totalRevenue += 0 // No price data
+        if (order.model_id) {
+          acc[order.customer_id].summary.models.add(order.model_id)
+        }
       }
-      
-      acc[order.customer_email].orders.push(order)
-      acc[order.customer_email].summary.totalOrders++
-      acc[order.customer_email].summary.totalRevenue += order.price || 0
-      acc[order.customer_email].summary.models.add(order.model)
-      
       return acc
     }, {} as Record<string, any>) || {}
 
@@ -405,7 +408,7 @@ export class ReportGenerator {
       summary: {
         totalCustomers: Object.keys(customerOrders).length,
         totalOrders: orders?.length || 0,
-        totalRevenue: orders?.reduce((acc, o) => acc + (o.price || 0), 0) || 0
+        totalRevenue: 0 // No price data
       },
       customerOrders: Object.values(customerOrders),
       details: orders
@@ -442,7 +445,7 @@ export class ReportGenerator {
 
       acc[stage].totalAssignments++
       
-      if (assignment.completed_at) {
+      if (assignment.completed_at && assignment.started_at) {
         acc[stage].completedAssignments++
         const duration = new Date(assignment.completed_at).getTime() - new Date(assignment.started_at).getTime()
         acc[stage].totalTime += duration
@@ -520,7 +523,7 @@ export class ReportGenerator {
 
     // Calculate daily trends
     const dailyTrends = qualityChecks?.reduce((acc, check) => {
-      const date = format(new Date(check.checked_at), 'yyyy-MM-dd')
+      const date = check.created_at ? format(new Date(check.created_at), 'yyyy-MM-dd') : 'unknown'
       if (!acc[date]) {
         acc[date] = {
           date,
@@ -531,15 +534,17 @@ export class ReportGenerator {
         }
       }
       acc[date].totalChecks++
-      if (check.passed) acc[date].passedChecks++
+      if (check.overall_status === 'good') acc[date].passedChecks++
       return acc
     }, {} as Record<string, any>) || {}
 
     // Add issue counts
     issues?.forEach(issue => {
-      const date = format(new Date(issue.created_at), 'yyyy-MM-dd')
-      if (dailyTrends[date]) {
-        dailyTrends[date].issues++
+      if (issue.created_at) {
+        const date = format(new Date(issue.created_at), 'yyyy-MM-dd')
+        if (dailyTrends[date]) {
+          dailyTrends[date].issues++
+        }
       }
     })
 
@@ -559,17 +564,17 @@ export class ReportGenerator {
         }
       }
       acc[check.stage].totalChecks++
-      if (check.passed) acc[check.stage].passedChecks++
+      if (check.overall_status === 'good') acc[check.stage].passedChecks++
       
       // Add to trend
-      const week = format(new Date(check.checked_at), 'yyyy-ww')
+      const week = check.created_at ? format(new Date(check.created_at), 'yyyy-ww') : 'unknown'
       let weekData = acc[check.stage].trend.find((t: any) => t.week === week)
       if (!weekData) {
         weekData = { week, total: 0, passed: 0, passRate: 0 }
         acc[check.stage].trend.push(weekData)
       }
       weekData.total++
-      if (check.passed) weekData.passed++
+      if (check.overall_status === 'good') weekData.passed++
       
       return acc
     }, {} as Record<string, any>) || {}
@@ -593,7 +598,7 @@ export class ReportGenerator {
       summary: {
         totalChecks: qualityChecks?.length || 0,
         overallPassRate: qualityChecks 
-          ? (qualityChecks.filter(qc => qc.passed).length / qualityChecks.length) * 100 
+          ? (qualityChecks.filter(qc => qc.overall_status === 'good').length / qualityChecks.length) * 100 
           : 0,
         totalIssues: issues?.length || 0
       },

@@ -31,7 +31,7 @@ export default async function AdminPage() {
     supabase.from('workers').select('*', { count: 'exact', head: true }),
     supabase.from('orders').select('*', { count: 'exact', head: true }),
     supabase.from('orders').select('*', { count: 'exact', head: true })
-      .in('status', ['pending', 'in_progress']),
+      .in('status', ['pending', 'in_production']),
     supabase.from('audit_logs')
       .select('*')
       .order('created_at', { ascending: false })

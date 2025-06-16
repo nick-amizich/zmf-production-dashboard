@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,10 +9,6 @@ import { ArrowLeft, Calendar, Package, Users, Settings, Wrench, Home } from "luc
 import { CreateBatchModal } from "@/components/create-batch-modal"
 import WorkerManagementBoard from "@/components/management/worker-management-board"
 import ProductionCalendar from "@/components/production/production-calendar"
-
-interface BatchManagementProps {
-  onBack: () => void
-}
 
 type BatchView = "overview" | "workflow" | "subassembly" | "calendar" | "workers"
 
@@ -76,7 +73,7 @@ const baffleOrders = [
   { model: "Atticus", quantity: 3, dueDate: "2024-01-24" },
 ]
 
-export default function BatchManagement({ onBack }: BatchManagementProps) {
+export default function BatchManagement() {
   const [currentView, setCurrentView] = useState<BatchView>("overview")
   const [isCreateBatchModalOpen, setIsCreateBatchModalOpen] = useState(false)
 
@@ -151,10 +148,12 @@ export default function BatchManagement({ onBack }: BatchManagementProps) {
 
     return (
       <div className="flex items-center gap-2 text-sm text-theme-text-tertiary mb-6">
-        <Button onClick={onBack} className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary h-10 px-4">
-          <Home className="h-4 w-4 mr-2" />
-          Home
-        </Button>
+        <Link href="/dashboard">
+          <Button className="bg-theme-brand-secondary hover:bg-theme-brand-secondary/80 text-theme-text-primary h-10 px-4">
+            <Home className="h-4 w-4 mr-2" />
+            Home
+          </Button>
+        </Link>
         <span>→</span>
         {paths.map((path, index) => (
           <span key={index} className={index === paths.length - 1 ? "text-theme-text-secondary" : ""}>

@@ -502,7 +502,7 @@ export default function ProductionManagerDashboard() {
                   <div className="flex items-center gap-3">
                     <stage.icon className="h-6 w-6 text-theme-text-secondary" />
                     <CardTitle className="text-theme-text-secondary">{stage.name}</CardTitle>
-                    {stage.bottleneck && <Zap className="h-4 w-4 text-theme-status-warning" title="Bottleneck" />}
+                    {stage.bottleneck && <Zap className="h-4 w-4 text-theme-status-warning" />}
                   </div>
                   <Badge
                     variant="outline"

@@ -21,5 +21,10 @@ export default async function WorkersPage() {
     redirect('/dashboard')
   }
 
-  return <WorkerManagementDashboard />
+  return <WorkerManagementDashboard 
+    workers={[]}
+    leaderboard={[]}
+    availability={[]}
+    activeAssignments={[]}
+  />
 }

@@ -5,9 +5,10 @@ import { WorkerService } from '@/lib/services/worker-service'
 import { logger } from '@/lib/logger'
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check auth
@@ -28,7 +29,7 @@ export async function PUT(
     }
     
     const workerService = new WorkerService(supabase)
-    await workerService.markNotificationRead(params.id, worker.id)
+    await workerService.markNotificationRead(id, worker.id)
     
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -949,7 +949,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                   </SelectTrigger>
                   <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {headphone.chassisMaterial === "vegan"
-                      ? (selectedModel?.availablePads?.vegan || ["Auteur Vegan Suede", "Universe Vegan Suede Perf", "BE2 Vegan Suede"]).map((pad) => (
+                      ? (selectedModel?.availablePads?.vegan || ["Auteur Vegan Suede", "Universe Vegan Suede Perf", "BE2 Vegan Suede"]).map((pad: string) => (
                           <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                             {pad}
                             {pad === selectedModel?.defaultPads?.vegan && (
@@ -957,7 +957,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                             )}
                           </SelectItem>
                         ))
-                      : (selectedModel?.availablePads?.leather || ["Auteur Lambskin", "Universe Lambskin Perf", "BE2 Lambskin"]).map((pad) => (
+                      : (selectedModel?.availablePads?.leather || ["Auteur Lambskin", "Universe Lambskin Perf", "BE2 Lambskin"]).map((pad: string) => (
                           <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                             {pad}
                             {pad === selectedModel?.defaultPads?.leather && (

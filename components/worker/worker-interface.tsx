@@ -126,7 +126,7 @@ export default function WorkerInterface({ onBack }: WorkerInterfaceProps) {
 
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-theme-text-secondary mb-2">SELECT YOUR STAGE</h1>
-          <p className="text-xl text-theme-text-tertiary">Choose the production stage you're working on</p>
+          <p className="text-xl text-theme-text-tertiary">Choose the production stage you&apos;re working on</p>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-4">

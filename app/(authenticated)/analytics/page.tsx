@@ -7,7 +7,7 @@ import { startOfMonth, endOfMonth, subDays } from 'date-fns'
 export default async function AnalyticsPage({
   searchParams,
 }: {
-  searchParams: { start?: string; end?: string; period?: string }
+  searchParams: Promise<{ start?: string; end?: string; period?: string }>
 }) {
   const supabase = await createClient()
   
@@ -26,14 +26,17 @@ export default async function AnalyticsPage({
     redirect('/dashboard')
   }
   
+  // Await searchParams in Next.js 15
+  const params = await searchParams
+  
   // Parse date range from query params or use defaults
-  const period = searchParams.period || 'month'
+  const period = params.period || 'month'
   let startDate: Date
   let endDate: Date
   
-  if (searchParams.start && searchParams.end) {
-    startDate = new Date(searchParams.start)
-    endDate = new Date(searchParams.end)
+  if (params.start && params.end) {
+    startDate = new Date(params.start)
+    endDate = new Date(params.end)
   } else if (period === 'month') {
     startDate = startOfMonth(new Date())
     endDate = endOfMonth(new Date())

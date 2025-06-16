@@ -26,5 +26,11 @@ export default async function UsersPage() {
     .select('*')
     .order('created_at', { ascending: false })
   
-  return <UserManagement workers={workers || []} />
+  // Map database fields to component interface
+  const mappedWorkers = (workers || []).map(w => ({
+    ...w,
+    active: w.is_active,
+  })) as any[]
+  
+  return <UserManagement workers={mappedWorkers} />
 }

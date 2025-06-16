@@ -102,7 +102,7 @@ export function CreateOrderForm({ onSubmit, onCancel }: CreateOrderFormProps) {
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof OrderFormData],
+          ...(prev[parent as keyof OrderFormData] as any),
           [child]: value,
         },
       }))

@@ -39,7 +39,7 @@ export async function withTransaction<T>(
  * Batch insert/update operations for better performance
  */
 export async function batchOperation<T extends { id?: string }>(
-  table: string,
+  table: any, // Allow any table name for now
   items: T[],
   operation: 'insert' | 'upsert' = 'insert',
   batchSize = 100
@@ -66,7 +66,7 @@ export async function batchOperation<T extends { id?: string }>(
     }
     
     if (data) {
-      results.push(...data)
+      results.push(...(data as unknown as T[]))
     }
   }
   

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required. Please log in first.' }, { status: 401 })
     }
     
-    logger.debug('Sync initiated by user:', user.email)
+    logger.debug('Sync initiated by user', { email: user.email })
     
     const { configurations } = await request.json()
     

@@ -97,23 +97,32 @@ export class ConfigurationService {
     // Build configuration summary
     const configSummary = this.buildConfigurationSummary(configuration, data.selectedOptions)
 
+    // Map priority values to database enum
+    const priorityMap = {
+      'normal': 'standard',
+      'urgent': 'expedite',
+      'rush': 'rush'
+    } as const
+
     // Create the order
     const { data: order, error } = await this.supabase
       .from('orders')
       .insert({
         order_number: await this.generateOrderNumber(),
-        model_id: configuration.model_id,
+        model_id: configuration.id, // Using configuration ID as model_id
         customer_id: data.customerId,
-        quantity: data.quantity,
-        priority: data.priority,
-        due_date: data.dueDate.toISOString(),
+        priority: priorityMap[data.priority],
         notes: data.notes,
-        configuration_data: {
+        customizations: {
           configurationId: configuration.id,
           selectedOptions: data.selectedOptions,
           summary: configSummary,
-          totalPrice
-        }
+          totalPrice,
+          quantity: data.quantity,
+          dueDate: data.dueDate.toISOString()
+        },
+        wood_type: 'Sapele', // Default wood type
+        status: 'pending'
       })
       .select()
       .single()

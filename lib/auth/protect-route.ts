@@ -18,6 +18,10 @@ type RouteHandler<T = any> = (
   context: AuthContext & T
 ) => Promise<Response> | Response
 
+type RouteContext = {
+  params: Promise<Record<string, string>>
+}
+
 interface ProtectOptions {
   requiredRole?: WorkerRole | WorkerRole[]
   allowInactive?: boolean
@@ -30,8 +34,11 @@ export function protectRoute<T = any>(
   handler: RouteHandler<T>,
   options: ProtectOptions = {}
 ) {
-  return async (request: NextRequest, context?: T) => {
+  return async (request: NextRequest, context: RouteContext) => {
     const supabase = await createClient()
+    
+    // Extract params
+    const params = await context.params
     
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -88,7 +95,8 @@ export function protectRoute<T = any>(
       worker,
     }
     
-    return handler(request, { ...authContext, ...context } as AuthContext & T)
+    const mergedContext = { ...authContext, params } as unknown as AuthContext & T
+    return handler(request, mergedContext)
   }
 }
 

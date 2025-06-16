@@ -38,7 +38,7 @@ export function WorkerDetailModal({ worker, assignments, onClose }: WorkerDetail
               <h3 className="text-2xl font-bold">{worker.name}</h3>
               <div className="flex items-center gap-2 mt-1">
                 <Badge>{worker.role}</Badge>
-                <Badge variant={worker.is_active ? 'success' : 'destructive'}>
+                <Badge variant={worker.is_active ? 'default' : 'destructive'}>
                   {worker.is_active ? 'Active' : 'Inactive'}
                 </Badge>
               </div>

@@ -63,15 +63,15 @@ export function BatchCard({ batch, onClick, isDragging }: BatchCardProps) {
           <span className="font-medium text-theme-text-secondary">
             {batch.batch_number}
           </span>
-          {QUALITY_ICONS[batch.quality_status]}
+          {batch.quality_status && QUALITY_ICONS[batch.quality_status]}
         </div>
         
         <div className="flex items-center gap-2 text-xs">
           <Badge 
             variant="outline" 
-            className={cn("border-theme-border-primary", PRIORITY_COLORS[batch.priority])}
+            className={cn("border-theme-border-primary", batch.priority && PRIORITY_COLORS[batch.priority])}
           >
-            {batch.priority}
+            {batch.priority || 'standard'}
           </Badge>
           
           <div className="flex items-center gap-1 text-theme-text-tertiary">

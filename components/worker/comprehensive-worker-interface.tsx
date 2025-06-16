@@ -117,7 +117,7 @@ export default function ComprehensiveWorkerInterface({ onBack }: ComprehensiveWo
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null)
-  const timerInterval = useRef<NodeJS.Timeout>()
+  const timerInterval = useRef<NodeJS.Timeout | null>(null)
 
   // Quality control state
   const [currentCheckIndex, setCurrentCheckIndex] = useState(0)
@@ -601,7 +601,7 @@ export default function ComprehensiveWorkerInterface({ onBack }: ComprehensiveWo
             className="w-full h-16 bg-theme-status-success hover:bg-green-700 text-theme-text-primary text-lg font-semibold"
           >
             <Play className="h-6 w-6 mr-2" />
-            Start Today's Work ({todaysSchedule.assignments.length} tasks)
+            Start Today&apos;s Work ({todaysSchedule.assignments.length} tasks)
           </Button>
         )}
 

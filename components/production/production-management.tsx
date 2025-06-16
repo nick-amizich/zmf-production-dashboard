@@ -1,4 +1,4 @@
-import { ProductionQueue } from "./components/production-queue"
+import { ProductionQueue } from "@/components/production-queue"
 
 import { logger } from '@/lib/logger'
 const ProductionManagement = () => {
@@ -11,6 +11,7 @@ const ProductionManagement = () => {
       {/* Add this section after the existing metrics cards */}
       <div className="mt-8">
         <ProductionQueue
+          batches={[]}
           onAssignWorker={(batchNumber, worker) => {
             logger.debug(`Assigned ${worker} to batch ${batchNumber}`)
           }}

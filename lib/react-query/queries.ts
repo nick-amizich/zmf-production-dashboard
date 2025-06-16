@@ -117,7 +117,7 @@ export function useOrders(filters?: {
         .order('created_at', { ascending: false })
         
       if (filters?.status) {
-        query = query.eq('status', filters.status)
+        query = query.eq('status', filters.status as any)
       }
       
       if (filters?.customerId) {
@@ -186,11 +186,11 @@ export function useBatches(filters?: {
         .order('created_at', { ascending: false })
         
       if (filters?.stage) {
-        query = query.eq('current_stage', filters.stage)
+        query = query.eq('current_stage', filters.stage as any)
       }
       
       if (filters?.status) {
-        query = query.eq('status', filters.status)
+        query = query.eq('status', filters.status as any)
       }
       
       const { data, error } = await query
@@ -225,11 +225,11 @@ export function useIssues(filters?: {
         .order('created_at', { ascending: false })
         
       if (filters?.status) {
-        query = query.eq('status', filters.status)
+        query = query.eq('status', filters.status as any)
       }
       
       if (filters?.severity) {
-        query = query.eq('severity', filters.severity)
+        query = query.eq('severity', filters.severity as any)
       }
       
       if (filters?.orderId) {
@@ -279,11 +279,11 @@ export function useQualityChecks(filters?: {
       }
       
       if (filters?.stage) {
-        query = query.eq('stage', filters.stage)
+        query = query.eq('stage', filters.stage as any)
       }
       
       if (filters?.status) {
-        query = query.eq('status', filters.status)
+        query = query.eq('status', filters.status as any)
       }
       
       const { data, error } = await query

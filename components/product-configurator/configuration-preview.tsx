@@ -184,7 +184,7 @@ export default function ConfigurationPreview({ model }: ConfigurationPreviewProp
                   Customization Options
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Additional options that don't affect inventory
+                  Additional options that don&apos;t affect inventory
                 </p>
                 {propertyOptions.map(option => (
                   <div key={option.id} className="space-y-2">
@@ -262,7 +262,7 @@ export default function ConfigurationPreview({ model }: ConfigurationPreviewProp
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Shopify Variant Limit</AlertTitle>
           <AlertDescription>
-            This model uses {variantOptions.length} variant options, which is at Shopify's limit. 
+            This model uses {variantOptions.length} variant options, which is at Shopify&apos;s limit. 
             Any additional options must be line item properties.
           </AlertDescription>
         </Alert>

@@ -34,7 +34,7 @@ export function OrdersListWithLoading() {
     >
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {orders?.map((order) => (
-          <OrderCard key={order.id} order={order} />
+          <OrderCard key={order.id} order={order as any} />
         ))}
       </div>
     </LoadingWrapper>

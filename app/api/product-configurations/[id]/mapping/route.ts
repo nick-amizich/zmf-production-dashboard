@@ -4,9 +4,10 @@ import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check auth
@@ -24,7 +25,7 @@ export async function PUT(
         shopify_product_id,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     
@@ -37,7 +38,7 @@ export async function PUT(
         endpoint: 'product_mapping',
         method: 'PUT',
         status_code: 200,
-        request_data: { config_id: params.id, shopify_product_id },
+        request_data: { config_id: id, shopify_product_id },
         response_data: { success: true },
       })
     
@@ -53,9 +54,10 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check auth
@@ -64,13 +66,14 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
+    // Since shopify_product_id is not nullable, we'll set it to an empty string
     const { data, error } = await supabase
       .from('product_configurations')
       .update({ 
-        shopify_product_id: null,
+        shopify_product_id: '',
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     
@@ -83,7 +86,7 @@ export async function DELETE(
         endpoint: 'product_mapping',
         method: 'DELETE',
         status_code: 200,
-        request_data: { config_id: params.id },
+        request_data: { config_id: id },
         response_data: { success: true },
       })
     

@@ -74,7 +74,21 @@ export default function WorkerApprovalsPage() {
 
       if (error) throw error
 
-      setPendingWorkers(data || [])
+      // Filter out records with null id and map to the expected type
+      const validWorkers = (data || [])
+        .filter(w => w.id !== null)
+        .map(w => ({
+          id: w.id!,
+          name: w.name || 'Unknown',
+          email: w.email || '',
+          requested_at: w.requested_at || new Date().toISOString(),
+          hourly_rate: w.hourly_rate,
+          specializations: w.specializations,
+          email_confirmed_at: w.email_confirmed_at,
+          last_sign_in_at: w.last_sign_in_at
+        }))
+      
+      setPendingWorkers(validWorkers)
     } catch (error) {
       console.error('Error loading pending workers:', error)
       setError('Failed to load pending worker approvals')
@@ -286,7 +300,7 @@ export default function WorkerApprovalsPage() {
           <DialogHeader>
             <DialogTitle className="text-theme-text-secondary">Reject Worker Registration</DialogTitle>
             <DialogDescription className="text-theme-text-tertiary">
-              Provide a reason for rejecting {rejectionDialog.workerName}'s registration.
+              Provide a reason for rejecting {rejectionDialog.workerName}&apos;s registration.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

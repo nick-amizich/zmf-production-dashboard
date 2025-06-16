@@ -5,9 +5,10 @@ import { QualityService } from '@/lib/services/quality-service'
 import { logger } from '@/lib/logger'
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check auth
@@ -32,7 +33,7 @@ export async function POST(
     
     const qualityService = new QualityService(supabase)
     const issue = await qualityService.resolveIssue(
-      params.id,
+      id,
       resolutionNotes,
       worker.id
     )

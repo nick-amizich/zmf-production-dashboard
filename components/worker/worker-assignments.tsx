@@ -63,7 +63,7 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent': return 'destructive'
-      case 'rush': return 'warning'
+      case 'rush': return 'destructive'
       default: return 'secondary'
     }
   }
@@ -80,7 +80,7 @@ export function WorkerAssignments({ assignments, workerId }: WorkerAssignmentsPr
           <CheckCircle className="h-12 w-12 text-theme-status-success mb-4" />
           <p className="text-lg font-medium">No Active Assignments</p>
           <p className="text-sm text-muted-foreground">
-            You're all caught up! Check back later for new tasks.
+            You&apos;re all caught up! Check back later for new tasks.
           </p>
         </CardContent>
       </Card>

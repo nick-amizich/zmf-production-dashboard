@@ -151,11 +151,6 @@ export function CreateBatchModal({ orders, onClose }: CreateBatchModalProps) {
                       {order.model?.name} - {order.wood_type} • {order.customer?.name}
                     </div>
                     
-                    {order.due_date && (
-                      <div className="text-xs text-theme-text-tertiary mt-1">
-                        Due: {new Date(order.due_date).toLocaleDateString()}
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

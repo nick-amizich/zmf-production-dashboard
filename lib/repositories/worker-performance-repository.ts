@@ -40,6 +40,48 @@ export class WorkerPerformanceRepository extends BaseRepository<ProductionMetric
   constructor(protected supabase: SupabaseClient<Database>) {
     super(supabase)
   }
+  
+  async findAll(): Promise<ProductionMetrics[]> {
+    const { data, error } = await this.supabase
+      .from('production_metrics')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw new DatabaseError('Failed to fetch production metrics', error)
+    return data || []
+  }
+  
+  async create(data: Partial<ProductionMetrics>): Promise<ProductionMetrics> {
+    const { data: metric, error } = await this.supabase
+      .from('production_metrics')
+      .insert(data as ProductionMetricsInsert)
+      .select()
+      .single()
+    
+    if (error) throw new DatabaseError('Failed to create production metric', error)
+    return metric
+  }
+  
+  async update(id: string, data: Partial<ProductionMetrics>): Promise<ProductionMetrics> {
+    const { data: metric, error } = await this.supabase
+      .from('production_metrics')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw new DatabaseError('Failed to update production metric', error)
+    return metric
+  }
+  
+  async delete(id: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('production_metrics')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw new DatabaseError('Failed to delete production metric', error)
+  }
 
   async findById(id: string): Promise<ProductionMetrics | null> {
     const { data, error } = await this.supabase
@@ -88,7 +130,7 @@ export class WorkerPerformanceRepository extends BaseRepository<ProductionMetric
     if (error) throw new DatabaseError('Failed to fetch metrics', error)
 
     // Calculate stats
-    const totalUnits = metrics?.reduce((sum, m) => sum + m.units_completed, 0) || 0
+    const totalUnits = metrics?.reduce((sum, m) => sum + (m.units_completed || 0), 0) || 0
     const totalTime = metrics?.reduce((sum, m) => sum + (m.total_time_minutes || 0), 0) || 0
     const avgTimePerUnit = totalUnits > 0 ? totalTime / totalUnits : 0
 
@@ -178,7 +220,7 @@ export class WorkerPerformanceRepository extends BaseRepository<ProductionMetric
         lastDate: null
       }
 
-      existing.units += metric.units_completed
+      existing.units += metric.units_completed || 0
       existing.time += metric.total_time_minutes || 0
       if (metric.quality_pass_rate !== null) {
         existing.quality.push(metric.quality_pass_rate)
@@ -227,13 +269,13 @@ export class WorkerPerformanceRepository extends BaseRepository<ProductionMetric
         .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
 
       if (metrics && metrics.length > 0) {
-        const totalUnits = metrics.reduce((sum, m) => sum + m.units_completed, 0)
+        const totalUnits = metrics.reduce((sum, m) => sum + (m.units_completed || 0), 0)
         const avgQuality = metrics
           .filter(m => m.quality_pass_rate !== null)
           .reduce((sum, m, _, arr) => sum + (m.quality_pass_rate || 0) / arr.length, 0)
         const avgTime = metrics
-          .filter(m => m.total_time_minutes !== null && m.units_completed > 0)
-          .reduce((sum, m, _, arr) => sum + (m.total_time_minutes! / m.units_completed) / arr.length, 0)
+          .filter(m => m.total_time_minutes !== null && m.units_completed !== null && m.units_completed > 0)
+          .reduce((sum, m, _, arr) => sum + (m.total_time_minutes! / m.units_completed!) / arr.length, 0)
 
         // Composite score: units * quality / time (higher is better)
         const score = totalUnits * (avgQuality / 100) / Math.max(avgTime, 1)
@@ -277,14 +319,14 @@ export class WorkerPerformanceRepository extends BaseRepository<ProductionMetric
       const { data: metrics } = await query
 
       if (metrics && metrics.length > 0) {
-        const totalUnits = metrics.reduce((sum, m) => sum + m.units_completed, 0)
+        const totalUnits = metrics.reduce((sum, m) => sum + (m.units_completed || 0), 0)
         const qualityMetrics = metrics.filter(m => m.quality_pass_rate !== null)
         const avgQuality = qualityMetrics.length > 0
           ? qualityMetrics.reduce((sum, m) => sum + (m.quality_pass_rate || 0), 0) / qualityMetrics.length
           : 0
-        const timeMetrics = metrics.filter(m => m.total_time_minutes !== null && m.units_completed > 0)
+        const timeMetrics = metrics.filter(m => m.total_time_minutes !== null && m.units_completed !== null && m.units_completed > 0)
         const efficiency = timeMetrics.length > 0
-          ? timeMetrics.reduce((sum, m) => sum + m.units_completed / (m.total_time_minutes || 1), 0) / timeMetrics.length * 60
+          ? timeMetrics.reduce((sum, m) => sum + m.units_completed! / (m.total_time_minutes || 1), 0) / timeMetrics.length * 60
           : 0
 
         const score = totalUnits * (avgQuality / 100) * efficiency

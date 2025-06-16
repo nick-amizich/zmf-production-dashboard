@@ -109,7 +109,7 @@ export function WorkerNotifications({ notifications, workerId }: WorkerNotificat
           <Bell className="h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-lg font-medium">No Notifications</p>
           <p className="text-sm text-muted-foreground">
-            You're all caught up!
+            You&apos;re all caught up!
           </p>
         </CardContent>
       </Card>
