@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ProductionPipeline } from '@/components/production/production-pipeline'
-import { ProductionHeader } from '@/components/production/production-header'
 import { ProductionService } from '@/lib/services/production-service'
 
 export default async function ProductionPage() {
@@ -36,19 +35,19 @@ export default async function ProductionPage() {
     .order('created_at', { ascending: true })
   
   return (
-    <div className="min-h-screen bg-theme-bg-primary">
-      <ProductionHeader 
-        worker={worker}
-        pendingOrders={pendingOrders || []}
-      />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-theme-text-primary">Production Pipeline</h1>
+        <p className="text-theme-text-secondary mt-2">
+          Track and manage production batches through different stages
+        </p>
+      </div>
       
-      <main className="p-6">
-        <ProductionPipeline 
-          pipeline={pipeline}
-          userRole={worker.role}
-          userId={worker.id}
-        />
-      </main>
+      <ProductionPipeline 
+        pipeline={pipeline}
+        userRole={worker.role}
+        userId={worker.id}
+      />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { QualityDashboard } from '@/components/quality/quality-dashboard'
-import { QualityHeader } from '@/components/quality/quality-header'
 import { QualityService } from '@/lib/services/quality-service'
 
 export default async function QualityPage() {
@@ -41,20 +40,20 @@ export default async function QualityPage() {
     .order('created_at', { ascending: false })
   
   return (
-    <div className="min-h-screen bg-theme-bg-primary">
-      <QualityHeader 
-        worker={worker}
-        activeIssues={dashboardData.activeIssues.length}
-      />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-theme-text-primary">Quality Control</h1>
+        <p className="text-theme-text-secondary mt-2">
+          Monitor quality checks and manage issues across production
+        </p>
+      </div>
       
-      <main className="p-6">
-        <QualityDashboard 
-          data={dashboardData}
-          activeBatches={activeBatches || []}
-          userRole={worker.role}
-          userId={worker.id}
-        />
-      </main>
+      <QualityDashboard 
+        data={dashboardData}
+        activeBatches={activeBatches || []}
+        userRole={worker.role}
+        userId={worker.id}
+      />
     </div>
   )
 }

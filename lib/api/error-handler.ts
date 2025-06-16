@@ -99,13 +99,20 @@ export function handleApiError(error: unknown): NextResponse<ApiError> {
   // Default error response
   const isDevelopment = process.env.NODE_ENV === 'development'
   
+  // Log the error for debugging
+  console.error('API Error:', error)
+  
   return NextResponse.json(
     {
       error: isDevelopment && error instanceof Error 
         ? error.message 
         : 'An unexpected error occurred',
       code: 'INTERNAL_ERROR',
-      details: isDevelopment ? error : undefined,
+      details: isDevelopment ? {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        raw: error
+      } : undefined,
       statusCode: 500
     },
     { status: 500 }
@@ -150,7 +157,7 @@ export const ApiErrors = {
   QuotaExceeded: (resource: string) => new AppError(`Quota exceeded for ${resource}`, 429, 'QUOTA_EXCEEDED'),
   
   // Server errors
-  Internal: (message = 'Internal server error') => new AppError(message, 500, 'INTERNAL_ERROR'),
+  Internal: (message = 'Internal server error', details?: unknown) => new AppError(message, 500, 'INTERNAL_ERROR', details),
   ServiceUnavailable: () => new AppError('Service temporarily unavailable', 503, 'SERVICE_UNAVAILABLE'),
 }
 

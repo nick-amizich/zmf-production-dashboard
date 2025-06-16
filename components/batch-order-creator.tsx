@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -416,6 +416,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const [currentStep, setCurrentStep] = useState<number>(1)
   const [shopifyConnected, setShopifyConnected] = useState(true)
   const [syncingWithShopify, setSyncingWithShopify] = useState(false)
+  const [realHeadphoneModels, setRealHeadphoneModels] = useState<any[]>([])
   const [batchConfig, setBatchConfig] = useState<BatchConfig>({
     batchNumber: `SPEC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`,
     model: "",
@@ -431,7 +432,25 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
     referenceImages: [],
   })
 
-  const selectedModel = headphoneModels.find((m) => m.id === batchConfig.model)
+  // Use real models if available, otherwise fall back to mock data
+  const modelsToUse = realHeadphoneModels.length > 0 ? realHeadphoneModels : headphoneModels
+  const selectedModel = modelsToUse.find((m) => m.id === batchConfig.model)
+  
+  // Fetch real headphone models on mount
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const response = await fetch('/api/headphone-models')
+        if (response.ok) {
+          const data = await response.json()
+          setRealHeadphoneModels(data.data.models)
+        }
+      } catch (error) {
+        console.error('Failed to fetch headphone models:', error)
+      }
+    }
+    fetchModels()
+  }, [])
 
   // Shopify Integration Functions
   const syncWithShopify = async () => {
@@ -448,7 +467,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   }
 
   const generateSKU = (headphone: HeadphoneConfig, modelId: string) => {
-    const model = headphoneModels.find((m) => m.id === modelId)
+    const model = modelsToUse.find((m) => m.id === modelId)
     if (!model) return ""
 
     const wood = woodOptions.find((w) => w.id === headphone.woodType)
@@ -460,7 +479,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
 
   // Initialize headphones when quantity changes
   const initializeHeadphones = (quantity: number) => {
-    const currentModel = headphoneModels.find((m) => m.id === batchConfig.model)
+    const currentModel = modelsToUse.find((m) => m.id === batchConfig.model)
     const newHeadphones: HeadphoneConfig[] = []
     for (let i = 0; i < quantity; i++) {
       newHeadphones.push({
@@ -469,7 +488,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
         chassisMaterial: "aluminum",
         grilleColor: "black",
         headbandMaterial: "leather-leather",
-        installedPads: currentModel?.defaultPads.leather || "",
+        installedPads: currentModel?.defaultPads?.leather || "Auteur Lambskin",
       })
     }
     setBatchConfig((prev) => ({ ...prev, headphones: newHeadphones }))
@@ -479,7 +498,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   const batchTotals = useMemo(() => {
     if (!selectedModel) return { totalTime: 0, efficiency: 100 }
 
-    const totalTime = selectedModel.productionTime * batchConfig.quantity
+    const totalTime = (selectedModel.productionTime || selectedModel.base_production_hours || 6) * batchConfig.quantity
 
     // Calculate efficiency based on wood variety
     const uniqueWoods = new Set(batchConfig.headphones.map((hp) => hp.woodType)).size
@@ -613,7 +632,7 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        {headphoneModels.map((model) => (
+        {modelsToUse.map((model) => (
           <Card
             key={model.id}
             className="bg-theme-bg-secondary border-theme-border-primary hover:border-theme-text-secondary/50 transition-all cursor-pointer group"
@@ -624,11 +643,11 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                 <Package className="h-16 w-16 text-theme-text-secondary group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="text-lg font-bold text-theme-text-secondary mb-2">{model.name}</h3>
-              <p className="text-sm text-theme-text-tertiary mb-3">{model.description}</p>
+              <p className="text-sm text-theme-text-tertiary mb-3">{model.description || "Premium ZMF headphone"}</p>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-theme-text-tertiary">Production:</span>
-                  <span className="text-theme-text-primary">{model.productionTime}h</span>
+                  <span className="text-theme-text-primary">{model.productionTime || model.base_production_hours || 6}h</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-theme-text-tertiary">Shopify:</span>
@@ -640,10 +659,12 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                       ? "bg-theme-status-success"
                       : model.complexity === "High"
                         ? "bg-theme-status-warning"
-                        : "bg-theme-status-error"
+                        : model.complexity === "Very High"
+                          ? "bg-theme-status-error"
+                          : "bg-theme-status-success"
                   }`}
                 >
-                  {model.complexity} Complexity
+                  {model.complexity || "Medium"} Complexity
                 </Badge>
               </div>
             </CardContent>
@@ -715,10 +736,10 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-theme-text-primary">Wood Type</Label>
+                <Label className="text-theme-text-primary">Wood Type <span className="text-theme-status-error">*</span></Label>
                 <Select value={headphone.woodType} onValueChange={(value) => updateHeadphone(index, "woodType", value)}>
-                  <SelectTrigger className="bg-theme-bg-primary border-theme-border-primary text-theme-text-primary">
-                    <SelectValue placeholder="Select wood" />
+                  <SelectTrigger className={`bg-theme-bg-primary border-theme-border-primary text-theme-text-primary ${!headphone.woodType ? 'border-theme-status-error' : ''}`}>
+                    <SelectValue placeholder="Select wood (Required)" />
                   </SelectTrigger>
                   <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {woodOptions.map((wood) => (
@@ -794,10 +815,10 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                     // Auto-adjust headband material and pads based on chassis material
                     if (value === "vegan") {
                       updateHeadphone(index, "headbandMaterial", "vegan")
-                      updateHeadphone(index, "installedPads", selectedModel?.defaultPads.vegan || "")
+                      updateHeadphone(index, "installedPads", selectedModel?.defaultPads?.vegan || "BE2 Vegan Suede")
                     } else if (value === "leather") {
                       updateHeadphone(index, "headbandMaterial", "all-leather")
-                      updateHeadphone(index, "installedPads", selectedModel?.defaultPads.leather || "")
+                      updateHeadphone(index, "installedPads", selectedModel?.defaultPads?.leather || "Auteur Lambskin")
                     }
                   }}
                 >
@@ -928,18 +949,18 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
                   </SelectTrigger>
                   <SelectContent className="bg-theme-bg-secondary border-theme-border-primary z-50">
                     {headphone.chassisMaterial === "vegan"
-                      ? selectedModel?.availablePads.vegan.map((pad) => (
+                      ? (selectedModel?.availablePads?.vegan || ["Auteur Vegan Suede", "Universe Vegan Suede Perf", "BE2 Vegan Suede"]).map((pad) => (
                           <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                             {pad}
-                            {pad === selectedModel.defaultPads.vegan && (
+                            {pad === selectedModel?.defaultPads?.vegan && (
                               <Badge className="ml-2 bg-theme-status-success">Default</Badge>
                             )}
                           </SelectItem>
                         ))
-                      : selectedModel?.availablePads.leather.map((pad) => (
+                      : (selectedModel?.availablePads?.leather || ["Auteur Lambskin", "Universe Lambskin Perf", "BE2 Lambskin"]).map((pad) => (
                           <SelectItem key={pad} value={pad} className="text-theme-text-primary hover:bg-theme-brand-secondary/20">
                             {pad}
-                            {pad === selectedModel.defaultPads.leather && (
+                            {pad === selectedModel?.defaultPads?.leather && (
                               <Badge className="ml-2 bg-theme-status-success">Default</Badge>
                             )}
                           </SelectItem>
@@ -1323,95 +1344,122 @@ export default function BatchOrderCreator({ onBack }: BatchOrderCreatorProps) {
   )
 
   const handlePushToShopify = async () => {
+    // Validate all headphones have required fields
+    const missingWoodTypes = batchConfig.headphones.filter(hp => !hp.woodType).length
+    if (missingWoodTypes > 0) {
+      alert(`Please select wood types for all ${missingWoodTypes} headphone(s) before submitting.`)
+      setCurrentStep(2)
+      return
+    }
+
     try {
-      // Create individual Shopify orders
-      const shopifyOrders = await Promise.all(
-        batchConfig.headphones.map(async (headphone, index) => {
-          const orderData = {
-            customer: batchConfig.customerField,
-            lineItems: [
-              {
-                productId: selectedModel?.shopifyProductId,
-                sku: headphone.generatedSKU,
-                quantity: 1,
-                customAttributes: {
-                  woodType: headphone.woodType,
-                  chassisMaterial: headphone.chassisMaterial,
-                  grilleColor: headphone.grilleColor,
-                  headbandMaterial: headphone.headbandMaterial,
-                  installedPads: headphone.installedPads,
-                  batchNumber: batchConfig.batchNumber,
-                  headphoneNumber: index + 1,
-                },
-              },
-            ],
-            tags: [
-              `batch:${batchConfig.batchNumber}`,
-              `priority:${batchConfig.priority}`,
-              batchConfig.isSpeculative ? "speculative" : "production",
-            ],
-            note: batchConfig.internalNotes,
-          }
-
-          // Mock Shopify API call
-          return await createShopifyOrder(orderData)
-        }),
-      )
-
-      // Push batch to production system
-      const productionBatch = {
-        batchNumber: batchConfig.batchNumber,
-        model: batchConfig.model,
-        quantity: batchConfig.quantity,
-        headphones: batchConfig.headphones.map((hp, index) => ({
-          ...hp,
-          shopifyOrderId: shopifyOrders[index].id,
-          orderNumber: shopifyOrders[index].orderNumber,
-        })),
-        technicianNotes: batchConfig.technicianNotes,
-        referenceImages: batchConfig.referenceImages,
-        priority: batchConfig.priority,
-        estimatedCompletionTime: batchTotals.totalTime,
-        createdAt: new Date().toISOString(),
-        status: "ready-for-production",
-        currentStage: "intake",
-        assignedWorkers: [],
+      // First, find or create customer
+      const customerResponse = await fetch('/api/customers/find-or-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: batchConfig.customerField || 'Internal Build',
+          email: `internal-${batchConfig.batchNumber.toLowerCase()}@zmf.com`,
+          tags: ['speculative', 'internal']
+        })
+      })
+      
+      if (!customerResponse.ok) {
+        const errorData = await customerResponse.json()
+        console.error('Customer API error:', errorData)
+        console.error('Error details:', errorData.details)
+        throw new Error(errorData.error || 'Failed to create customer')
+      }
+      
+      const responseData = await customerResponse.json()
+      console.log('Customer API response:', responseData)
+      
+      // Handle the standard success response format
+      const customer = responseData.data?.customer || responseData.customer
+      if (!customer) {
+        throw new Error('No customer data in response')
       }
 
-      await pushToProductionSystem(productionBatch)
+      // Create individual orders for each headphone
+      console.log('Selected model:', selectedModel)
+      console.log('Customer:', customer)
+      
+      const orderPromises = batchConfig.headphones.map(async (headphone, index) => {
+        const orderData = {
+          customerId: customer.id,
+          modelId: selectedModel?.id,
+            configuration: {
+              woodType: headphone.woodType,
+              chassisMaterial: headphone.chassisMaterial,
+              grilleColor: headphone.grilleColor,
+              headbandMaterial: headphone.headbandMaterial,
+              installedPads: headphone.installedPads,
+            },
+            orderNumber: `${batchConfig.batchNumber}-${String(index + 1).padStart(2, '0')}`,
+            notes: `${batchConfig.technicianNotes}\n\nHeadphone ${index + 1} of ${batchConfig.quantity}`,
+            priority: batchConfig.priority,
+            isSpeculative: batchConfig.isSpeculative,
+            shopifyOrderId: null // Will be created later if needed
+          }
+        
+        console.log(`Order ${index + 1} data:`, orderData)
+        
+        const orderResponse = await fetch('/api/orders/from-configuration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        })
 
-      logger.debug("Successfully created:", {
-        shopifyOrders: shopifyOrders.length,
-        productionBatch: productionBatch.batchNumber,
+        if (!orderResponse.ok) {
+          const errorData = await orderResponse.json()
+          console.error(`Order ${index + 1} error:`, errorData)
+          throw new Error(`Failed to create order ${index + 1}: ${errorData.error || 'Unknown error'}`)
+        }
+
+        const orderResponseData = await orderResponse.json()
+        return orderResponseData.data || orderResponseData // Handle standard response format
+      })
+
+      const orders = await Promise.all(orderPromises)
+      console.log('Created orders:', orders)
+      const orderIds = orders.map(o => o.order.id)
+      console.log('Order IDs for batch:', orderIds)
+
+      // Create the batch with all orders
+      const batchResponse = await fetch('/api/batches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderIds,
+          priority: batchConfig.priority,
+          notes: batchConfig.internalNotes || `Speculative batch: ${batchConfig.model}`
+        })
+      })
+
+      if (!batchResponse.ok) {
+        throw new Error('Failed to create batch')
+      }
+
+      const batchData = await batchResponse.json()
+      const batch = batchData.data?.batch || batchData.batch
+
+      logger.debug("Successfully created batch:", {
+        batchId: batch.id,
+        batchNumber: batch.batch_number,
+        orderCount: orderIds.length
       })
 
       // Show success and redirect
       alert(
-        `Successfully created ${shopifyOrders.length} Shopify orders and pushed batch ${batchConfig.batchNumber} to production!`,
+        `Successfully created batch ${batch.batch_number} with ${orderIds.length} orders!`,
       )
       onBack()
     } catch (error) {
-      logger.error("Failed to push batch:", error)
+      logger.error("Failed to create batch:", error)
       alert("Failed to create batch. Please try again.")
     }
   }
 
-  // Mock API functions (replace with real implementations)
-  const createShopifyOrder = async (orderData: any) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    return {
-      id: `gid://shopify/Order/${Math.random().toString(36).substr(2, 9)}`,
-      orderNumber: `ZMF-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`,
-      status: batchConfig.pushOption === "draft" ? "draft" : "pending",
-    }
-  }
-
-  const pushToProductionSystem = async (batchData: any) => {
-    // Simulate pushing to production system
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    logger.debug("Batch pushed to production system:", batchData)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary text-theme-text-primary p-6">

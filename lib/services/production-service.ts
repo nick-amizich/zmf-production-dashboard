@@ -13,7 +13,10 @@ export class ProductionService {
   private orderRepo: OrderRepository
   private assignmentRepo: StageAssignmentRepository
 
-  constructor(private supabase: Awaited<ReturnType<typeof createClient>>) {
+  constructor(
+    private supabase: Awaited<ReturnType<typeof createClient>>,
+    private workerId?: string
+  ) {
     this.batchRepo = new BatchRepository(supabase)
     this.orderRepo = new OrderRepository(supabase)
     this.assignmentRepo = new StageAssignmentRepository(supabase)
@@ -43,30 +46,48 @@ export class ProductionService {
     // Generate batch number
     const batchNumber = await this.batchRepo.generateBatchNumber()
 
-    // Get current worker ID (should be passed from the API route)
-    const { data: { user } } = await this.supabase.auth.getUser()
-    const { data: worker } = await this.supabase
-      .from('workers')
-      .select('id')
-      .eq('auth_user_id', user?.id)
-      .single()
+    // Use the worker ID passed from the API route
+    if (!this.workerId) {
+      throw new Error('Worker ID not provided')
+    }
 
-    if (!worker) throw new Error('Worker not found')
-
-    // Use transaction function to create batch with all related data
-    const { data: batchId, error: batchError } = await this.supabase
-      .rpc('create_batch_with_orders', {
-        p_batch_number: batchNumber,
-        p_priority: priority,
-        p_order_ids: orderIds,
-        p_worker_id: worker.id,
-        p_notes: notes
+    // Create the batch
+    const { data: batch, error: batchError } = await this.supabase
+      .from('batches')
+      .insert({
+        batch_number: batchNumber,
+        priority: priority,
+        current_stage: 'Intake',
+        is_complete: false,
+        quality_status: 'good' // Default quality status (pending is not in the enum)
       })
+      .select()
+      .single()
 
     if (batchError) throw batchError
 
-    // Fetch and return the created batch
-    return this.batchRepo.findById(batchId)
+    // Link orders to batch
+    const batchOrders = orderIds.map(orderId => ({
+      batch_id: batch.id,
+      order_id: orderId
+    }))
+
+    const { error: linkError } = await this.supabase
+      .from('batch_orders')
+      .insert(batchOrders)
+
+    if (linkError) throw linkError
+
+    // Update orders to in_production status
+    const { error: updateError } = await this.supabase
+      .from('orders')
+      .update({ status: 'in_production' })
+      .in('id', orderIds)
+
+    if (updateError) throw updateError
+
+    // Fetch and return the created batch with orders
+    return this.batchRepo.findById(batch.id)
   }
 
   /**
@@ -79,26 +100,43 @@ export class ProductionService {
     qualityCheckId?: string,
     notes?: string
   ) {
-    // Use transaction function to handle all updates atomically
-    const { error } = await this.supabase
-      .rpc('transition_batch_stage', {
-        p_batch_id: batchId,
-        p_to_stage: toStage,
-        p_worker_id: workerId,
-        p_quality_check_id: qualityCheckId,
-        p_notes: notes
-      })
+    // Get current batch
+    const { data: batch, error: fetchError } = await this.supabase
+      .from('batches')
+      .select('*')
+      .eq('id', batchId)
+      .single()
 
-    if (error) {
-      // Provide more specific error messages
-      if (error.message.includes('Invalid stage transition')) {
-        throw new Error('Cannot move backwards in the production pipeline')
-      }
-      if (error.message.includes('not found')) {
-        throw new Error('Batch not found')
-      }
-      throw error
+    if (fetchError || !batch) {
+      throw new Error('Batch not found')
     }
+
+    // Validate stage transition (optional - add your business rules)
+    const stages: ProductionStage[] = [
+      'Intake', 'Sanding', 'Finishing', 'Sub-Assembly', 
+      'Final Assembly', 'Acoustic QC', 'Shipping'
+    ]
+    
+    const currentIndex = stages.indexOf(batch.current_stage)
+    const newIndex = stages.indexOf(toStage)
+    
+    if (newIndex < currentIndex) {
+      throw new Error('Cannot move backwards in the production pipeline')
+    }
+
+    // Update batch stage
+    const { error: updateError } = await this.supabase
+      .from('batches')
+      .update({ 
+        current_stage: toStage,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', batchId)
+
+    if (updateError) throw updateError
+
+    // Create stage transition record (if you have a transitions table)
+    // Otherwise, you can skip this or add to a logs table
 
     // Return updated batch
     return this.batchRepo.findById(batchId)
