@@ -18,18 +18,29 @@ type ProductionStage = Database['public']['Enums']['production_stage']
 type QualityStatus = Database['public']['Enums']['quality_status']
 
 interface QualityCheckFormProps {
-  batches: Batch[]
+  batches: Array<Batch & {
+    batch_orders?: Array<{
+      order: {
+        model_id: string | null
+        model?: {
+          id: string
+          name: string
+        }
+      }
+    }>
+  }>
   userId: string
   onSubmit: () => void
 }
 
 interface ChecklistItem {
-  id: number
+  id: string
   category: string
   item: string
   required: boolean
   checked?: boolean
   notes?: string
+  description?: string | null
 }
 
 export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckFormProps) {
@@ -42,12 +53,12 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
 
-  // Load checklist when stage is selected
+  // Load checklist when stage or batch is selected
   useEffect(() => {
-    if (selectedStage) {
-      loadChecklist(selectedStage)
+    if (selectedStage && selectedBatch) {
+      loadChecklist(selectedStage, selectedBatch)
     }
-  }, [selectedStage])
+  }, [selectedStage, selectedBatch])
 
   // Update overall status based on checklist
   useEffect(() => {
@@ -64,9 +75,19 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
     }
   }, [checklist])
 
-  const loadChecklist = async (stage: ProductionStage) => {
+  const loadChecklist = async (stage: ProductionStage, batchId: string) => {
     try {
-      const response = await fetch(`/api/quality/checklist?stage=${stage}`)
+      // Find the selected batch and get the model ID
+      const batch = batches.find(b => b.id === batchId)
+      const modelId = batch?.batch_orders?.[0]?.order?.model_id
+      
+      // Build the URL with optional modelId parameter
+      let url = `/api/quality/checklist?stage=${stage}`
+      if (modelId) {
+        url += `&modelId=${modelId}`
+      }
+      
+      const response = await fetch(url)
       const data = await response.json()
       setChecklist(data.map((item: any) => ({ ...item, checked: null })))
     } catch (error) {
@@ -74,7 +95,7 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
     }
   }
 
-  const handleChecklistChange = (itemId: number, checked: boolean | null) => {
+  const handleChecklistChange = (itemId: string, checked: boolean | null) => {
     setChecklist(prev => 
       prev.map(item => 
         item.id === itemId ? { ...item, checked } : item

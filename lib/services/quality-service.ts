@@ -140,47 +140,68 @@ export class QualityService {
     modelId: string,
     stage: ProductionStage
   ) {
-    // For now, return a default checklist
-    // In a real implementation, this would fetch from a checklist templates table
-    const defaultChecklists: Record<ProductionStage, any[]> = {
-      'Intake': [
-        { id: 1, category: 'Wood Quality', item: 'Check for cracks or defects', required: true },
-        { id: 2, category: 'Wood Quality', item: 'Verify wood type matches order', required: true },
-        { id: 3, category: 'Measurements', item: 'Verify dimensions', required: true },
-      ],
-      'Sanding': [
-        { id: 1, category: 'Surface', item: 'Check smoothness (220 grit)', required: true },
-        { id: 2, category: 'Surface', item: 'No visible scratches', required: true },
-        { id: 3, category: 'Shape', item: 'Maintain original contours', required: true },
-      ],
-      'Finishing': [
-        { id: 1, category: 'Coating', item: 'Even coat application', required: true },
-        { id: 2, category: 'Coating', item: 'No runs or drips', required: true },
-        { id: 3, category: 'Coating', item: 'Proper cure time observed', required: true },
-      ],
-      'Sub-Assembly': [
-        { id: 1, category: 'Components', item: 'All parts present', required: true },
-        { id: 2, category: 'Fit', item: 'Components fit properly', required: true },
-        { id: 3, category: 'Alignment', item: 'Proper alignment verified', required: true },
-      ],
-      'Final Assembly': [
-        { id: 1, category: 'Assembly', item: 'All components secure', required: true },
-        { id: 2, category: 'Function', item: 'Moving parts operate smoothly', required: true },
-        { id: 3, category: 'Aesthetics', item: 'No visible assembly marks', required: true },
-      ],
-      'Acoustic QC': [
-        { id: 1, category: 'Sound', item: 'Frequency response within spec', required: true },
-        { id: 2, category: 'Sound', item: 'No rattles or buzzing', required: true },
-        { id: 3, category: 'Sound', item: 'Channel balance verified', required: true },
-      ],
-      'Shipping': [
-        { id: 1, category: 'Packaging', item: 'Proper protective packaging', required: true },
-        { id: 2, category: 'Documentation', item: 'All documents included', required: true },
-        { id: 3, category: 'Final Check', item: 'Serial number recorded', required: true },
-      ],
+    // If modelId is 'default', get the default checklist
+    if (modelId === 'default') {
+      const { data: defaultChecklist } = await this.supabase
+        .from('quality_checklist_templates')
+        .select('*')
+        .is('model_id', null)
+        .eq('stage', stage)
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+
+      if (defaultChecklist && defaultChecklist.length > 0) {
+        return defaultChecklist.map(item => ({
+          id: item.id,
+          category: item.category,
+          item: item.item,
+          description: item.description,
+          required: item.is_required
+        }))
+      }
+      return []
+    }
+    
+    // First try to get model-specific checklist
+    const { data: modelChecklist } = await this.supabase
+      .from('quality_checklist_templates')
+      .select('*')
+      .eq('model_id', modelId)
+      .eq('stage', stage)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+
+    if (modelChecklist && modelChecklist.length > 0) {
+      return modelChecklist.map(item => ({
+        id: item.id,
+        category: item.category,
+        item: item.item,
+        description: item.description,
+        required: item.is_required
+      }))
     }
 
-    return defaultChecklists[stage] || []
+    // Fall back to default checklist (model_id is null)
+    const { data: defaultChecklist } = await this.supabase
+      .from('quality_checklist_templates')
+      .select('*')
+      .is('model_id', null)
+      .eq('stage', stage)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+
+    if (defaultChecklist && defaultChecklist.length > 0) {
+      return defaultChecklist.map(item => ({
+        id: item.id,
+        category: item.category,
+        item: item.item,
+        description: item.description,
+        required: item.is_required
+      }))
+    }
+
+    // Return empty array if no checklist found
+    return []
   }
 
   /**

@@ -110,6 +110,11 @@ const adminNavigation: NavItem[] = [
         href: '/admin/worker-approvals',
         icon: UserCheck,
       },
+      {
+        title: 'Quality Checklists',
+        href: '/admin/checklists',
+        icon: ClipboardCheck,
+      },
     ],
   },
   {

@@ -7,33 +7,50 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       batch_orders: {
         Row: {
           batch_id: string
@@ -208,6 +225,13 @@ export type Database = {
             foreignKeyName: "issues_assigned_to_fkey"
             columns: ["assigned_to"]
             isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
             referencedRelation: "workers"
             referencedColumns: ["id"]
           },
@@ -229,7 +253,21 @@ export type Database = {
             foreignKeyName: "issues_reported_by_fkey"
             columns: ["reported_by"]
             isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_reported_by_fkey"
+            columns: ["reported_by"]
+            isOneToOne: false
             referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
             referencedColumns: ["id"]
           },
           {
@@ -462,7 +500,81 @@ export type Database = {
             foreignKeyName: "production_metrics_worker_id_fkey"
             columns: ["worker_id"]
             isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_metrics_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
             referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_checklist_templates: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_required: boolean | null
+          item: string
+          model_id: string | null
+          sort_order: number | null
+          stage: Database["public"]["Enums"]["production_stage"]
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_required?: boolean | null
+          item: string
+          model_id?: string | null
+          sort_order?: number | null
+          stage: Database["public"]["Enums"]["production_stage"]
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_required?: boolean | null
+          item?: string
+          model_id?: string | null
+          sort_order?: number | null
+          stage?: Database["public"]["Enums"]["production_stage"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_checklist_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_checklist_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_checklist_templates_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "headphone_models"
             referencedColumns: ["id"]
           },
         ]
@@ -517,6 +629,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_checks_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
             referencedColumns: ["id"]
           },
           {
@@ -597,6 +716,13 @@ export type Database = {
             foreignKeyName: "stage_assignments_assigned_worker_id_fkey"
             columns: ["assigned_worker_id"]
             isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_assignments_assigned_worker_id_fkey"
+            columns: ["assigned_worker_id"]
+            isOneToOne: false
             referencedRelation: "workers"
             referencedColumns: ["id"]
           },
@@ -645,6 +771,112 @@ export type Database = {
             foreignKeyName: "system_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "system_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      worker_availability: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          is_available: boolean | null
+          notes: string | null
+          shift: string | null
+          updated_at: string | null
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          shift?: string | null
+          updated_at?: string | null
+          worker_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          shift?: string | null
+          updated_at?: string | null
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_availability_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worker_availability_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      worker_notifications: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string
+          read_at: string | null
+          title: string
+          type: string
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          read_at?: string | null
+          title: string
+          type: string
+          worker_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_notifications_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worker_notifications_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
             referencedRelation: "workers"
             referencedColumns: ["id"]
           },
@@ -652,116 +884,168 @@ export type Database = {
       }
       workers: {
         Row: {
+          approval_status: Database["public"]["Enums"]["approval_status"] | null
+          approved_at: string | null
+          approved_by: string | null
           auth_user_id: string | null
           created_at: string | null
           email: string
+          hourly_rate: number | null
           id: string
           is_active: boolean | null
           name: string
+          rejection_reason: string | null
+          requested_at: string | null
           role: Database["public"]["Enums"]["worker_role"]
           specializations:
             | Database["public"]["Enums"]["production_stage"][]
             | null
           updated_at: string | null
-          approval_status: Database["public"]["Enums"]["approval_status"] | null
-          approved_by: string | null
-          approved_at: string | null
-          rejection_reason: string | null
-          requested_at: string | null
         }
         Insert: {
+          approval_status?:
+            | Database["public"]["Enums"]["approval_status"]
+            | null
+          approved_at?: string | null
+          approved_by?: string | null
           auth_user_id?: string | null
           created_at?: string | null
           email: string
+          hourly_rate?: number | null
           id?: string
           is_active?: boolean | null
           name: string
+          rejection_reason?: string | null
+          requested_at?: string | null
           role?: Database["public"]["Enums"]["worker_role"]
           specializations?:
             | Database["public"]["Enums"]["production_stage"][]
             | null
           updated_at?: string | null
-          approval_status?: Database["public"]["Enums"]["approval_status"] | null
-          approved_by?: string | null
-          approved_at?: string | null
-          rejection_reason?: string | null
-          requested_at?: string | null
         }
         Update: {
+          approval_status?:
+            | Database["public"]["Enums"]["approval_status"]
+            | null
+          approved_at?: string | null
+          approved_by?: string | null
           auth_user_id?: string | null
           created_at?: string | null
           email?: string
+          hourly_rate?: number | null
           id?: string
           is_active?: boolean | null
           name?: string
+          rejection_reason?: string | null
+          requested_at?: string | null
           role?: Database["public"]["Enums"]["worker_role"]
           specializations?:
             | Database["public"]["Enums"]["production_stage"][]
             | null
           updated_at?: string | null
-          approval_status?: Database["public"]["Enums"]["approval_status"] | null
-          approved_by?: string | null
-          approved_at?: string | null
-          rejection_reason?: string | null
-          requested_at?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "workers_approved_by_fkey"
             columns: ["approved_by"]
             isOneToOne: false
+            referencedRelation: "pending_worker_approvals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workers_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
             referencedRelation: "workers"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
     }
     Views: {
       pending_worker_approvals: {
         Row: {
-          id: string
-          name: string
-          email: string
-          requested_at: string | null
-          hourly_rate: number | null
-          specializations: Database["public"]["Enums"]["production_stage"][] | null
+          email: string | null
           email_confirmed_at: string | null
+          hourly_rate: number | null
+          id: string | null
           last_sign_in_at: string | null
+          name: string | null
+          requested_at: string | null
+          specializations:
+            | Database["public"]["Enums"]["production_stage"][]
+            | null
         }
+        Relationships: []
       }
     }
     Functions: {
-      get_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["worker_role"]
+      approve_worker: {
+        Args: { worker_id: string; approver_notes?: string }
+        Returns: undefined
       }
-      is_worker_approved: {
+      begin_transaction: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      commit_transaction: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_batch_with_orders: {
         Args: {
-          worker_id: string
+          p_batch_number: string
+          p_priority: Database["public"]["Enums"]["batch_priority"]
+          p_order_ids: string[]
+          p_worker_id: string
+          p_notes?: string
         }
-        Returns: boolean
+        Returns: string
       }
       get_current_worker_approval_status: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["approval_status"]
       }
+      get_current_worker_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["worker_role"]
+      }
       is_current_user_approved: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
-      approve_worker: {
+      is_valid_stage_transition: {
         Args: {
-          worker_id: string
-          approver_notes?: string
+          p_from_stage: Database["public"]["Enums"]["production_stage"]
+          p_to_stage: Database["public"]["Enums"]["production_stage"]
         }
-        Returns: void
+        Returns: boolean
+      }
+      is_worker_approved: {
+        Args: { worker_id: string }
+        Returns: boolean
       }
       reject_worker: {
+        Args: { worker_id: string; reason: string }
+        Returns: undefined
+      }
+      rollback_transaction: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      transition_batch_stage: {
         Args: {
-          worker_id: string
-          reason: string
+          p_batch_id: string
+          p_to_stage: Database["public"]["Enums"]["production_stage"]
+          p_worker_id: string
+          p_quality_check_id?: string
+          p_notes?: string
         }
-        Returns: void
+        Returns: undefined
       }
     }
     Enums: {
@@ -907,11 +1191,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
+      approval_status: ["pending", "approved", "rejected"],
       batch_priority: ["standard", "rush", "expedite"],
       model_complexity: ["medium", "high", "very_high"],
       order_status: [
@@ -946,4 +1228,3 @@ export const Constants = {
     },
   },
 } as const
-
