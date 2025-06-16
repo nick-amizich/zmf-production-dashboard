@@ -17,7 +17,7 @@ export default async function WorkerManagementPage() {
     .eq('auth_user_id', user.id)
     .single()
     
-  if (!worker || worker.role !== 'manager') redirect('/dashboard')
+  if (!worker || (worker.role !== 'manager' && worker.role !== 'admin')) redirect('/dashboard')
   
   // Get all workers (both active and pending)
   const { data: workers } = await supabase

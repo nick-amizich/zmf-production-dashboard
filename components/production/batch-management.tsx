@@ -9,8 +9,9 @@ import { ArrowLeft, Calendar, Package, Users, Settings, Wrench, Home } from "luc
 import { CreateBatchModal } from "@/components/create-batch-modal"
 import WorkerManagementBoard from "@/components/management/worker-management-board"
 import ProductionCalendar from "@/components/production/production-calendar"
+import BatchAssignmentView from "@/components/production/batch-assignment-view"
 
-type BatchView = "overview" | "workflow" | "subassembly" | "calendar" | "workers"
+type BatchView = "overview" | "workflow" | "subassembly" | "calendar" | "workers" | "assignment"
 
 interface RecentBatch {
   id: string
@@ -144,6 +145,8 @@ export default function BatchManagement() {
       paths.push("Production Calendar")
     } else if (currentView === "workers") {
       paths.push("Worker Management")
+    } else if (currentView === "assignment") {
+      paths.push("Batch Assignment")
     }
 
     return (
@@ -173,6 +176,11 @@ export default function BatchManagement() {
   // Production Calendar View
   if (currentView === "calendar") {
     return <ProductionCalendar onBack={() => setCurrentView("overview")} />
+  }
+
+  // Batch Assignment View
+  if (currentView === "assignment") {
+    return <BatchAssignmentView onBack={() => setCurrentView("overview")} />
   }
 
   // Production Workflow View
@@ -347,7 +355,23 @@ export default function BatchManagement() {
       </div>
 
       {/* Top Level Management Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <Card
+          className="bg-theme-bg-secondary border-theme-border-primary hover:border-theme-text-secondary/50 transition-all cursor-pointer"
+          onClick={() => setCurrentView("assignment")}
+        >
+          <CardContent className="p-6 text-center">
+            <Package className="h-12 w-12 text-theme-text-secondary mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-theme-text-secondary mb-2">Batch Assignment</h3>
+            <p className="text-theme-text-tertiary mb-4">Assign workers to batches</p>
+            <div className="space-y-2 text-sm text-theme-text-tertiary">
+              <div>• Auto-assignment</div>
+              <div>• Skill matching</div>
+              <div>• Availability check</div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card
           className="bg-theme-bg-secondary border-theme-border-primary hover:border-theme-text-secondary/50 transition-all cursor-pointer"
           onClick={() => setCurrentView("calendar")}

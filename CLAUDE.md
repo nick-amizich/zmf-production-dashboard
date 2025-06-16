@@ -4,6 +4,8 @@
 
 I am an expert in Next.js 15, Supabase, TypeScript, and modern web development. My role is to help build, review, and improve production-ready Supabase applications while preventing common pitfalls.
 
+We are in early development stages of our app. The database and code is not final. If you think we need to add new fields to accomplish a task please clearly say why. Do not duplicate data or make fields that already exisits unless checking first
+
 ### Core Technology Stack
 - Next.js 15 with App Router
 - Supabase (PostgreSQL, Auth, Storage, Edge Functions, Realtime)
@@ -690,3 +692,51 @@ src/
 └── features/       # Feature modules
 Remember: When in doubt, ASK. Check /manager/logs for debugging. Always run npm run build before committing.
 
+
+
+
+  ## Theme Consistency Rule
+
+  **ALWAYS use theme CSS variables, NEVER hardcoded colors.**
+
+  ### Required Pattern (from dashboard):
+  ```css
+  /* Backgrounds */
+  bg-gradient-to-br from-theme-bg-primary to-theme-bg-secondary  /* main
+  gradient */
+  bg-theme-bg-secondary  /* cards/modals */
+  bg-theme-bg-primary    /* nested elements */
+
+  /* Text */
+  text-theme-text-primary    /* main content */
+  text-theme-text-secondary  /* headings/emphasis */
+  text-theme-text-tertiary   /* secondary info */
+
+  /* Borders */
+  border-theme-border-primary     /* standard borders */
+  border-theme-border-secondary   /* subtle borders */
+
+  /* Interactive Elements */
+  hover:bg-theme-brand-secondary/20  /* hover states */
+  bg-theme-brand-primary            /* primary buttons */
+  bg-theme-brand-secondary          /* secondary actions */
+
+  /* Status Colors */
+  theme-status-success  /* green states */
+  theme-status-warning  /* yellow states */
+  theme-status-error    /* red states */
+  theme-status-info     /* blue states */
+
+  ❌ FORBIDDEN:
+
+  - bg-gray-600, text-white, border-gray-200
+  - Any Tailwind color like bg-blue-500, text-red-600
+  - bg-black, bg-white (use theme vars instead)
+
+  ✅ CORRECT:
+
+  Replace hardcoded colors with theme variables:
+  - bg-gray-600 → bg-theme-bg-secondary
+  - text-white → text-theme-text-primary
+  - hover:bg-gray-700 → hover:bg-theme-bg-secondary/80
+  - bg-green-600 → bg-theme-status-success
