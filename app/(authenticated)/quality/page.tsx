@@ -40,20 +40,15 @@ export default async function QualityPage() {
     .order('created_at', { ascending: false })
   
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-theme-text-primary">Quality Control</h1>
-        <p className="text-theme-text-secondary mt-2">
-          Monitor quality checks and manage issues across production
-        </p>
-      </div>
-      
-      <QualityDashboard 
-        data={dashboardData}
-        activeBatches={activeBatches || []}
-        userRole={worker.role}
-        userId={worker.id}
-      />
+    <div className="min-h-screen bg-theme-bg-primary">
+      <main className="p-6">
+        <QualityDashboard 
+          data={dashboardData}
+          activeBatches={activeBatches || []}
+          userRole={worker.role}
+          userId={worker.id}
+        />
+      </main>
     </div>
   )
 }
