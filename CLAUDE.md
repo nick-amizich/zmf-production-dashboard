@@ -85,6 +85,48 @@ export function Component() {
 - Use Database functions for complex operations
 - Always handle Supabase errors properly
 
+#### Next.js 15 Performance Configuration
+- 76.7% faster server startup with Turbopack
+- 96.3% faster Fast Refresh
+- React Server Components eliminate client-side JavaScript for data operations
+
+**Optimized next.config.mjs:**
+```javascript
+const nextConfig = {
+  experimental: {
+    ppr: 'incremental', // Partial Pre-rendering
+    after: true, // Post-response tasks
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  bundlePagesRouterDependencies: true,
+  serverExternalPackages: ['@node-rs/argon2'],
+}
+```
+
+#### Vercel Deployment Optimization
+```json
+{
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/*/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "regions": ["iad1", "fra1"],
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url"
+  }
+}
+```
+
 ### Common Issues to Auto-Fix
 - **Missing RLS**: Suggest enabling RLS and creating basic policies
 - **N+1 Queries**: Replace with joins using Supabase's nested selection
