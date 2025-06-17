@@ -21,6 +21,8 @@ import {
   BarChart,
   Smartphone,
   Palette,
+  TreePine,
+  Zap,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -68,10 +70,22 @@ const navigation: NavItem[] = [
     roles: ['worker', 'manager', 'admin'],
   },
   {
+    title: 'Builds',
+    href: '/builds',
+    icon: Zap,
+    roles: ['worker', 'manager', 'admin'],
+  },
+  {
     title: 'Quality Control',
     href: '/quality',
     icon: ClipboardCheck,
     roles: ['worker', 'manager', 'admin'],
+  },
+  {
+    title: 'Inventory',
+    href: '/inventory',
+    icon: TreePine,
+    roles: ['manager', 'admin'],
   },
   {
     title: 'Workers',
