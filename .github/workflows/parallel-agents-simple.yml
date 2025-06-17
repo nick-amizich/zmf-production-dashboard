@@ -1,0 +1,381 @@
+name: AI Development Agents
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'What feature or improvement to implement'
+        required: true
+        type: string
+      run_frontend:
+        description: 'Run Frontend Agent'
+        type: boolean
+        default: true
+      run_backend:
+        description: 'Run Backend Agent'
+        type: boolean
+        default: true
+      run_testing:
+        description: 'Run Testing Agent'
+        type: boolean
+        default: true
+
+jobs:
+  frontend-agent:
+    if: ${{ github.event.inputs.run_frontend == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Create agent branch
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="agent/frontend/${TIMESTAMP}"
+          git checkout -b $BRANCH_NAME
+          echo "AGENT_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+          
+      - name: Run Frontend Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "🤖 Running Frontend Agent for: ${{ github.event.inputs.task_description }}"
+          
+          # Create enhanced prompt with production dashboard context
+          cat > /tmp/frontend-prompt.md << 'EOF'
+          # Frontend Agent - ZMF Production Dashboard
+          
+          ## Your Role
+          You are a frontend specialist working on the ZMF Production Dashboard - a manufacturing execution system for headphone production.
+          
+          ## Current Dashboard Features
+          - 7-stage production pipeline visualization (Intake → Sanding → Finishing → Sub-Assembly → Final Assembly → Acoustic QC → Shipping)
+          - Real-time batch tracking with drag-and-drop
+          - Quality control with photo documentation
+          - Worker performance metrics
+          - Order management from Shopify
+          - Build tracking system
+          
+          ## Tech Stack
+          - Next.js 15.3.2 + React 18 + TypeScript
+          - Tailwind CSS v4 with custom theme variables
+          - shadcn/ui components
+          - React Query for server state
+          - Supabase for real-time updates
+          
+          ## Task: ${{ github.event.inputs.task_description }}
+          
+          ## Requirements
+          1. Use theme CSS variables (bg-theme-*, text-theme-*, etc.) - NEVER hardcoded colors
+          2. Make components mobile-responsive for factory floor workers
+          3. Use existing shadcn/ui components when possible
+          4. Follow existing patterns in components/production/* and app/(authenticated)/dashboard/*
+          5. Consider real-time updates for production data
+          6. Ensure smooth animations for drag-and-drop operations
+          7. Add loading states and error boundaries
+          8. Use TypeScript strict mode
+          
+          ## Focus Areas for Production Dashboard
+          - Batch status visualization
+          - Worker task assignments
+          - Quality metrics display
+          - Production timeline views
+          - Inventory tracking UI
+          - Performance charts
+          
+          Implement the frontend changes needed for this feature.
+          EOF
+          
+          node .github/scripts/run-agent.js frontend "$(cat /tmp/frontend-prompt.md)"
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "frontend-agent@zmf-dashboard.com"
+          git config --local user.name "Frontend Agent"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🎨 Frontend: ${{ github.event.inputs.task_description }}"
+            git push origin ${{ env.AGENT_BRANCH }}
+          fi
+          
+      - name: Create Pull Request
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ $(git rev-list --count HEAD ^origin/main) -gt 0 ]; then
+            gh pr create \
+              --title "🎨 Frontend: ${{ github.event.inputs.task_description }}" \
+              --body "## Frontend Implementation
+              
+              **Task:** ${{ github.event.inputs.task_description }}
+              
+              **Changes Made:**
+              - UI components and pages
+              - Responsive design for mobile workers
+              - Theme-consistent styling
+              - TypeScript interfaces
+              
+              **Testing:**
+              - [ ] Desktop browser tested
+              - [ ] Mobile responsive tested
+              - [ ] Theme variables used consistently
+              - [ ] No TypeScript errors
+              
+              **Screenshots:**
+              _Please add screenshots of the new UI_" \
+              --head ${{ env.AGENT_BRANCH }} \
+              --base main \
+              --label "frontend,ai-generated"
+          fi
+
+  backend-agent:
+    if: ${{ github.event.inputs.run_backend == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Create agent branch
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="agent/backend/${TIMESTAMP}"
+          git checkout -b $BRANCH_NAME
+          echo "AGENT_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+          
+      - name: Run Backend Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "🤖 Running Backend Agent for: ${{ github.event.inputs.task_description }}"
+          
+          # Create enhanced prompt with database context
+          cat > /tmp/backend-prompt.md << 'EOF'
+          # Backend Agent - ZMF Production Dashboard
+          
+          ## Your Role
+          You are a backend specialist working on the ZMF Production Dashboard's API and database layer.
+          
+          ## Current System Architecture
+          - Next.js 15 API routes and Server Actions
+          - Supabase PostgreSQL with RLS policies
+          - Real-time subscriptions for production updates
+          - Integration with Shopify for order management
+          
+          ## Database Schema Overview
+          - orders: Customer orders from Shopify
+          - builds: Production builds linked to orders
+          - batches: Groups of builds in production
+          - workers: Employee records with roles
+          - quality_checks: QC records with photos
+          - inventory: Wood and component tracking
+          - time_logs: Production time tracking
+          
+          ## Task: ${{ github.event.inputs.task_description }}
+          
+          ## Requirements
+          1. Use Supabase server client with proper auth (getUser, not getSession)
+          2. Implement Row Level Security (RLS) for any new tables
+          3. Add proper error handling and validation
+          4. Use Zod for input validation
+          5. Follow existing patterns in lib/services/* and lib/repositories/*
+          6. Consider real-time requirements
+          7. Maintain data integrity across production stages
+          8. Log all important operations
+          
+          ## API Patterns
+          - Use Next.js route handlers in app/api/*
+          - Return consistent error formats: { error: string }
+          - Validate worker permissions
+          - Use database transactions for multi-step operations
+          
+          Implement the backend changes needed for this feature.
+          EOF
+          
+          node .github/scripts/run-agent.js backend "$(cat /tmp/backend-prompt.md)"
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "backend-agent@zmf-dashboard.com"
+          git config --local user.name "Backend Agent"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🔧 Backend: ${{ github.event.inputs.task_description }}"
+            git push origin ${{ env.AGENT_BRANCH }}
+          fi
+          
+      - name: Create Pull Request
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ $(git rev-list --count HEAD ^origin/main) -gt 0 ]; then
+            gh pr create \
+              --title "🔧 Backend: ${{ github.event.inputs.task_description }}" \
+              --body "## Backend Implementation
+              
+              **Task:** ${{ github.event.inputs.task_description }}
+              
+              **Changes Made:**
+              - API routes and server actions
+              - Database operations
+              - Business logic
+              - Validation and error handling
+              
+              **Database Changes:**
+              - [ ] New migrations included
+              - [ ] RLS policies added
+              - [ ] Indexes created for performance
+              
+              **Testing:**
+              - [ ] API endpoints tested
+              - [ ] Error cases handled
+              - [ ] Database queries optimized
+              - [ ] Logs added for debugging" \
+              --head ${{ env.AGENT_BRANCH }} \
+              --base main \
+              --label "backend,ai-generated"
+          fi
+
+  testing-agent:
+    if: ${{ github.event.inputs.run_testing == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Create agent branch
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="agent/testing/${TIMESTAMP}"
+          git checkout -b $BRANCH_NAME
+          echo "AGENT_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+          
+      - name: Run Testing Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "🤖 Running Testing Agent for: ${{ github.event.inputs.task_description }}"
+          
+          # Create enhanced prompt with testing context
+          cat > /tmp/testing-prompt.md << 'EOF'
+          # Testing Agent - ZMF Production Dashboard
+          
+          ## Your Role
+          You are a testing specialist ensuring quality for the ZMF Production Dashboard.
+          
+          ## Testing Stack
+          - Jest + React Testing Library for unit tests
+          - Playwright for E2E tests
+          - MSW for API mocking
+          - Supabase test utilities
+          
+          ## Critical Test Scenarios
+          1. Production pipeline stage transitions
+          2. Quality control validation flows
+          3. Worker role permissions
+          4. Batch assignment logic
+          5. Real-time updates
+          6. Mobile responsiveness
+          7. Error handling
+          
+          ## Task: ${{ github.event.inputs.task_description }}
+          
+          ## Requirements
+          1. Write unit tests for new components/functions
+          2. Add integration tests for API endpoints
+          3. Create E2E tests for critical user flows
+          4. Test edge cases and error scenarios
+          5. Mock external services (Shopify, Supabase)
+          6. Test mobile worker interactions
+          7. Validate data consistency
+          8. Follow existing test patterns
+          
+          ## Test File Locations
+          - Unit tests: __tests__/* or *.test.ts
+          - E2E tests: tests/* or e2e/*
+          - Test utilities: tests/helpers/*
+          
+          Create comprehensive tests for the new feature.
+          EOF
+          
+          node .github/scripts/run-agent.js testing "$(cat /tmp/testing-prompt.md)"
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "testing-agent@zmf-dashboard.com"
+          git config --local user.name "Testing Agent"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "✅ Tests: ${{ github.event.inputs.task_description }}"
+            git push origin ${{ env.AGENT_BRANCH }}
+          fi
+          
+      - name: Create Pull Request
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ $(git rev-list --count HEAD ^origin/main) -gt 0 ]; then
+            gh pr create \
+              --title "✅ Tests: ${{ github.event.inputs.task_description }}" \
+              --body "## Test Implementation
+              
+              **Task:** ${{ github.event.inputs.task_description }}
+              
+              **Tests Added:**
+              - Unit tests
+              - Integration tests
+              - E2E test scenarios
+              
+              **Coverage:**
+              - [ ] Happy path scenarios
+              - [ ] Error cases
+              - [ ] Edge cases
+              - [ ] Mobile interactions
+              
+              **Run Tests:**
+              \`\`\`bash
+              npm test
+              npm run test:e2e
+              \`\`\`" \
+              --head ${{ env.AGENT_BRANCH }} \
+              --base main \
+              --label "testing,ai-generated"
+          fi
