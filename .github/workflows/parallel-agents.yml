@@ -22,11 +22,22 @@ on:
           - 'testing'
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          agents="${{ github.event.inputs.agents_to_run }}"
+          matrix=$(echo $agents | jq -R -s -c 'split(",") | map(select(length > 0))')
+          echo "matrix={\"agent\":$matrix}" >> $GITHUB_OUTPUT
+
   deploy-agents:
+    needs: setup
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        agent: ${{ fromJson(format('["{0}"]', join(split(github.event.inputs.agents_to_run, ','), '","'))) }}
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
       fail-fast: false  # Let each agent complete independently
       
     steps:
