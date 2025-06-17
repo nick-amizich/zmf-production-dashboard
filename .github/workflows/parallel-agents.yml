@@ -1,0 +1,128 @@
+name: Parallel AI Agents
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'Feature to implement (e.g., "Add rush order priority system")'
+        required: true
+        type: string
+      agents_to_run:
+        description: 'Which agents to deploy'
+        required: true
+        default: 'frontend,backend,testing'
+        type: choice
+        options:
+          - 'frontend,backend,testing'
+          - 'frontend,backend'
+          - 'frontend,testing'
+          - 'backend,testing'
+          - 'frontend'
+          - 'backend'
+          - 'testing'
+
+jobs:
+  deploy-agents:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agent: ${{ fromJson(format('["{0}"]', join(split(github.event.inputs.agents_to_run, ','), '","'))) }}
+      fail-fast: false  # Let each agent complete independently
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Create agent branch
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="agent/${{ matrix.agent }}/${TIMESTAMP}"
+          git checkout -b $BRANCH_NAME
+          echo "AGENT_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+          
+      - name: Load agent prompt and context
+        run: |
+          # Load base agent prompt
+          PROMPT=$(cat .github/agents/${{ matrix.agent }}-agent.md)
+          
+          # Replace task placeholder
+          PROMPT_WITH_TASK="${PROMPT/\{TASK_DESCRIPTION\}/${{ github.event.inputs.task_description }}}"
+          
+          # Add current project context
+          echo "## Current Project State:" >> /tmp/agent-prompt.md
+          echo "Repository: ZMF Production Dashboard" >> /tmp/agent-prompt.md
+          echo "Recent commits:" >> /tmp/agent-prompt.md
+          git log --oneline -5 >> /tmp/agent-prompt.md
+          echo "" >> /tmp/agent-prompt.md
+          echo "$PROMPT_WITH_TASK" >> /tmp/agent-prompt.md
+          
+      - name: Run Agent via Claude API
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "🤖 Running ${{ matrix.agent }} agent for: ${{ github.event.inputs.task_description }}"
+          
+          # Execute the agent script
+          node .github/scripts/run-agent.js "${{ matrix.agent }}" "$(cat /tmp/agent-prompt.md)"
+          
+      - name: Commit agent changes
+        run: |
+          git config --local user.email "agents@zmf-dashboard.com"
+          git config --local user.name "${{ matrix.agent }}-agent"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 ${{ matrix.agent }} agent: ${{ github.event.inputs.task_description }}"
+          fi
+          
+      - name: Push agent branch
+        run: |
+          if git show-ref --quiet refs/heads/${{ env.AGENT_BRANCH }}; then
+            git push origin ${{ env.AGENT_BRANCH }}
+          else
+            echo "No changes to push"
+          fi
+        
+      - name: Create Pull Request
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Only create PR if there are commits on the branch
+          if [ $(git rev-list --count HEAD ^main) -gt 0 ]; then
+            gh pr create \
+              --title "🤖 ${{ matrix.agent }} Agent: ${{ github.event.inputs.task_description }}" \
+              --body "**Agent Type:** ${{ matrix.agent }} specialist
+              
+            **Task Completed:** ${{ github.event.inputs.task_description }}
+            
+            **Automated Changes:**
+            - Implemented by AI ${{ matrix.agent }} agent
+            - Focused on ${{ matrix.agent }}-specific requirements
+            - Part of parallel agent deployment
+            
+            **Review Checklist:**
+            - [ ] Code follows ZMF dashboard patterns
+            - [ ] Works with 7-stage production pipeline  
+            - [ ] Maintains TypeScript strict mode
+            - [ ] Compatible with existing Supabase schema
+            - [ ] Ready to integrate with other agent PRs
+            
+            **Integration Notes:**
+            This PR may need to be combined with other agent PRs for complete feature implementation." \
+              --head ${{ env.AGENT_BRANCH }} \
+              --base main \
+              --label "ai-agent,${{ matrix.agent }}"
+          else
+            echo "No commits to create PR for"
+          fi
