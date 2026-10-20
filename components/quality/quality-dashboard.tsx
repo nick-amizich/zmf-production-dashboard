@@ -7,6 +7,7 @@ import { QualityMetrics } from './quality-metrics'
 import { ActiveIssues } from './active-issues'
 import { QualityCheckForm } from './quality-check-form'
 import { RecentChecks } from './recent-checks'
+import { ReworkQueue } from './rework-queue'
 import { Database } from '@/types/database.types'
 
 type Batch = Database['public']['Tables']['batches']['Row']
@@ -44,6 +45,7 @@ export function QualityDashboard({
         <TabsList>
           <TabsTrigger value="checks">Quality Checks</TabsTrigger>
           <TabsTrigger value="issues">Active Issues</TabsTrigger>
+          <TabsTrigger value="rework">Rework Queue</TabsTrigger>
           <TabsTrigger value="history">Recent Activity</TabsTrigger>
         </TabsList>
 
@@ -68,6 +70,13 @@ export function QualityDashboard({
         <TabsContent value="issues" className="space-y-4">
           <ActiveIssues 
             issues={data.activeIssues}
+            userRole={userRole}
+            userId={userId}
+          />
+        </TabsContent>
+
+        <TabsContent value="rework" className="space-y-4">
+          <ReworkQueue 
             userRole={userRole}
             userId={userId}
           />

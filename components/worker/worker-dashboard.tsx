@@ -18,6 +18,7 @@ import { WorkerStats } from './worker-stats'
 import { WorkerAssignments } from './worker-assignments'
 import { WorkerSchedule } from './worker-schedule'
 import { WorkerNotifications } from './worker-notifications'
+import { TimeTracking } from './time-tracking'
 import { formatDistanceToNow } from 'date-fns'
 
 interface WorkerDashboardProps {
@@ -141,6 +142,10 @@ export function WorkerDashboard({ data }: WorkerDashboardProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="time">
+              <Clock className="w-4 h-4 mr-2" />
+              Time Tracking
+            </TabsTrigger>
             <TabsTrigger value="assignments">
               My Tasks
               {activeAssignments.length > 0 && (
@@ -162,6 +167,10 @@ export function WorkerDashboard({ data }: WorkerDashboardProps) {
 
           <TabsContent value="overview" className="space-y-4">
             <WorkerStats performance={performance} />
+          </TabsContent>
+
+          <TabsContent value="time" className="space-y-4">
+            <TimeTracking workerId={worker.id} />
           </TabsContent>
 
           <TabsContent value="assignments" className="space-y-4">

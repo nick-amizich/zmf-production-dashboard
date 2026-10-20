@@ -23,6 +23,7 @@ import {
   Palette,
   TreePine,
   Zap,
+  Truck,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -86,6 +87,12 @@ const navigation: NavItem[] = [
     href: '/inventory',
     icon: TreePine,
     roles: ['manager', 'admin'],
+  },
+  {
+    title: 'Shipments',
+    href: '/shipments',
+    icon: Truck,
+    roles: ['worker', 'manager', 'admin'],
   },
   {
     title: 'Workers',

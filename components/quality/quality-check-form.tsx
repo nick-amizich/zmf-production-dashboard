@@ -8,9 +8,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
-import { Camera, CheckCircle, XCircle, X } from 'lucide-react'
+import { Camera, CheckCircle, XCircle, X, AlertTriangle } from 'lucide-react'
 import { Database } from '@/types/database.types'
 import { uploadQualityPhoto } from '@/lib/utils/upload'
+import { DefectReportDialog } from './defect-report-dialog'
 
 import { logger } from '@/lib/logger'
 type Batch = Database['public']['Tables']['batches']['Row']
@@ -52,6 +53,8 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
   const [photos, setPhotos] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [showDefectDialog, setShowDefectDialog] = useState(false)
+  const [selectedItemForDefect, setSelectedItemForDefect] = useState<ChecklistItem | null>(null)
 
   // Load checklist when stage or batch is selected
   useEffect(() => {
@@ -214,6 +217,20 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
                       </div>
                       <p className="text-sm text-muted-foreground">{item.category}</p>
                     </div>
+                    {item.checked === false && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-theme-border-secondary"
+                        onClick={() => {
+                          setSelectedItemForDefect(item)
+                          setShowDefectDialog(true)
+                        }}
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-1" />
+                        Report Defect
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -303,6 +320,21 @@ export function QualityCheckForm({ batches, userId, onSubmit }: QualityCheckForm
           {isSubmitting ? 'Submitting...' : 'Submit Quality Check'}
         </Button>
       </div>
+
+      {/* Defect Report Dialog */}
+      <DefectReportDialog
+        open={showDefectDialog}
+        onClose={() => {
+          setShowDefectDialog(false)
+          setSelectedItemForDefect(null)
+        }}
+        batchId={selectedBatch}
+        currentStage={selectedStage?.toLowerCase().replace(' ', '_') || 'intake'}
+        onSubmitSuccess={() => {
+          // Optionally refresh data or show success message
+          console.log('Defect reported successfully')
+        }}
+      />
     </div>
   )
 }

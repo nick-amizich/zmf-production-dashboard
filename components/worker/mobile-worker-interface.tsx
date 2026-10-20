@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from '@/hooks/use-toast'
+import { QuickTimeWidget } from './quick-time-widget'
 
 import { logger } from '@/lib/logger'
 interface MobileWorkerInterfaceProps {
@@ -120,6 +121,11 @@ export function MobileWorkerInterface({
 
       {/* Quick Stats */}
       <div className="p-4">
+        {/* Quick Time Widget */}
+        <div className="mb-4">
+          <QuickTimeWidget workerId={worker.id} />
+        </div>
+
         <div className="grid grid-cols-2 gap-3 mb-6">
           <Card className="bg-zinc-900 border-zinc-800">
             <CardContent className="p-4 text-center">
